@@ -147,6 +147,25 @@ export const insertKnowledgeFileSchema = createInsertSchema(knowledgeFiles).omit
 export type InsertKnowledgeFile = z.infer<typeof insertKnowledgeFileSchema>;
 export type KnowledgeFile = typeof knowledgeFiles.$inferSelect;
 
+// Channel Integrations
+export const channelIntegrations = pgTable("channel_integrations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  channel: varchar("channel", { length: 20 }).notNull().unique().$type<Channel>(),
+  enabled: boolean("enabled").notNull().default(false),
+  apiToken: text("api_token"),
+  webhookUrl: text("webhook_url"),
+  config: text("config"), // JSON string for additional config
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertChannelIntegrationSchema = createInsertSchema(channelIntegrations).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type InsertChannelIntegration = z.infer<typeof insertChannelIntegrationSchema>;
+export type ChannelIntegration = typeof channelIntegrations.$inferSelect;
+
 // WebSocket message types
 export interface WSMessage {
   type: "message" | "status_update" | "typing" | "escalation" | "assignment";

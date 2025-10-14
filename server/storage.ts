@@ -15,6 +15,9 @@ import {
   InsertUser,
   KnowledgeFile,
   InsertKnowledgeFile,
+  ChannelIntegration,
+  InsertChannelIntegration,
+  Channel,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import session from "express-session";
@@ -61,6 +64,11 @@ export interface IStorage {
   createKnowledgeFile(file: InsertKnowledgeFile): Promise<KnowledgeFile>;
   deleteKnowledgeFile(id: string): Promise<boolean>;
 
+  // Channel Integrations
+  getChannelIntegrations(): Promise<ChannelIntegration[]>;
+  getChannelIntegration(channel: Channel): Promise<ChannelIntegration | undefined>;
+  upsertChannelIntegration(integration: InsertChannelIntegration): Promise<ChannelIntegration>;
+
   // Session Store
   sessionStore: session.SessionStore;
 }
@@ -73,6 +81,7 @@ export class MemStorage implements IStorage {
   private aiSettings: AISettings | undefined;
   private users: Map<number, User>;
   private knowledgeFiles: Map<string, KnowledgeFile>;
+  private channelIntegrations: Map<Channel, ChannelIntegration>;
   private userIdCounter: number;
   public sessionStore: session.SessionStore;
 
@@ -83,6 +92,7 @@ export class MemStorage implements IStorage {
     this.tickets = new Map();
     this.users = new Map();
     this.knowledgeFiles = new Map();
+    this.channelIntegrations = new Map();
     this.userIdCounter = 1;
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000,
@@ -434,6 +444,30 @@ export class MemStorage implements IStorage {
 
   async deleteKnowledgeFile(id: string): Promise<boolean> {
     return this.knowledgeFiles.delete(id);
+  }
+
+  // Channel Integrations
+  async getChannelIntegrations(): Promise<ChannelIntegration[]> {
+    return Array.from(this.channelIntegrations.values());
+  }
+
+  async getChannelIntegration(channel: Channel): Promise<ChannelIntegration | undefined> {
+    return this.channelIntegrations.get(channel);
+  }
+
+  async upsertChannelIntegration(integration: InsertChannelIntegration): Promise<ChannelIntegration> {
+    const existing = this.channelIntegrations.get(integration.channel);
+    const newIntegration: ChannelIntegration = {
+      id: existing?.id || randomUUID(),
+      channel: integration.channel,
+      enabled: integration.enabled ?? false,
+      apiToken: integration.apiToken,
+      webhookUrl: integration.webhookUrl,
+      config: integration.config,
+      updatedAt: new Date(),
+    };
+    this.channelIntegrations.set(integration.channel, newIntegration);
+    return newIntegration;
   }
 }
 
