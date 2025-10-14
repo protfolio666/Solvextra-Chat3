@@ -4,6 +4,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { generateAIResponse } from "./ai-providers";
 import { setupAuth } from "./auth";
+import { requireAdmin } from "./middleware/role-check";
 import {
   insertConversationSchema,
   insertMessageSchema,
@@ -187,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Agents
-  app.get("/api/agents", async (req, res) => {
+  app.get("/api/agents", requireAdmin, async (req, res) => {
     const agents = await storage.getAgents();
     res.json(agents);
   });
@@ -201,7 +202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(agent);
   });
 
-  app.post("/api/agents", async (req, res) => {
+  app.post("/api/agents", requireAdmin, async (req, res) => {
     const result = insertAgentSchema.safeParse(req.body);
     if (!result.success) {
       return res.status(400).json({ error: result.error });
@@ -211,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(agent);
   });
 
-  app.patch("/api/agents/:id/status", async (req, res) => {
+  app.patch("/api/agents/:id/status", requireAdmin, async (req, res) => {
     const { status } = req.body;
     const agent = await storage.updateAgentStatus(req.params.id, status);
     if (!agent) {
@@ -245,12 +246,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Settings
-  app.get("/api/settings/ai", async (req, res) => {
+  app.get("/api/settings/ai", requireAdmin, async (req, res) => {
     const settings = await storage.getAISettings();
     res.json(settings);
   });
 
-  app.post("/api/settings/ai", async (req, res) => {
+  app.post("/api/settings/ai", requireAdmin, async (req, res) => {
     const result = insertAISettingsSchema.safeParse(req.body);
     if (!result.success) {
       return res.status(400).json({ error: result.error });
@@ -283,7 +284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analytics
-  app.get("/api/analytics/stats", async (req, res) => {
+  app.get("/api/analytics/stats", requireAdmin, async (req, res) => {
     const conversations = await storage.getConversations();
     const agents = await storage.getAgents();
     const tickets = await storage.getTickets();

@@ -46,11 +46,11 @@ function Router() {
       <ProtectedRoute path="/" component={Inbox} />
       <ProtectedRoute path="/conversations" component={Inbox} />
       <ProtectedRoute path="/channels" component={Channels} />
-      <ProtectedRoute path="/agents" component={Agents} />
+      <ProtectedRoute path="/agents" component={Agents} allowedRoles={["admin"]} />
       <ProtectedRoute path="/tickets" component={Tickets} />
       <ProtectedRoute path="/knowledge-base" component={KnowledgeBase} />
-      <ProtectedRoute path="/analytics" component={Analytics} />
-      <ProtectedRoute path="/settings" component={Settings} />
+      <ProtectedRoute path="/analytics" component={Analytics} allowedRoles={["admin"]} />
+      <ProtectedRoute path="/settings" component={Settings} allowedRoles={["admin"]} />
       <Route path="/auth" component={AuthPage} />
       <Route path="/widget" component={ChatWidget} />
       <Route component={NotFound} />

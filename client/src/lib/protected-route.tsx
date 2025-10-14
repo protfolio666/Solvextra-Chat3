@@ -1,13 +1,16 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 import { Redirect, Route } from "wouter";
+import { UserRole } from "@shared/schema";
 
 export function ProtectedRoute({
   path,
   component: Component,
+  allowedRoles,
 }: {
   path: string;
   component: () => React.JSX.Element;
+  allowedRoles?: UserRole[];
 }) {
   const { user, isLoading } = useAuth();
 
@@ -25,6 +28,14 @@ export function ProtectedRoute({
     return (
       <Route path={path}>
         <Redirect to="/auth" />
+      </Route>
+    );
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return (
+      <Route path={path}>
+        <Redirect to="/" />
       </Route>
     );
   }

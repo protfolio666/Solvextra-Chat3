@@ -20,6 +20,8 @@ import {
   SidebarMenuItem,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/use-auth";
+import { UserRole } from "@shared/schema";
 
 const menuItems = [
   {
@@ -27,53 +29,62 @@ const menuItems = [
     url: "/",
     icon: Inbox,
     testId: "nav-inbox",
+    allowedRoles: ["admin", "agent"] as UserRole[],
   },
   {
     title: "Conversations",
     url: "/conversations",
     icon: MessageSquare,
     testId: "nav-conversations",
+    allowedRoles: ["admin", "agent"] as UserRole[],
   },
   {
     title: "Channels",
     url: "/channels",
     icon: Radio,
     testId: "nav-channels",
+    allowedRoles: ["admin", "agent"] as UserRole[],
   },
   {
     title: "Agents",
     url: "/agents",
     icon: Users,
     testId: "nav-agents",
+    allowedRoles: ["admin"] as UserRole[],
   },
   {
     title: "Tickets",
     url: "/tickets",
     icon: TicketIcon,
     testId: "nav-tickets",
+    allowedRoles: ["admin", "agent"] as UserRole[],
   },
   {
     title: "Knowledge Base",
     url: "/knowledge-base",
     icon: BookOpen,
     testId: "nav-knowledge-base",
+    allowedRoles: ["admin", "agent"] as UserRole[],
   },
   {
     title: "Analytics",
     url: "/analytics",
     icon: BarChart3,
     testId: "nav-analytics",
+    allowedRoles: ["admin"] as UserRole[],
   },
   {
     title: "Settings",
     url: "/settings",
     icon: Settings,
     testId: "nav-settings",
+    allowedRoles: ["admin"] as UserRole[],
   },
 ];
 
 export function AppSidebar() {
   const [location] = useLocation();
+  const { user } = useAuth();
 
   return (
     <Sidebar>
@@ -93,19 +104,21 @@ export function AppSidebar() {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => {
-                const isActive = location === item.url;
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive}>
-                      <Link href={item.url} data-testid={item.testId}>
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+              {menuItems
+                .filter((item) => !user || item.allowedRoles.includes(user.role))
+                .map((item) => {
+                  const isActive = location === item.url;
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={isActive}>
+                        <Link href={item.url} data-testid={item.testId}>
+                          <item.icon className="w-4 h-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
