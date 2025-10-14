@@ -51,7 +51,22 @@ export default {
           foreground: "hsl(var(--destructive-foreground) / <alpha-value>)",
           border: "var(--destructive-border)",
         },
+        success: {
+          DEFAULT: "hsl(var(--success) / <alpha-value>)",
+          foreground: "hsl(var(--success-foreground) / <alpha-value>)",
+        },
+        agent: {
+          DEFAULT: "hsl(var(--agent) / <alpha-value>)",
+          foreground: "hsl(var(--agent-foreground) / <alpha-value>)",
+        },
         ring: "hsl(var(--ring) / <alpha-value>)",
+        channel: {
+          whatsapp: "hsl(145 80% 42%)",
+          telegram: "hsl(197 100% 45%)",
+          instagram: "hsl(330 100% 50%)",
+          twitter: "hsl(203 89% 53%)",
+          website: "hsl(204 75% 42%)",
+        },
         chart: {
           "1": "hsl(var(--chart-1) / <alpha-value>)",
           "2": "hsl(var(--chart-2) / <alpha-value>)",

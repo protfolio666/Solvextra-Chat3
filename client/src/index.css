@@ -52,9 +52,9 @@
 
   --primary-foreground: 210 5% 98%;
 
-  --secondary: 210 8% 86%;
+  --secondary: 145 80% 42%;
 
-  --secondary-foreground: 210 8% 18%;
+  --secondary-foreground: 210 5% 98%;
 
   --muted: 210 10% 90%;
 
@@ -64,9 +64,17 @@
 
   --accent-foreground: 210 8% 20%;
 
-  --destructive: 4 86% 70%;
+  --destructive: 4 90% 70%;
 
   --destructive-foreground: 210 5% 98%;
+
+  --success: 145 80% 42%;
+
+  --success-foreground: 210 5% 98%;
+
+  --agent: 262 52% 60%;
+
+  --agent-foreground: 210 5% 98%;
 
   --input: 210 8% 72%;
   --ring: 204 75% 42%;
@@ -76,9 +84,9 @@
   --chart-4: 32 95% 60%;
   --chart-5: 187 72% 45%;
 
-  --font-sans: Open Sans, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Source Sans Pro', Georgia, serif;
+  --font-mono: 'SF Mono', 'Menlo', monospace;
   --radius: .5rem; /* 8px */
   --shadow-2xs: 0px 2px 0px 0px hsl(210 8% 15% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(210 8% 15% / 0.00);
@@ -182,9 +190,17 @@
 
   --accent-foreground: 210 5% 92%;
 
-  --destructive: 4 86% 70%;
+  --destructive: 4 90% 70%;
 
   --destructive-foreground: 210 5% 98%;
+
+  --success: 145 80% 42%;
+
+  --success-foreground: 210 5% 98%;
+
+  --agent: 262 52% 60%;
+
+  --agent-foreground: 210 5% 98%;
 
   --input: 210 8% 35%;
   --ring: 204 75% 42%;
