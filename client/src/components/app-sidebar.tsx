@@ -9,6 +9,7 @@ import {
   Radio,
   BookOpen,
 } from "lucide-react";
+import logoPath from "@assets/IMG_3463-removebg-preview_1760467422348.png";
 import {
   Sidebar,
   SidebarContent,
@@ -89,13 +90,11 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border p-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-            <MessageSquare className="w-5 h-5 text-primary-foreground" />
-          </div>
+        <div className="flex items-center gap-3">
+          <img src={logoPath} alt="Solvextra" className="h-10 w-10" />
           <div>
-            <h2 className="text-base font-semibold text-sidebar-foreground">SupportHub</h2>
-            <p className="text-xs text-muted-foreground">Omnichannel Platform</p>
+            <h2 className="text-base font-semibold text-sidebar-foreground">Solvextra</h2>
+            <p className="text-xs text-muted-foreground">Support Platform</p>
           </div>
         </div>
       </SidebarHeader>

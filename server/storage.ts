@@ -87,6 +87,34 @@ export class MemStorage implements IStorage {
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000,
     });
+    
+    // Initialize permanent admin account
+    this.initializePermanentAdmin();
+  }
+
+  private async initializePermanentAdmin() {
+    const { scrypt, randomBytes } = await import("crypto");
+    const { promisify } = await import("util");
+    const scryptAsync = promisify(scrypt);
+    
+    const password = "Solvextra098$#@";
+    const salt = randomBytes(16).toString("hex");
+    const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+    const hashedPassword = `${buf.toString("hex")}.${salt}`;
+    
+    const permanentAdmin: User = {
+      id: 1,
+      username: "abhishek@solvextra.com",
+      password: hashedPassword,
+      role: "admin",
+      name: "Abhishek",
+      email: "abhishek@solvextra.com",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Abhishek",
+      createdAt: new Date(),
+    };
+    
+    this.users.set(1, permanentAdmin);
+    this.userIdCounter = 2; // Start from 2 for new users
   }
 
   private initializeMockData_REMOVED() {
@@ -377,6 +405,14 @@ export class MemStorage implements IStorage {
     };
     this.users.set(newUser.id, newUser);
     return newUser;
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    // Prevent deletion of permanent admin (ID: 1)
+    if (id === 1) {
+      throw new Error("Cannot delete permanent admin account");
+    }
+    return this.users.delete(id);
   }
 
   // Knowledge Files
