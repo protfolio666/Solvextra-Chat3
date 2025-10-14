@@ -2,7 +2,39 @@
 
 ## Overview
 
-An omnichannel customer support platform that unifies conversations from multiple channels (WhatsApp, Telegram, Instagram, Twitter, Website) into a single inbox. The system features AI-powered automated responses with intelligent escalation to human agents, comprehensive ticket management, and real-time analytics. Built with a focus on information clarity and rapid conversation processing, inspired by industry leaders like Intercom and Zendesk.
+An omnichannel customer support platform that unifies conversations from multiple channels (WhatsApp, Telegram, Instagram, Twitter, Website) into a single inbox. The system features role-based authentication (Admin/Agent), AI-powered automated responses with intelligent escalation to human agents, comprehensive ticket management, knowledge base with file uploads, and real-time analytics. Built with a focus on information clarity and rapid conversation processing, inspired by industry leaders like Intercom and Zendesk.
+
+## Recent Updates (October 2025)
+
+### Authentication & Authorization
+- ✅ **Role-Based Access Control**: Implemented admin and agent roles with different permission levels
+- ✅ **Protected Routes**: Frontend routes protected with role-based access checks
+- ✅ **Server-Side Authorization**: Backend endpoints secured with requireAdmin middleware
+- ✅ **Session Management**: Passport.js with express-session for secure authentication
+- ✅ **Login/Signup Pages**: User registration with role selection (admin/agent)
+
+### Channel Integration
+- ✅ **Web Chat Widget**: Fully functional chat widget at `/widget` for website embedding
+- ✅ **Channel Setup Guide**: Instructions for WhatsApp, Telegram, Instagram, Twitter integration
+- ✅ **Embeddable Widget**: Copy-paste embed code for any website
+- ✅ **Real-time Messaging**: WebSocket-powered live chat with auto-reconnect
+
+### Knowledge Base
+- ✅ **File Upload System**: Upload documents, PDFs, images, and other files (max 5MB)
+- ✅ **File Management UI**: View, download, and delete knowledge base files
+- ✅ **Base64 Storage**: Files stored as data URLs in memory storage
+- ✅ **User Tracking**: Track who uploaded each file
+
+### Ticket Management
+- ✅ **Create Ticket Dialog**: Form with validation for creating support tickets
+- ✅ **Tab Filtering**: Filter tickets by status (all, open, in_progress, resolved)
+- ✅ **Ticket Counts**: Display count for each status tab
+- ✅ **Priority & TAT**: Set ticket priority and turn-around time
+
+### Data Management
+- ✅ **Clean State**: Removed all demo/mock data
+- ✅ **Production Ready**: Starts with empty state, real data only from user interactions
+- ✅ **Empty AI Settings**: AI configuration starts uninitialized until user configures
 
 ## User Preferences
 
@@ -56,6 +88,8 @@ Preferred communication style: Simple, everyday language.
 - `agents` table: Manages support agents with status and workload tracking
 - `tickets` table: Escalated issues with priority levels and SLA tracking (TAT - Turn Around Time)
 - `ai_settings` table: Configurable AI provider settings and knowledge base
+- `users` table: Authentication with username, password hash, role (admin/agent), and profile info
+- `knowledge_files` table: Uploaded files with name, type, size, url (base64), and uploader tracking
 
 ### AI Integration Layer
 
@@ -107,6 +141,41 @@ Preferred communication style: Simple, everyday language.
 - TypeScript with strict mode and path aliases (@/, @shared, @assets)
 
 **Channel Integration Points:**
-- WhatsApp, Telegram, Instagram, Twitter, Website chat widget (integration endpoints not implemented in shown code)
+- **Web Chat Widget**: Fully functional at `/widget` - embeddable on any website with copy-paste code
+- **WhatsApp Business**: Setup guide provided - requires WhatsApp Business API access
+- **Telegram Bot**: Setup guide provided - requires bot creation via @BotFather
+- **Instagram DM**: Setup guide provided - requires Facebook App with Instagram product
+- **Twitter/X DM**: Setup guide provided - requires X Developer account
 - Unified message normalization layer to abstract channel-specific formats
 - Channel type stored with each conversation for routing and display
+
+## Access Control
+
+### Admin Role
+Full platform access including:
+- Agents management (view, create, update status)
+- Analytics dashboard
+- AI settings configuration
+- All agent capabilities
+
+### Agent Role
+Limited access including:
+- Inbox/Conversations
+- Channels setup
+- Tickets (view, create, update)
+- Knowledge Base (upload, view, delete files)
+
+## Key Routes
+
+### Public Routes
+- `/auth` - Login/signup page with role selection
+- `/widget` - Embeddable chat widget for customers
+
+### Protected Routes (Authentication Required)
+- `/` or `/conversations` - Unified inbox (all users)
+- `/channels` - Channel integration setup (all users)
+- `/tickets` - Ticket management (all users)
+- `/knowledge-base` - File upload and management (all users)
+- `/agents` - Agent management (**admin only**)
+- `/analytics` - Analytics dashboard (**admin only**)
+- `/settings` - AI settings and configuration (**admin only**)
