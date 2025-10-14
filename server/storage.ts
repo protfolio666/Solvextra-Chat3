@@ -11,8 +11,16 @@ import {
   InsertAISettings,
   AIProvider,
   AgentStatus,
+  User,
+  InsertUser,
+  KnowledgeFile,
+  InsertKnowledgeFile,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
+const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
   // Conversations
@@ -42,6 +50,19 @@ export interface IStorage {
   // AI Settings
   getAISettings(): Promise<AISettings | undefined>;
   upsertAISettings(settings: Partial<InsertAISettings>): Promise<AISettings>;
+
+  // Users (Auth)
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+
+  // Knowledge Files
+  getKnowledgeFiles(): Promise<KnowledgeFile[]>;
+  createKnowledgeFile(file: InsertKnowledgeFile): Promise<KnowledgeFile>;
+  deleteKnowledgeFile(id: string): Promise<boolean>;
+
+  // Session Store
+  sessionStore: session.SessionStore;
 }
 
 export class MemStorage implements IStorage {
@@ -50,16 +71,25 @@ export class MemStorage implements IStorage {
   private agents: Map<string, Agent>;
   private tickets: Map<string, Ticket>;
   private aiSettings: AISettings | undefined;
+  private users: Map<number, User>;
+  private knowledgeFiles: Map<string, KnowledgeFile>;
+  private userIdCounter: number;
+  public sessionStore: session.SessionStore;
 
   constructor() {
     this.conversations = new Map();
     this.messages = new Map();
     this.agents = new Map();
     this.tickets = new Map();
-    this.initializeMockData();
+    this.users = new Map();
+    this.knowledgeFiles = new Map();
+    this.userIdCounter = 1;
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000,
+    });
   }
 
-  private initializeMockData() {
+  private initializeMockData_REMOVED() {
     // Create mock agents
     const mockAgents: Agent[] = [
       {
@@ -327,7 +357,47 @@ export class MemStorage implements IStorage {
         updatedAt: new Date(),
       };
     }
-    return this.aiSettings;
+    return this.aiSettings!;
+  }
+
+  // Users
+  async getUser(id: number): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find((u) => u.username === username);
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const newUser: User = {
+      ...user,
+      id: this.userIdCounter++,
+      createdAt: new Date(),
+    };
+    this.users.set(newUser.id, newUser);
+    return newUser;
+  }
+
+  // Knowledge Files
+  async getKnowledgeFiles(): Promise<KnowledgeFile[]> {
+    return Array.from(this.knowledgeFiles.values()).sort((a, b) => 
+      b.createdAt.getTime() - a.createdAt.getTime()
+    );
+  }
+
+  async createKnowledgeFile(file: InsertKnowledgeFile): Promise<KnowledgeFile> {
+    const newFile: KnowledgeFile = {
+      ...file,
+      id: randomUUID(),
+      createdAt: new Date(),
+    };
+    this.knowledgeFiles.set(newFile.id, newFile);
+    return newFile;
+  }
+
+  async deleteKnowledgeFile(id: string): Promise<boolean> {
+    return this.knowledgeFiles.delete(id);
   }
 }
 

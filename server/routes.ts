@@ -3,17 +3,22 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { generateAIResponse } from "./ai-providers";
+import { setupAuth } from "./auth";
 import {
   insertConversationSchema,
   insertMessageSchema,
   insertAgentSchema,
   insertTicketSchema,
   insertAISettingsSchema,
+  insertKnowledgeFileSchema,
   WSMessage,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
+
+  // Setup authentication
+  setupAuth(app);
 
   // WebSocket server for real-time messaging
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
@@ -252,6 +257,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     const settings = await storage.upsertAISettings(result.data);
     res.json(settings);
+  });
+
+  // Knowledge Files
+  app.get("/api/knowledge-files", async (req, res) => {
+    const files = await storage.getKnowledgeFiles();
+    res.json(files);
+  });
+
+  app.post("/api/knowledge-files", async (req, res) => {
+    const result = insertKnowledgeFileSchema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    const file = await storage.createKnowledgeFile(result.data);
+    res.json(file);
+  });
+
+  app.delete("/api/knowledge-files/:id", async (req, res) => {
+    const success = await storage.deleteKnowledgeFile(req.params.id);
+    if (!success) {
+      return res.status(404).json({ error: "File not found" });
+    }
+    res.json({ success: true });
   });
 
   // Analytics

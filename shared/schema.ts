@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, boolean, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, boolean, integer, serial } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -9,6 +9,7 @@ export type ConversationStatus = "open" | "assigned" | "resolved" | "ticket";
 export type MessageSender = "customer" | "ai" | "agent";
 export type AgentStatus = "available" | "busy" | "offline";
 export type AIProvider = "openai" | "gemini" | "openrouter";
+export type UserRole = "admin" | "agent";
 
 // Conversations
 export const conversations = pgTable("conversations", {
@@ -106,6 +107,45 @@ export const insertAISettingsSchema = createInsertSchema(aiSettings).omit({
 
 export type InsertAISettings = z.infer<typeof insertAISettingsSchema>;
 export type AISettings = typeof aiSettings.$inferSelect;
+
+// Users (for authentication)
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  role: varchar("role", { length: 20 }).notNull().default("agent").$type<UserRole>(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  avatar: text("avatar"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;
+
+// Knowledge Base Files
+export const knowledgeFiles = pgTable("knowledge_files", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  type: text("type").notNull(),
+  size: integer("size").notNull(),
+  url: text("url").notNull(),
+  uploadedBy: integer("uploaded_by"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertKnowledgeFileSchema = createInsertSchema(knowledgeFiles).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertKnowledgeFile = z.infer<typeof insertKnowledgeFileSchema>;
+export type KnowledgeFile = typeof knowledgeFiles.$inferSelect;
 
 // WebSocket message types
 export interface WSMessage {
