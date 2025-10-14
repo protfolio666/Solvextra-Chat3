@@ -16,6 +16,7 @@ import Tickets from "@/pages/tickets";
 import Settings from "@/pages/settings";
 import Analytics from "@/pages/analytics";
 import Channels from "@/pages/channels";
+import KnowledgeBase from "@/pages/knowledge-base";
 import AuthPage from "@/pages/auth";
 import ChatWidget from "@/pages/widget";
 import NotFound from "@/pages/not-found";
@@ -47,6 +48,7 @@ function Router() {
       <ProtectedRoute path="/channels" component={Channels} />
       <ProtectedRoute path="/agents" component={Agents} />
       <ProtectedRoute path="/tickets" component={Tickets} />
+      <ProtectedRoute path="/knowledge-base" component={KnowledgeBase} />
       <ProtectedRoute path="/analytics" component={Analytics} />
       <ProtectedRoute path="/settings" component={Settings} />
       <Route path="/auth" component={AuthPage} />

@@ -7,6 +7,7 @@ import {
   Settings,
   BarChart3,
   Radio,
+  BookOpen,
 } from "lucide-react";
 import {
   Sidebar,
@@ -50,6 +51,12 @@ const menuItems = [
     url: "/tickets",
     icon: TicketIcon,
     testId: "nav-tickets",
+  },
+  {
+    title: "Knowledge Base",
+    url: "/knowledge-base",
+    icon: BookOpen,
+    testId: "nav-knowledge-base",
   },
   {
     title: "Analytics",
