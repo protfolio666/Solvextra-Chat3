@@ -40,7 +40,7 @@ function ThemeToggle() {
   );
 }
 
-function Router() {
+function ProtectedRouter() {
   return (
     <Switch>
       <ProtectedRoute path="/" component={Inbox} />
@@ -51,8 +51,6 @@ function Router() {
       <ProtectedRoute path="/knowledge-base" component={KnowledgeBase} />
       <ProtectedRoute path="/analytics" component={Analytics} allowedRoles={["admin"]} />
       <ProtectedRoute path="/settings" component={Settings} allowedRoles={["admin"]} />
-      <Route path="/auth" component={AuthPage} />
-      <Route path="/widget" component={ChatWidget} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -65,20 +63,29 @@ function AppContent() {
   };
 
   return (
-    <SidebarProvider style={style as React.CSSProperties}>
-      <div className="flex h-screen w-full">
-        <AppSidebar />
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between p-3 border-b border-border bg-background">
-            <SidebarTrigger data-testid="button-sidebar-toggle" />
-            <ThemeToggle />
-          </header>
-          <main className="flex-1 overflow-hidden">
-            <Router />
-          </main>
-        </div>
-      </div>
-    </SidebarProvider>
+    <Switch>
+      {/* Public routes without sidebar */}
+      <Route path="/auth" component={AuthPage} />
+      <Route path="/widget" component={ChatWidget} />
+      
+      {/* Protected routes with sidebar */}
+      <Route>
+        <SidebarProvider style={style as React.CSSProperties}>
+          <div className="flex h-screen w-full">
+            <AppSidebar />
+            <div className="flex flex-col flex-1 overflow-hidden">
+              <header className="flex items-center justify-between p-3 border-b border-border bg-background">
+                <SidebarTrigger data-testid="button-sidebar-toggle" />
+                <ThemeToggle />
+              </header>
+              <main className="flex-1 overflow-hidden">
+                <ProtectedRouter />
+              </main>
+            </div>
+          </div>
+        </SidebarProvider>
+      </Route>
+    </Switch>
   );
 }
 
