@@ -12,6 +12,8 @@ import {
   insertTicketSchema,
   insertAISettingsSchema,
   insertKnowledgeFileSchema,
+  insertChannelIntegrationSchema,
+  Channel,
   WSMessage,
 } from "@shared/schema";
 
@@ -260,6 +262,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(settings);
   });
 
+  // Channel Integrations
+  app.get("/api/settings/channels", requireAdmin, async (req, res) => {
+    const integrations = await storage.getChannelIntegrations();
+    res.json(integrations);
+  });
+
+  app.get("/api/settings/channels/:channel", requireAdmin, async (req, res) => {
+    const channel = req.params.channel as Channel;
+    const integration = await storage.getChannelIntegration(channel);
+    res.json(integration);
+  });
+
+  app.post("/api/settings/channels", requireAdmin, async (req, res) => {
+    const result = insertChannelIntegrationSchema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    const integration = await storage.upsertChannelIntegration(result.data);
+
+    // Auto-register Telegram webhook when bot token is saved
+    if (integration.channel === "telegram" && integration.apiToken && integration.enabled) {
+      try {
+        const webhookUrl = `${process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : 'http://localhost:5000'}/api/webhooks/telegram`;
+        const telegramApiUrl = `https://api.telegram.org/bot${integration.apiToken}/setWebhook?url=${encodeURIComponent(webhookUrl)}`;
+        
+        const response = await fetch(telegramApiUrl);
+        const data = await response.json();
+        
+        if (data.ok) {
+          console.log('Telegram webhook registered successfully');
+        } else {
+          console.error('Failed to register Telegram webhook:', data);
+        }
+      } catch (error) {
+        console.error('Error registering Telegram webhook:', error);
+      }
+    }
+    
+    res.json(integration);
+  });
+
   // Knowledge Files
   app.get("/api/knowledge-files", async (req, res) => {
     const files = await storage.getKnowledgeFiles();
@@ -281,6 +325,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ error: "File not found" });
     }
     res.json({ success: true });
+  });
+
+  // Webhooks for external channels
+  app.post("/api/webhooks/telegram", async (req, res) => {
+    try {
+      const update = req.body;
+      
+      if (update.message) {
+        const { message } = update;
+        const customerId = message.from.id.toString();
+        const customerName = message.from.first_name + (message.from.last_name ? ` ${message.from.last_name}` : '');
+        
+        // Create or get conversation
+        let conversation = (await storage.getConversations()).find(
+          c => c.channel === "telegram" && c.customerName === customerName
+        );
+        
+        if (!conversation) {
+          conversation = await storage.createConversation({
+            channel: "telegram",
+            customerName,
+            customerAvatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${customerName}`,
+            status: "open",
+            lastMessageAt: new Date(),
+          });
+        }
+        
+        // Save customer message
+        await storage.createMessage({
+          conversationId: conversation.id,
+          sender: "customer",
+          senderName: customerName,
+          content: message.text || "",
+        });
+        
+        // Broadcast via WebSocket
+        broadcast({
+          type: "message",
+          data: {
+            conversationId: conversation.id,
+            sender: "customer",
+            content: message.text,
+          },
+        });
+      }
+      
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("Telegram webhook error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/webhooks/whatsapp", async (req, res) => {
+    try {
+      // WhatsApp webhook implementation
+      const { entry } = req.body;
+      
+      if (entry && entry[0]?.changes?.[0]?.value?.messages?.[0]) {
+        const message = entry[0].changes[0].value.messages[0];
+        const contact = entry[0].changes[0].value.contacts[0];
+        
+        const conversation = await storage.createConversation({
+          channel: "whatsapp",
+          customerName: contact.profile.name,
+          status: "open",
+          lastMessageAt: new Date(),
+        });
+        
+        await storage.createMessage({
+          conversationId: conversation.id,
+          sender: "customer",
+          senderName: contact.profile.name,
+          content: message.text?.body || "",
+        });
+      }
+      
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("WhatsApp webhook error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/webhooks/instagram", async (req, res) => {
+    try {
+      // Instagram webhook implementation
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("Instagram webhook error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/webhooks/twitter", async (req, res) => {
+    try {
+      // Twitter/X webhook implementation
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("Twitter webhook error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   // Analytics
