@@ -285,16 +285,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Auto-register Telegram webhook when bot token is saved
     if (integration.channel === "telegram" && integration.apiToken && integration.enabled) {
       try {
-        const webhookUrl = `${process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : 'http://localhost:5000'}/api/webhooks/telegram`;
+        // Get the correct domain from various Replit environment variables
+        const domain = process.env.REPLIT_DEV_DOMAIN || 
+                      process.env.REPLIT_DEPLOYMENT || 
+                      (process.env.REPL_SLUG ? `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co` : null) ||
+                      'localhost:5000';
+        const protocol = domain.includes('localhost') ? 'http' : 'https';
+        const webhookUrl = `${protocol}://${domain}/api/webhooks/telegram`;
+        
+        console.log('Registering Telegram webhook at:', webhookUrl);
+        
         const telegramApiUrl = `https://api.telegram.org/bot${integration.apiToken}/setWebhook?url=${encodeURIComponent(webhookUrl)}`;
         
         const response = await fetch(telegramApiUrl);
         const data = await response.json();
         
         if (data.ok) {
-          console.log('Telegram webhook registered successfully');
+          console.log('✅ Telegram webhook registered successfully at:', webhookUrl);
+          console.log('Webhook info:', data.result);
         } else {
-          console.error('Failed to register Telegram webhook:', data);
+          console.error('❌ Failed to register Telegram webhook:', data);
         }
       } catch (error) {
         console.error('Error registering Telegram webhook:', error);
@@ -330,6 +340,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Webhooks for external channels
   app.post("/api/webhooks/telegram", async (req, res) => {
     try {
+      console.log('📨 Telegram webhook received:', JSON.stringify(req.body, null, 2));
       const update = req.body;
       
       if (update.message) {
@@ -337,12 +348,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const customerId = message.from.id.toString();
         const customerName = message.from.first_name + (message.from.last_name ? ` ${message.from.last_name}` : '');
         
+        console.log(`New message from ${customerName}: ${message.text}`);
+        
         // Create or get conversation
         let conversation = (await storage.getConversations()).find(
           c => c.channel === "telegram" && c.customerName === customerName
         );
         
         if (!conversation) {
+          console.log('Creating new conversation for', customerName);
           conversation = await storage.createConversation({
             channel: "telegram",
             customerName,
@@ -353,12 +367,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         // Save customer message
-        await storage.createMessage({
+        const savedMessage = await storage.createMessage({
           conversationId: conversation.id,
           sender: "customer",
           senderName: customerName,
           content: message.text || "",
         });
+        
+        console.log('Message saved:', savedMessage.id);
         
         // Broadcast via WebSocket
         broadcast({
@@ -369,11 +385,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
             content: message.text,
           },
         });
+        
+        // Auto-respond with AI (if enabled)
+        const aiSettings = await storage.getAISettings();
+        if (aiSettings?.enabled) {
+          console.log('Generating AI response...');
+          const aiResponse = await generateAIResponse(conversation.id, message.text, aiSettings);
+          
+          if (aiResponse) {
+            // Save AI response
+            await storage.createMessage({
+              conversationId: conversation.id,
+              sender: "ai",
+              senderName: "AI Assistant",
+              content: aiResponse,
+            });
+            
+            // Send response back to Telegram
+            const telegramIntegration = await storage.getChannelIntegration("telegram");
+            if (telegramIntegration?.apiToken) {
+              const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+              await fetch(sendMessageUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  chat_id: message.chat.id,
+                  text: aiResponse,
+                }),
+              });
+              console.log('AI response sent to Telegram');
+            }
+            
+            // Broadcast AI response via WebSocket
+            broadcast({
+              type: "message",
+              data: {
+                conversationId: conversation.id,
+                sender: "ai",
+                content: aiResponse,
+              },
+            });
+          }
+        }
       }
       
       res.json({ ok: true });
     } catch (error) {
-      console.error("Telegram webhook error:", error);
+      console.error("❌ Telegram webhook error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
