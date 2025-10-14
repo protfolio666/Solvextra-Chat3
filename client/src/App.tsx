@@ -15,7 +15,9 @@ import Agents from "@/pages/agents";
 import Tickets from "@/pages/tickets";
 import Settings from "@/pages/settings";
 import Analytics from "@/pages/analytics";
+import Channels from "@/pages/channels";
 import AuthPage from "@/pages/auth";
+import ChatWidget from "@/pages/widget";
 import NotFound from "@/pages/not-found";
 
 function ThemeToggle() {
@@ -42,11 +44,13 @@ function Router() {
     <Switch>
       <ProtectedRoute path="/" component={Inbox} />
       <ProtectedRoute path="/conversations" component={Inbox} />
+      <ProtectedRoute path="/channels" component={Channels} />
       <ProtectedRoute path="/agents" component={Agents} />
       <ProtectedRoute path="/tickets" component={Tickets} />
       <ProtectedRoute path="/analytics" component={Analytics} />
       <ProtectedRoute path="/settings" component={Settings} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/widget" component={ChatWidget} />
       <Route component={NotFound} />
     </Switch>
   );

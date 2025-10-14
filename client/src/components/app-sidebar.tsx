@@ -6,6 +6,7 @@ import {
   TicketIcon,
   Settings,
   BarChart3,
+  Radio,
 } from "lucide-react";
 import {
   Sidebar,
@@ -31,6 +32,12 @@ const menuItems = [
     url: "/conversations",
     icon: MessageSquare,
     testId: "nav-conversations",
+  },
+  {
+    title: "Channels",
+    url: "/channels",
+    icon: Radio,
+    testId: "nav-channels",
   },
   {
     title: "Agents",
