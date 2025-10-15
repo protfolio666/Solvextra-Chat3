@@ -196,7 +196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // If message is from agent, mark conversation as assigned (agent has taken over)
     if (message.sender === "agent") {
       const conversation = await storage.getConversation(message.conversationId);
-      if (conversation && conversation.status === "open") {
+      if (conversation && (conversation.status === "open" || conversation.status === "ticket")) {
         // Find the current user (agent/admin) from session
         const currentUser = (req as any).user;
         if (currentUser) {
