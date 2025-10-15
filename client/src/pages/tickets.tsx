@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Ticket, Conversation, insertTicketSchema } from "@shared/schema";
 import { TicketCard } from "@/components/ticket-card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, Minimize2, Maximize2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -64,6 +64,7 @@ export default function Tickets() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const { toast } = useToast();
 
   const { data: tickets = [] } = useQuery<Ticket[]>({
@@ -135,8 +136,64 @@ export default function Tickets() {
     },
   });
 
+  const updateTicketMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateTicketForm }) => {
+      return apiRequest("PATCH", `/api/tickets/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/tickets"] });
+      toast({
+        title: "Ticket updated",
+        description: "Ticket has been updated successfully",
+      });
+      handleCloseEdit();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update ticket",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleResolveTicket = (ticketId: string) => {
     resolveTicketMutation.mutate(ticketId);
+  };
+
+  const handleEditTicket = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    editForm.reset({
+      status: ticket.status,
+      priority: ticket.priority,
+      tat: ticket.tat,
+      issue: ticket.issue || "",
+      notes: ticket.notes || "",
+      customerEmail: ticket.customerEmail || "",
+    });
+    setIsEditDialogOpen(true);
+    setIsMinimized(false);
+  };
+
+  const handleMinimize = () => {
+    setIsMinimized(true);
+  };
+
+  const handleRestore = () => {
+    setIsMinimized(false);
+  };
+
+  const handleCloseEdit = () => {
+    setIsEditDialogOpen(false);
+    setIsMinimized(false);
+    setSelectedTicket(null);
+    editForm.reset();
+  };
+
+  const onUpdateSubmit = (data: UpdateTicketForm) => {
+    if (selectedTicket) {
+      updateTicketMutation.mutate({ id: selectedTicket.id, data });
+    }
   };
 
   const onSubmit = (data: CreateTicketForm) => {
@@ -361,6 +418,175 @@ export default function Tickets() {
               </Form>
             </DialogContent>
           </Dialog>
+
+          <Dialog open={isEditDialogOpen && !isMinimized} onOpenChange={(open) => {
+            if (!open) handleCloseEdit();
+          }}>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <div className="flex items-center justify-between pr-6">
+                  <div>
+                    <DialogTitle>Edit Ticket</DialogTitle>
+                    <DialogDescription>
+                      Update ticket details and status
+                    </DialogDescription>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleMinimize}
+                    data-testid="button-minimize-ticket"
+                  >
+                    <Minimize2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </DialogHeader>
+              {selectedTicket && (
+                <div className="mb-4 p-3 bg-muted rounded-md">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-mono text-muted-foreground bg-background px-2 py-0.5 rounded">
+                      {selectedTicket.ticketNumber}
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium">{selectedTicket.title}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{selectedTicket.description}</p>
+                </div>
+              )}
+              <Form {...editForm}>
+                <form onSubmit={editForm.handleSubmit(onUpdateSubmit)} className="space-y-4">
+                  <FormField
+                    control={editForm.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-edit-status">
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="open">Open</SelectItem>
+                            <SelectItem value="in_progress">In Progress</SelectItem>
+                            <SelectItem value="resolved">Resolved</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={editForm.control}
+                    name="priority"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Priority</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-edit-priority">
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={editForm.control}
+                    name="tat"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>TAT (Turn Around Time in minutes)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="60"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            data-testid="input-edit-tat"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={editForm.control}
+                    name="customerEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Customer Email</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Customer email" 
+                            {...field} 
+                            data-testid="input-edit-customer-email"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={editForm.control}
+                    name="issue"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Issue Details</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Detailed issue description for customer email..."
+                            {...field}
+                            data-testid="input-edit-issue"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={editForm.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Internal Notes</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Internal notes for agents..."
+                            {...field}
+                            data-testid="input-edit-notes"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <DialogFooter>
+                    <Button
+                      type="submit"
+                      disabled={updateTicketMutation.isPending}
+                      data-testid="button-update-ticket"
+                    >
+                      {updateTicketMutation.isPending ? "Updating..." : "Update Ticket"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <div className="flex items-center gap-3">
@@ -405,11 +631,31 @@ export default function Tickets() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredTickets.map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} onResolve={handleResolveTicket} />
+              <TicketCard 
+                key={ticket.id} 
+                ticket={ticket} 
+                onClick={() => handleEditTicket(ticket)}
+                onResolve={handleResolveTicket} 
+              />
             ))}
           </div>
         )}
       </div>
+
+      {isMinimized && selectedTicket && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <Button
+            variant="default"
+            className="shadow-lg hover-elevate flex items-center gap-2 px-4 py-6"
+            onClick={handleRestore}
+            data-testid="button-restore-ticket"
+          >
+            <span className="font-mono text-xs">{selectedTicket.ticketNumber}</span>
+            <span className="font-medium">{selectedTicket.title}</span>
+            <Maximize2 className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -353,10 +353,10 @@ export class DbStorage implements IStorage {
 
   async createTicket(insertTicket: InsertTicket): Promise<Ticket> {
     try {
-      // Get count of existing tickets to generate next ticket number
-      const existingTickets = await db.select().from(tickets);
-      const ticketCount = existingTickets.length;
-      const ticketNumber = `TICK-${String(ticketCount + 1).padStart(3, '0')}`;
+      // Use PostgreSQL sequence for atomic ticket number generation
+      const seqResult = await db.execute(sql`SELECT nextval('ticket_number_seq') AS next_num`);
+      const nextNum = (seqResult.rows[0] as any)?.next_num || 1;
+      const ticketNumber = `TICK-${String(nextNum).padStart(3, '0')}`;
 
       const result = await db
         .insert(tickets)

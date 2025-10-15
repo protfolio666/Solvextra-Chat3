@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import { generateAIResponse } from "./ai-providers";
 import { setupAuth } from "./auth";
 import { requireAdmin } from "./middleware/role-check";
-import { sendEmail, generateTicketResolutionEmail } from "./email-service";
+import { sendEmail, generateTicketResolutionEmail, generateTicketCreationEmail } from "./email-service";
 import {
   insertConversationSchema,
   insertMessageSchema,
@@ -538,6 +538,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ error: result.error });
     }
     const ticket = await storage.createTicket(result.data);
+
+    // Send email notification for ticket creation/escalation if customer email is available
+    if (ticket.status === "open" && ticket.customerEmail) {
+      try {
+        const emailSettings = await storage.getEmailSettings();
+        if (emailSettings?.enabled) {
+          const conversation = await storage.getConversation(ticket.conversationId);
+          const customerName = conversation?.customerName || "Customer";
+          const issueDetails = ticket.issue || ticket.description;
+
+          const emailHtml = generateTicketCreationEmail(
+            customerName,
+            ticket.ticketNumber,
+            ticket.title,
+            issueDetails,
+            ticket.tat
+          );
+
+          await sendEmail({
+            to: ticket.customerEmail,
+            subject: `Support Ticket Created: ${ticket.ticketNumber}`,
+            html: emailHtml,
+            emailSettings,
+          });
+          console.log(`✅ Ticket creation email sent to ${ticket.customerEmail}`);
+        }
+      } catch (error) {
+        console.error('❌ Failed to send ticket creation email:', error);
+      }
+    }
+
     res.json(ticket);
   });
 
@@ -658,7 +689,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         priority: "medium",
         status: "open",
         tat: 24,
+        customerEmail: conversation.customerEmail || undefined,
       });
+
+      // Send email notification if customer email is available
+      if (ticket.customerEmail) {
+        try {
+          const emailSettings = await storage.getEmailSettings();
+          if (emailSettings?.enabled) {
+            const issueDetails = ticket.issue || ticket.description;
+
+            const emailHtml = generateTicketCreationEmail(
+              conversation.customerName,
+              ticket.ticketNumber,
+              ticket.title,
+              issueDetails,
+              ticket.tat
+            );
+
+            await sendEmail({
+              to: ticket.customerEmail,
+              subject: `Support Ticket Created: ${ticket.ticketNumber}`,
+              html: emailHtml,
+              emailSettings,
+            });
+            console.log(`✅ Ticket creation email sent to ${ticket.customerEmail}`);
+          }
+        } catch (error) {
+          console.error('❌ Failed to send ticket creation email:', error);
+        }
+      }
 
       // Update conversation status to ticket
       const updatedConversation = await storage.updateConversation(req.params.id, {

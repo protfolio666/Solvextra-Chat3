@@ -14,19 +14,25 @@ An omnichannel customer support platform that unifies conversations from multipl
 - ✅ **Enhanced Escalation**: Updated escalation detection to recognize agent transfer requests
 
 ### Enhanced Ticket Management ✨ NEW
+- ✅ **Unique Ticket Numbers**: Auto-generated sequential ticket IDs (TICK-001, TICK-002) using PostgreSQL sequence for race-condition-safe numbering
 - ✅ **Issue Details Field**: Added detailed issue description field for customer emails
 - ✅ **Internal Notes**: Added notes field for internal agent communication
-- ✅ **Customer Email Auto-Population**: Auto-fills customer email from selected conversation
+- ✅ **Customer Email Auto-Population**: Auto-fills customer email from selected conversation (editable)
 - ✅ **Scrollable Dialog**: Improved ticket creation form with scrollable content
+- ✅ **Ticket Edit Dialog**: Complete edit functionality with all fields (status, priority, TAT, email, issue, notes)
+- ✅ **Re-open Tickets**: Change status from resolved back to open/in_progress
+- ✅ **Minimize/Maximize**: Floating minimized button to collapse ticket edit dialog while keeping it accessible
 
 ### Email Notifications (SendGrid) ✨ NEW
 - ✅ **SendGrid Configuration**: Admin can configure SendGrid API key and sender email in Settings > Notifications
 - ✅ **Email Settings Storage**: Dedicated email_settings table for SendGrid credentials
 - ✅ **Sender Customization**: Configure sender name and email address
 - ✅ **Enable/Disable Toggle**: Turn email notifications on/off without removing credentials
+- ✅ **Ticket Creation Emails**: Send notification when tickets are created/escalated (open status) with ticket number, issue details, and TAT
 - ✅ **Ticket Resolution Emails**: Send notification when tickets are resolved with beautiful HTML template
 - ✅ **CSAT Surveys via Email**: Email includes clickable link to public CSAT survey page
 - ✅ **Public CSAT Page**: Customers can rate experience (1-5 stars) and provide feedback at /csat/:ticketId
+- ✅ **Email Fetching**: Customer email automatically populated from conversation data provided by agents
 
 ### CSAT Dashboard ✨ NEW
 - ✅ **Admin Dashboard**: Dedicated page to view all customer satisfaction ratings
