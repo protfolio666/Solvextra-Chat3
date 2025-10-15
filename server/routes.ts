@@ -301,10 +301,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
 
-    // If message is from customer, generate AI response
+    // If message is from customer, generate AI response (only if not already assigned to agent)
     if (message.sender === "customer") {
       const conversation = await storage.getConversation(message.conversationId);
       
+      // Skip AI response if conversation is already assigned to an agent or resolved
       if (conversation && conversation.status === "open") {
         const aiSettings = await storage.getAISettings();
         
@@ -644,86 +645,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
         });
         
-        // Auto-respond with AI (if enabled)
+        // Auto-respond with AI (if enabled and conversation not already assigned to agent)
         const aiSettings = await storage.getAISettings();
-        if (aiSettings?.enabled) {
-          console.log('Generating AI response with provider:', aiSettings.provider);
-          const aiResponse = await generateAIResponse(message.text || "", {
-            provider: aiSettings.provider,
-            knowledgeBase: aiSettings.knowledgeBase || undefined,
-            systemPrompt: aiSettings.systemPrompt || undefined,
-          });
-          
-          if (aiResponse?.content) {
-            // Save AI response
-            await storage.createMessage({
-              conversationId: conversation.id,
-              sender: "ai",
-              senderName: "AI Assistant",
-              content: aiResponse.content,
+        if (conversation.status === "open") {
+          if (aiSettings?.enabled) {
+            console.log('Generating AI response with provider:', aiSettings.provider);
+            const aiResponse = await generateAIResponse(message.text || "", {
+              provider: aiSettings.provider,
+              knowledgeBase: aiSettings.knowledgeBase || undefined,
+              systemPrompt: aiSettings.systemPrompt || undefined,
             });
             
-            // Send response back to Telegram
-            const telegramIntegration = await storage.getChannelIntegration("telegram");
-            if (telegramIntegration?.apiToken) {
-              const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
-              await fetch(sendMessageUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  chat_id: message.chat.id,
-                  text: aiResponse.content,
-                }),
-              });
-              console.log('✅ AI response sent to Telegram');
-            }
-            
-            // Broadcast AI response via WebSocket
-            broadcast({
-              type: "message",
-              data: {
+            if (aiResponse?.content) {
+              // Save AI response
+              await storage.createMessage({
                 conversationId: conversation.id,
                 sender: "ai",
+                senderName: "AI Assistant",
                 content: aiResponse.content,
-              },
-            });
-            
-            // Check if AI response indicates need for human assistance
-            const needsEscalation = /(?:human agent|speak to someone|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
-            
-            if (needsEscalation) {
-              console.log('🔔 AI detected need for human assistance');
-              await handleSmartEscalation(conversation.id, "AI detected customer needs human assistance");
+              });
+              
+              // Send response back to Telegram
+              const telegramIntegration = await storage.getChannelIntegration("telegram");
+              if (telegramIntegration?.apiToken) {
+                const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+                await fetch(sendMessageUrl, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    chat_id: message.chat.id,
+                    text: aiResponse.content,
+                  }),
+                });
+                console.log('✅ AI response sent to Telegram');
+              }
+              
+              // Broadcast AI response via WebSocket
+              broadcast({
+                type: "message",
+                data: {
+                  conversationId: conversation.id,
+                  sender: "ai",
+                  content: aiResponse.content,
+                },
+              });
+              
+              // Check if AI response indicates need for human assistance
+              const needsEscalation = /(?:human agent|speak to someone|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
+              
+              if (needsEscalation) {
+                console.log('🔔 AI detected need for human assistance');
+                await handleSmartEscalation(conversation.id, "AI detected customer needs human assistance");
+              }
+            }
+          } else {
+            console.log('⚠️ AI is not enabled - escalating to agent');
+            const escalationResult = await handleSmartEscalation(conversation.id, "AI is disabled");
+          
+            // Send notification to customer on Telegram
+            const telegramIntegration = await storage.getChannelIntegration("telegram");
+            if (telegramIntegration?.apiToken && escalationResult) {
+              const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+              let responseText = "";
+              
+              if (escalationResult.assignedTo === "agent") {
+                responseText = `Your message has been received. An agent will assist you shortly.`;
+              } else if (escalationResult.assignedTo === "ticket") {
+                responseText = `Thank you for contacting us! We've created a support ticket for you. Our team will respond within 24 hours.`;
+              }
+              
+              if (responseText) {
+                await fetch(sendMessageUrl, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    chat_id: message.chat.id,
+                    text: responseText,
+                  }),
+                });
+                console.log('✅ Escalation notification sent to Telegram');
+              }
             }
           }
         } else {
-          console.log('⚠️ AI is not enabled - escalating to agent');
-          const escalationResult = await handleSmartEscalation(conversation.id, "AI is disabled");
-          
-          // Send notification to customer on Telegram
-          const telegramIntegration = await storage.getChannelIntegration("telegram");
-          if (telegramIntegration?.apiToken && escalationResult) {
-            const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
-            let responseText = "";
-            
-            if (escalationResult.assignedTo === "agent") {
-              responseText = `Your message has been received. An agent will assist you shortly.`;
-            } else if (escalationResult.assignedTo === "ticket") {
-              responseText = `Thank you for contacting us! We've created a support ticket for you. Our team will respond within 24 hours.`;
-            }
-            
-            if (responseText) {
-              await fetch(sendMessageUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  chat_id: message.chat.id,
-                  text: responseText,
-                }),
-              });
-              console.log('✅ Escalation notification sent to Telegram');
-            }
-          }
+          console.log(`⏭️ Conversation already ${conversation.status} - skipping AI response`);
         }
       }
       
