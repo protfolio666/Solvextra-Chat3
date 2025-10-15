@@ -4,7 +4,24 @@
 
 An omnichannel customer support platform that unifies conversations from multiple channels (WhatsApp, Telegram, Instagram, Twitter, Website) into a single inbox. The system features role-based authentication (Admin/Agent), AI-powered automated responses with intelligent escalation to human agents, comprehensive ticket management, knowledge base with file uploads, and real-time analytics. Built with a focus on information clarity and rapid conversation processing, inspired by industry leaders like Intercom and Zendesk.
 
-## Recent Updates (October 2025)
+## Recent Updates (October 15, 2025)
+
+### Smart Escalation System ✨ NEW
+- ✅ **AI-First Response**: All customer messages get AI response first (if AI enabled)
+- ✅ **Automatic Escalation Detection**: AI detects when human help is needed via keyword analysis
+- ✅ **Load-Balanced Agent Assignment**: Finds available agents and assigns to least loaded agent
+- ✅ **Automatic Ticket Creation**: Creates ticket with TAT when no agents available
+- ✅ **Agent Workload Tracking**: Accurately tracks and updates agent activeConversations count
+- ✅ **Escalation Flow**: Customer → AI → Available Agent OR Ticket (24hr TAT default)
+
+### Enhanced Channel Integration ✨ NEW
+- ✅ **Platform-Specific Authentication**: Different auth methods per channel
+  - Telegram & WhatsApp: Simple API token
+  - Instagram (Meta): App ID + App Secret
+  - Twitter/X: Client ID + Client Secret (OAuth2)
+- ✅ **Auto-Webhook Registration**: Telegram webhook auto-registers when token saved
+- ✅ **Improved Error Logging**: Detailed logs for webhook delivery and AI responses
+- ✅ **Multi-Channel AI Support**: AI auto-responds on all channels (Telegram, Web, etc.)
 
 ### Authentication & Authorization
 - ✅ **Role-Based Access Control**: Implemented admin and agent roles with different permission levels
@@ -13,7 +30,7 @@ An omnichannel customer support platform that unifies conversations from multipl
 - ✅ **Session Management**: Passport.js with express-session for secure authentication
 - ✅ **Login/Signup Pages**: User registration with role selection (admin/agent)
 
-### Channel Integration
+### Channel Integration (Previous)
 - ✅ **Web Chat Widget**: Fully functional chat widget at `/widget` for website embedding
 - ✅ **Channel Setup Guide**: Instructions for WhatsApp, Telegram, Instagram, Twitter integration
 - ✅ **Embeddable Widget**: Copy-paste embed code for any website
