@@ -28,6 +28,7 @@ export default function Settings() {
   const [knowledgeBase, setKnowledgeBase] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [isPaused, setIsPaused] = useState(false);
+  const [model, setModel] = useState<string>("anthropic/claude-3.5-sonnet");
 
   // Channel integration states
   const [telegramToken, setTelegramToken] = useState("");
@@ -45,6 +46,7 @@ export default function Settings() {
       setKnowledgeBase(aiSettings.knowledgeBase || "");
       setSystemPrompt(aiSettings.systemPrompt || "You are a helpful customer support assistant. Be professional, friendly, and concise.");
       setIsPaused(aiSettings.paused || false);
+      setModel(aiSettings.model || "anthropic/claude-3.5-sonnet");
     }
   }, [aiSettings]);
 
@@ -70,6 +72,7 @@ export default function Settings() {
         provider,
         enabled: true,
         paused: isPaused,
+        model,
         knowledgeBase,
         systemPrompt,
       });
@@ -199,6 +202,8 @@ export default function Settings() {
               onKnowledgeBaseChange={setKnowledgeBase}
               systemPrompt={systemPrompt}
               onSystemPromptChange={setSystemPrompt}
+              model={model}
+              onModelChange={setModel}
               onSave={() => saveSettingsMutation.mutate()}
               isSaving={saveSettingsMutation.isPending}
             />

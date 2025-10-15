@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface AIProviderSelectorProps {
   currentProvider: AIProvider;
@@ -13,6 +14,8 @@ interface AIProviderSelectorProps {
   onKnowledgeBaseChange: (value: string) => void;
   systemPrompt: string;
   onSystemPromptChange: (value: string) => void;
+  model?: string;
+  onModelChange?: (value: string) => void;
   onSave: () => void;
   isSaving?: boolean;
 }
@@ -24,6 +27,8 @@ export function AIProviderSelector({
   onKnowledgeBaseChange,
   systemPrompt,
   onSystemPromptChange,
+  model,
+  onModelChange,
   onSave,
   isSaving,
 }: AIProviderSelectorProps) {
@@ -67,6 +72,26 @@ export function AIProviderSelector({
           </div>
         </CardContent>
       </Card>
+
+      {currentProvider === "openrouter" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Model Selection</CardTitle>
+            <CardDescription>Choose the AI model for OpenRouter</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Select value={model || "anthropic/claude-3.5-sonnet"} onValueChange={onModelChange}>
+              <SelectTrigger data-testid="select-openrouter-model">
+                <SelectValue placeholder="Select a model" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="openai/gpt-4o-mini">GPT-4 Mini</SelectItem>
+                <SelectItem value="anthropic/claude-3.5-sonnet">Claude Sonnet 3.5</SelectItem>
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

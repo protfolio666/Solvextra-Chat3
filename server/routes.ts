@@ -318,6 +318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               provider: aiSettings.provider,
               knowledgeBase: aiSettings.knowledgeBase || undefined,
               systemPrompt: aiSettings.systemPrompt || undefined,
+              model: aiSettings.model || undefined,
             });
 
             const aiMessage = await storage.createMessage({
