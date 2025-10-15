@@ -24,8 +24,9 @@ An omnichannel customer support platform that unifies conversations from multipl
 - ✅ **Email Settings Storage**: Dedicated email_settings table for SendGrid credentials
 - ✅ **Sender Customization**: Configure sender name and email address
 - ✅ **Enable/Disable Toggle**: Turn email notifications on/off without removing credentials
-- ⏳ **Ticket Resolution Emails**: Send notification when tickets are resolved (upcoming)
-- ⏳ **CSAT Surveys via Email**: Automated customer satisfaction surveys (upcoming)
+- ✅ **Ticket Resolution Emails**: Send notification when tickets are resolved with beautiful HTML template
+- ✅ **CSAT Surveys via Email**: Email includes clickable link to public CSAT survey page
+- ✅ **Public CSAT Page**: Customers can rate experience (1-5 stars) and provide feedback at /csat/:ticketId
 
 ### Smart Escalation System ✨ NEW
 - ✅ **AI-First Response**: All customer messages get AI response first (if AI enabled)

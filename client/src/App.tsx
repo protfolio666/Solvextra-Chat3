@@ -27,6 +27,7 @@ import Channels from "@/pages/channels";
 import KnowledgeBase from "@/pages/knowledge-base";
 import AuthPage from "@/pages/auth";
 import ChatWidget from "@/pages/widget";
+import CsatPage from "@/pages/csat";
 import NotFound from "@/pages/not-found";
 
 function ThemeToggle() {
@@ -114,6 +115,7 @@ function AppContent() {
       {/* Public routes without sidebar */}
       <Route path="/auth" component={AuthPage} />
       <Route path="/widget" component={ChatWidget} />
+      <Route path="/csat/:ticketId" component={CsatPage} />
       
       {/* Protected routes with sidebar */}
       <Route>

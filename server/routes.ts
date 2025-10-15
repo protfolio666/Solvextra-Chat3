@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { generateAIResponse } from "./ai-providers";
 import { setupAuth } from "./auth";
 import { requireAdmin } from "./middleware/role-check";
+import { sendEmail, generateTicketResolutionEmail } from "./email-service";
 import {
   insertConversationSchema,
   insertMessageSchema,
@@ -564,11 +565,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Get conversation to send CSAT request
     const conversation = await storage.getConversation(ticket.conversationId);
     if (conversation) {
-      // Send CSAT request message to customer
+      // Send CSAT request message to customer via chat
       await sendCsatRequest(conversation, ticket.id);
+
+      // Send email notification if customer email is available
+      if (ticket.customerEmail) {
+        try {
+          const emailSettings = await storage.getEmailSettings();
+          if (emailSettings?.enabled) {
+            const csatUrl = `${process.env.REPLIT_DEV_DOMAIN || 'https://your-domain.com'}/csat/${ticket.id}`;
+            const emailHtml = generateTicketResolutionEmail(
+              conversation.customerName,
+              ticket.title,
+              ticket.id,
+              csatUrl
+            );
+
+            await sendEmail({
+              to: ticket.customerEmail,
+              subject: `Ticket Resolved: ${ticket.title}`,
+              html: emailHtml,
+              emailSettings,
+            });
+            console.log(`✅ Ticket resolution email sent to ${ticket.customerEmail}`);
+          }
+        } catch (error) {
+          console.error('❌ Failed to send ticket resolution email:', error);
+        }
+      }
     }
 
     res.json(updatedTicket);
+  });
+
+  // Public endpoint to get ticket for CSAT page (no auth required)
+  app.get("/api/public/tickets/:id", async (req, res) => {
+    const ticket = await storage.getTicket(req.params.id);
+    if (!ticket) {
+      return res.status(404).json({ error: "Ticket not found" });
+    }
+    
+    // Return only safe, minimal data for CSAT page
+    res.json({
+      id: ticket.id,
+      title: ticket.title,
+    });
   });
 
   // Resolve Conversation - marks as resolved and sends CSAT request
