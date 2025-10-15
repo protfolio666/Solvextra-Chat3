@@ -18,6 +18,8 @@ import {
   ChannelIntegration,
   InsertChannelIntegration,
   Channel,
+  CsatRating,
+  InsertCsatRating,
   conversations,
   messages,
   agents,
@@ -26,6 +28,7 @@ import {
   users,
   knowledgeFiles,
   channelIntegrations,
+  csatRatings,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import session from "express-session";
@@ -80,6 +83,10 @@ export interface IStorage {
   getChannelIntegrations(): Promise<ChannelIntegration[]>;
   getChannelIntegration(channel: Channel): Promise<ChannelIntegration | undefined>;
   upsertChannelIntegration(integration: InsertChannelIntegration): Promise<ChannelIntegration>;
+
+  // CSAT Ratings
+  createCsatRating(rating: InsertCsatRating): Promise<CsatRating>;
+  getCsatRatings(conversationId?: string, ticketId?: string): Promise<CsatRating[]>;
 
   // Session Store
   sessionStore: session.Store;
@@ -555,6 +562,38 @@ export class DbStorage implements IStorage {
     } catch (error) {
       console.error("Error upserting channel integration:", error);
       throw error;
+    }
+  }
+
+  // CSAT Ratings
+  async createCsatRating(rating: InsertCsatRating): Promise<CsatRating> {
+    try {
+      const result = await db
+        .insert(csatRatings)
+        .values(rating)
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating CSAT rating:", error);
+      throw error;
+    }
+  }
+
+  async getCsatRatings(conversationId?: string, ticketId?: string): Promise<CsatRating[]> {
+    try {
+      let query = db.select().from(csatRatings);
+      
+      if (conversationId) {
+        query = query.where(eq(csatRatings.conversationId, conversationId)) as any;
+      }
+      if (ticketId) {
+        query = query.where(eq(csatRatings.ticketId, ticketId)) as any;
+      }
+
+      return await query;
+    } catch (error) {
+      console.error("Error getting CSAT ratings:", error);
+      return [];
     }
   }
 }

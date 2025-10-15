@@ -13,8 +13,10 @@ import {
   insertAISettingsSchema,
   insertKnowledgeFileSchema,
   insertChannelIntegrationSchema,
+  insertCsatRatingSchema,
   Channel,
   WSMessage,
+  Conversation,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -61,6 +63,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         client.send(messageStr);
       }
     });
+  }
+
+  // Helper function to send CSAT rating request to customer
+  async function sendCsatRequest(conversation: Conversation, ticketId?: string) {
+    const csatMessage = `Thank you for contacting us! 🎉\n\nYour issue has been resolved. We'd love to hear your feedback!\n\nPlease rate your experience:\n⭐ 1 - Poor\n⭐⭐ 2 - Fair\n⭐⭐⭐ 3 - Good\n⭐⭐⭐⭐ 4 - Very Good\n⭐⭐⭐⭐⭐ 5 - Excellent\n\nReply with a number (1-5) to rate your experience.`;
+
+    // Create the CSAT request message in the conversation
+    const message = await storage.createMessage({
+      conversationId: conversation.id,
+      sender: "agent",
+      senderName: "Support Team",
+      content: csatMessage,
+    });
+
+    // Send to customer via their channel
+    if (conversation.channel === "telegram" && conversation.channelUserId) {
+      const telegramIntegration = await storage.getChannelIntegration("telegram");
+      if (telegramIntegration?.apiToken) {
+        try {
+          const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+          await fetch(sendMessageUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: conversation.channelUserId,
+              text: csatMessage,
+            }),
+          });
+          console.log(`✅ CSAT request sent to Telegram customer (chat_id: ${conversation.channelUserId})`);
+        } catch (error) {
+          console.error('❌ Failed to send CSAT request to Telegram:', error);
+        }
+      }
+    } else if (conversation.channel === "website") {
+      // Broadcast CSAT request via WebSocket for website chat
+      broadcast({
+        type: "csat_request",
+        data: { conversationId: conversation.id, message, ticketId },
+      });
+    }
   }
 
   // Helper function for smart escalation
@@ -503,6 +545,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ error: "Ticket not found" });
     }
     res.json(ticket);
+  });
+
+  // Resolve Ticket - marks as resolved and sends CSAT request
+  app.post("/api/tickets/:id/resolve", async (req, res) => {
+    const ticket = await storage.getTicket(req.params.id);
+    if (!ticket) {
+      return res.status(404).json({ error: "Ticket not found" });
+    }
+
+    // Update ticket status to resolved
+    const updatedTicket = await storage.updateTicket(req.params.id, {
+      status: "resolved",
+      resolvedAt: new Date(),
+    });
+
+    // Get conversation to send CSAT request
+    const conversation = await storage.getConversation(ticket.conversationId);
+    if (conversation) {
+      // Send CSAT request message to customer
+      await sendCsatRequest(conversation, ticket.id);
+    }
+
+    res.json(updatedTicket);
+  });
+
+  // Resolve Conversation - marks as resolved and sends CSAT request
+  app.post("/api/conversations/:id/resolve", async (req, res) => {
+    const conversation = await storage.getConversation(req.params.id);
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
+    // Update conversation status to resolved
+    const updatedConversation = await storage.updateConversation(req.params.id, {
+      status: "resolved",
+    });
+
+    // Send CSAT request message to customer
+    await sendCsatRequest(conversation, undefined);
+
+    res.json(updatedConversation);
+  });
+
+  // Submit CSAT Rating (from customer)
+  app.post("/api/csat-ratings", async (req, res) => {
+    const result = insertCsatRatingSchema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    const rating = await storage.createCsatRating(result.data);
+    res.json(rating);
   });
 
   // AI Settings

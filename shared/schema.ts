@@ -176,9 +176,27 @@ export const insertChannelIntegrationSchema = createInsertSchema(channelIntegrat
 export type InsertChannelIntegration = z.infer<typeof insertChannelIntegrationSchema>;
 export type ChannelIntegration = typeof channelIntegrations.$inferSelect;
 
+// CSAT Ratings
+export const csatRatings = pgTable("csat_ratings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  conversationId: varchar("conversation_id").notNull(),
+  ticketId: varchar("ticket_id"),
+  rating: integer("rating").notNull(), // 1-5 stars
+  feedback: text("feedback"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertCsatRatingSchema = createInsertSchema(csatRatings).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertCsatRating = z.infer<typeof insertCsatRatingSchema>;
+export type CsatRating = typeof csatRatings.$inferSelect;
+
 // WebSocket message types
 export interface WSMessage {
-  type: "message" | "status_update" | "typing" | "escalation" | "assignment" | "admin_notification";
+  type: "message" | "status_update" | "typing" | "escalation" | "assignment" | "admin_notification" | "csat_request";
   data: any;
 }
 
