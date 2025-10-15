@@ -78,29 +78,54 @@ async function generateOpenRouterResponse(
     ? `\n\nKnowledge Base:\n${config.knowledgeBase}`
     : "";
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "anthropic/claude-3.5-sonnet",
-      messages: [
-        {
-          role: "system",
-          content: systemMessage + knowledgeContext,
-        },
-        {
-          role: "user",
-          content: message,
-        },
-      ],
-    }),
-  });
+  console.log('🤖 Calling OpenRouter API...');
+  
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content || "I apologize, but I'm having trouble responding right now.";
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "anthropic/claude-3.5-sonnet",
+        messages: [
+          {
+            role: "system",
+            content: systemMessage + knowledgeContext,
+          },
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ OpenRouter API error (${response.status}):`, errorText);
+      throw new Error(`OpenRouter API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ OpenRouter response received');
+    return data.choices?.[0]?.message?.content || "I apologize, but I'm having trouble responding right now.";
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('❌ OpenRouter API timeout after 30s');
+      throw new Error('OpenRouter API timeout');
+    }
+    console.error('❌ OpenRouter API error:', error);
+    throw error;
+  }
 }
 
 // Main AI Provider Interface
