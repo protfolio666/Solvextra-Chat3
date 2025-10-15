@@ -1,0 +1,1063 @@
+Aaquib	45921	39	Sep	2025	OD435484675998667100	IN25092107473982383198	SMWGPHT4WMGGHGGC	IOT	EmergingElectronics	ElectronicAccessory	Smartwatch	Normal	Twitter	Direct Contact	45915	38	Sep	2025	1	Non Sale	ACC31EBA2A1180C4E068EF7E01E88FBD528N	Returns | FRM | SRT	Returns | FRM | SRT	Quality Issue	1	Return Authorization Requests	Returns | FRM | SRT	FLIPKART	Med-High	FALSE	SM	NA	NA	335478693476001100	Non_Large	654	122051	GURGAON	HARYANA	EKL	NA	NA	-	-	22 Sep 25	18 Sep 25	22 Sep 25	467	5	F-assured	Delay in delivery	"VOC - Customer expressed frustration and concern over the delayed delivery of their order, highlighting inconvenience caused by the uncertainty of receiving the product on time.
+
+Pain point - Customer is experiencing inconvenience and dissatisfaction due to repeated delays, lack of timely updates, and uncertainty about when the order will arrive.
+
+Summary: Customer concern was order not delivered. Agent checked and shared the delivery date. Later order got delayed EDD got breached customer reached us for delay in delivery. Agent informed that concern has been escalated and shared the TAT. 
+
+Call-1
+Channel - L1
+Call Sequence - 1
+Call Date - 18-Sep-25 , 12:07:56 am
+UCID - #Chat
+Agent Ldap - techmk.2411867
+Agent Name - Anchal 
+Partner - Tech M Kolkata
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed frustration over the delayed delivery of their MYFITNESS Chocolate order and requested to cancel it due to the delay. The customer also inquired about the exact delivery time and whether faster delivery could be arranged.
+
+Res- Agent explained that the delay was due to logistical issues and reassured the customer that the order was already out for delivery. The agent clarified that cancellation is not possible at this stage since the product is en route and confirmed that the delivery is scheduled to be completed by 11 PM on the same day. The order is being actively monitored to ensure timely delivery.
+
+What went wrong- NA
+
+What should be done- NA""
+
+Call-2
+Channel - L1
+Call Sequence - 1
+Call Date - 18-Sep-25 , 10:05:49 am
+UCID - #Chat
+Agent Ldap -  techmk.2414048
+Agent Name - Amaan 
+Partner - Tech M Kolkata
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed concern about the delay in receiving their order and requested details on the current location and delivery status. The customer also asked if faster delivery options could be arranged to expedite the process.
+
+Res- Agent provided real-time updates on the order’s current location and informed the customer about the ongoing delivery attempts. The agent acknowledged the customer’s request for faster delivery but clarified that the delivery timeline cannot be modified once the order is placed. The agent assured the customer that the order is being closely tracked and will be delivered at the earliest possible time.
+
+What went wrong- NA
+
+What should be done- NA""
+
+Call-3
+Channel - L1
+Call Sequence - 1
+Call Date - 18-Sep-25 , 10:09:52 am
+UCID - #Chat
+Agent Ldap - tpm.6055027
+Agent Name - Mohit
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer raised concerns about the delayed delivery of their order and requested to cancel it due to the delay. The customer also asked for the delivery agent’s contact number and inquired if faster delivery options were available.
+
+Res- Agent provided an update on the order’s current delivery status and apologized for the inconvenience caused by the delay. The agent clarified that the delivery timeline cannot be modified once the order is placed and that the order is scheduled for delivery by 11 PM on the same day. The agent reassured the customer that the order is being actively tracked to ensure prompt delivery.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-4
+Channel - L1
+Call Sequence - 1
+Call Date - 18-Sep-25 , 11:00:57 am
+UCID - #Chat
+Agent Ldap - tpm.6062150
+Agent Name - Ishpal 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed dissatisfaction over the delayed delivery of their MYFITNESS Chocolate Peanut Butter order and requested to cancel it due to the delay.
+
+Res- Agent explained that the delivery delay was caused by heavy rainfall affecting logistics and assured the customer that another delivery attempt would be made soon. The agent also clarified that the order cannot be canceled since it is already out for delivery.
+
+What went wrong- NA
+
+What should be done- NA""
+
+Call-5
+Channel - L1
+Call Sequence - 1
+Call Date - 18-Sep-25 , 11:16:41 am
+UCID - #Chat
+Agent Ldap - techmn.2332626
+Agent Name - Preeti 
+Partner - Tech M Noida
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed concern over the delayed delivery of their MYFITNESS Chocolate Peanut Butter order and requested faster delivery options. The customer also asked if the order could be canceled due to the delay.
+
+Res- Agent informed the customer that the order is currently out for delivery and scheduled to be delivered by 19th September before 11 PM. The agent clarified that faster delivery is not possible and that the delivery timeline cannot be modified once the order is placed. The agent assured the customer that the delivery is being tracked closely to ensure it reaches them as soon as possible.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-6
+Channel - L1
+Call Sequence - 1
+Call Date - 19-Sep-25 , 12:50:20 am
+UCID - #Chat
+Agent Ldap -  tpm.6061101
+Agent Name - Noor 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed frustration over the delayed delivery of their order and requested an update on its current status. The customer also inquired about faster delivery options and mentioned the possibility of canceling the order if the delay continued.
+
+Res- Agent provided the latest updates on the order’s status and informed the customer about ongoing delivery attempts. The agent explained that faster delivery is not possible due to logistical constraints but offered assistance in canceling the order if the customer decided to proceed.
+
+What went wrong- NA
+
+What should be done- NA""
+
+Call-7
+Channel - L1
+Call Sequence - 1
+Call Date - 19-Sep-25 , 01:51:09 am
+UCID - #Chat
+Agent Ldap - tpm.6066228
+Agent Name - Fayiza 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed dissatisfaction over repeated delays in the delivery of their MYFITNESS Chocolate Peanut Butter order and requested an update on its current delivery status. The customer also mentioned the possibility of canceling the order due to the delay.
+
+Res- Agent provided the current delivery status, confirming that the order is “Out for Delivery” and scheduled to be delivered by 19th September before 11 PM. The agent also offered to assist with order cancellation if the customer wished to proceed.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-8
+Channel - L1
+Call Sequence - 1
+Call Date - 19-Sep-25 , 03:13:02 am
+UCID - #Chat
+Agent Ldap - tpm.6060079
+Agent Name - Akshita 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed concern about the delayed delivery of their order and requested a clear update on when it would arrive. The customer also insisted on faster delivery due to the inconvenience caused by the delay.
+
+Res- Agent checked and shared the latest delivery status, explaining that the delay was due to logistical challenges. The agent informed the customer that the order is currently out for delivery and confirmed the expected delivery time, assuring that the order will reach them by the specified timeline.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-9
+Channel - L1
+Call Sequence - 1
+Call Date - 19-Sep-25 , 08:13:43 am
+UCID - #Chat
+Agent Ldap - techmn.2284424
+Agent Name - Ranjana 
+Partner - Tech M Noida
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed concern over repeated delays and the late delivery time of their order, seeking an update on its current delivery status and inquiring if faster delivery could be arranged.
+
+Res- Agent provided the latest updates on the order’s location and ongoing delivery attempts. The agent apologized for the inconvenience caused by the delay and assured the customer that the order is out for delivery and will be delivered within the promised time. The agent also clarified that faster delivery is not possible once the order has been placed.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-10
+Channel - L1
+Call Sequence - 1
+Call Date - 19-Sep-25 , 10:04:48 am
+UCID - #Chat
+Agent Ldap - techmn.2396683
+Agent Name - Neha
+Partner - Tech M Noida
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed frustration over the delayed delivery of their order, which was initially promised for the 17th but has not yet been delivered. The customer requested either faster delivery or cancellation due to the delay.
+
+Res- Agent checked the current order status and confirmed the next delivery attempt. The agent provided the customer with the delivery executive’s contact details for coordination and explained that the delivery timeline cannot be modified once the order is placed. The agent reassured the customer that the delivery team is actively working with the logistics partner to ensure the order is delivered by the promised time.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-11
+Channel - L1
+Call Sequence - 1
+Call Date - 19-Sep-25 , 10:35:41 am
+UCID - #Chat
+Agent Ldap - tpm.6062028
+Agent Name - Labiqua 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed concern over the delayed delivery of their order and requested to cancel it due to the delay.
+
+Res- Agent informed the customer that the order is already out for delivery and cannot be canceled. The agent reassured the customer that the order is being closely tracked and will be delivered by the promised date. Updates on the order’s current location were provided, and efforts were made to expedite the delivery.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-12
+Channel - L1
+Call Sequence - 1
+Call Date - 19-Sep-25 , 10:52:14 am
+UCID - #Chat
+Agent Ldap - techmn.2407834
+Agent Name - Ajay 
+Partner - Tech M Noida
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed concern over the delayed delivery of their order and requested faster delivery. They also considered canceling the order due to the inconvenience caused by the delays.
+
+Res- Agent provided updates on the order’s current location and ongoing delivery attempts, apologizing for the inconvenience caused. The agent assured the customer that the order is being actively tracked and will be delivered as soon as possible. The agent also explained that the delivery timeline cannot be modified once the order is placed and informed the customer that cancellation is not possible since the order is already out for delivery.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-13
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-2025, 1:06:19 AM
+UCID - #10002034031758310541
+Agent Ldap - starkluc.81071212
+Agent Name - SACHIN TIWARI
+Partner - Startek Lucknow
+AHT (Seconds) - 309
+
+Summary: ""VOC- Customer expressed concern over repeated delays in the delivery of their My Fitness Chocolate Peanut Butter order, citing weather conditions and other unexpected issues. The customer also inquired about the possibility of canceling the order if it is not delivered by the final promised date.
+
+Res- Agent provided updates on the order’s approval, shipping, and delivery attempts, and explained the reasons for the delays. The agent assured the customer that the issue has been escalated to the backend team for resolution. The agent informed the customer about the cancellation process in case they choose to cancel and advised them to monitor the Flipkart app for updates and be ready to receive a call from the delivery executive.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-14
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 01:21:26 am
+UCID - #Chat
+Agent Ldap - techmn.2405894
+Agent Name - Rahul 
+Partner - Tech M Noida
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed frustration over the repeated delays and rescheduling of their order. They indicated a desire to cancel the order and mentioned considering consumer court action due to the inconvenience caused.
+
+Res- Agent checked the current order status and explained the reasons for the delays. The agent assured the customer that the order will be delivered by a specified date and attempted to address the cancellation request, clarifying that the order cannot be canceled as it is already out for delivery.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-15
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 01:33:28 am
+UCID - #Chat
+Agent Ldap - tpm.6066232
+Agent Name - Jyotiranjan 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary:""VOC- Customer expressed frustration over the delayed delivery of their order, which was originally promised on the 17th but has been delayed due to heavy rain and logistical issues. The customer requested faster delivery or cancellation and mentioned the possibility of approaching consumer court if the issue is not resolved.
+
+Res- Agent acknowledged the delay and assured the customer that team is working on it on a priority basis and will get back to you with a resolution on or before September 21, 2025.
+
+What went wrong- NA
+
+What should be done- NA""
+
+Call-16
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 01:39:15 am
+UCID - #Chat
+Agent Ldap - tpm.6060081
+Agent Name - Juhi 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed frustration over the delayed delivery of their order, originally promised on the 17th but not delivered by the 19th. The customer was also concerned about the inability to contact the delivery agent and considered canceling the order due to the repeated delays.
+
+Res- Agent checked the current order status and explained the reasons for the delay, including heavy rain and logistical challenges and informed that team is working on it on a priority basis and will get back to you with a resolution on or before September 21, 2025.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-17
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 02:36:49 am
+UCID - #Chat
+Agent Ldap - tpm.6066846
+Agent Name - Laaraib 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary:""VOC- Customer expressed frustration over repeated delays in the delivery of their order and inquired about its current location and reasons for the delay. The customer also mentioned the inability to contact the delivery executive and indicated a potential intention to approach consumer court due to the inconvenience.
+
+Res- Agent reassured the customer that the issue is being escalated and confirmed that the order is out for delivery. The agent informed the customer that already highlighted his concern to the team please kindly wait the team will get back to him on or before September 21, 2025.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-18
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 07:42:25 am
+UCID - #Chat
+Agent Ldap - techmnfrm.2400093
+Agent Name - Tushar 
+Partner - Tech M Noida
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed concern over the delayed delivery of their MYFITNESS Chocolate Peanut Butter order and requested urgent delivery. They also inquired about the possibility of canceling the order if it could not be delivered today.
+
+Res- Agent informed last attempts were unsuccessful due to heavy rain and heavy load. We are working with the delivery partner to ensure a new delivery attempt is made for you within the next 2 days (22nd Sept).
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-19
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 07:56:46 am
+UCID - #Chat
+Agent Ldap - tpm.6068827
+Agent Name - Dev 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed frustration over the delayed delivery of their order, which was promised on the 17th but has not yet arrived. They requested delivery today and indicated a willingness to pursue legal action if the issue is not resolved.
+
+Res- Agent confirmed the order status and explained the reasons for the delay. The agent escalated the issue to the concerned team and reassured the customer that the order is scheduled for delivery today. The agent also assured the customer that the delivery executive’s contact details would be shared once the order is out for delivery.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-20
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 08:28:52 am
+UCID - #Chat
+Agent Ldap - tpm.6068667
+Agent Name - Ishika 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed frustration over the delayed delivery of their order, originally promised on the 17th but not received by the 20th. The customer was concerned about the lack of communication from the delivery partner and mentioned the possibility of approaching consumer court.
+
+Res- Agent checked the order status and confirmed that it is out for delivery. The agent escalated the issue to the concerned team and provided an update that case has been forwarded to the concerned higher team and they'll get back to him with an update by September21 2025.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-21
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 08:47:55 am
+UCID - #Chat
+Agent Ldap - tpm.6052396
+Agent Name - Gracy 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary:""VOC- Customer expressed frustration over the repeated rescheduling and delayed delivery of their order, originally promised on the 17th. They inquired about the delivery agent’s contact number, requested faster delivery, and indicated a willingness to approach consumer court if the issue is not resolved.
+
+Res- Agent informed we are actively working with the delivery partner to ensure the delivery is completed successfully by today (20th Sept). We are closely tracking it.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-22
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 11:03:55 am
+UCID - #Chat
+Agent Ldap - tpm.584685
+Agent Name - Chander 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed frustration over the delayed delivery of their MYFITNESS Chocolate Peanut Butter order, originally promised on the 17th, which has been postponed multiple times due to heavy rain and high delivery load.
+
+Res- Agent checked the delivery status and confirmed that the order is out for delivery. The agent assured the customer that  issue is alreday highlighted and the team is working on it and will update him by September 21, 2025.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-23
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 11:25:54 am
+UCID - #Chat
+Agent Ldap - techmk.2414058
+Agent Name - Arunima 
+Partner - Tech M Kolkata
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed concern over the delayed delivery of their order, originally promised on the 17th, and mentioned the possibility of approaching consumer court due to repeated delays. The customer requested the delivery agent’s contact number and inquired about the possibility of early morning delivery.
+
+Res- Agent reassured the customer that issue has been already escalated to team regarding delay in delivery. Team will try to get back with the resolution on or before September 21, 2025.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-24
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 11:54:16 am
+UCID - #Chat
+Agent Ldap - techmk.2411038
+Agent Name - Sardar 
+Partner - Tech M Kolkata
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed frustration over repeated delays in the delivery of their order and indicated a possibility of taking legal action due to the inconvenience caused.
+
+Res- Agent provided updates on the delivery attempts and the current status of the order. The agent escalated the issue to the concerned team for resolution and assured the customer that the delivery partner is working to ensure the order is delivered by the end of the day.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-25
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-2025, 12:01:47 PM
+UCID - #10003605741758349851
+Agent Ldap - starkluc.81076914
+Agent Name - Shruti Awasthi
+Partner - Startek Lucknow
+AHT (Seconds) - 267
+
+Summary: ""VOC- Customer expressed concern over the delayed delivery of their order, originally scheduled for 17th September, and mentioned uncertainty about being available at home to receive the delivery.
+
+Res- Agent acknowledged the delay and explained the issues faced by the logistics team. A complaint was raised on behalf of the customer, and the issue was escalated to the backend team. The agent informed the customer that the delivery is now expected by 21st September and advised them to ensure availability for the delivery partner’s contact to facilitate smooth delivery.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-26
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 01:36:57 pm
+UCID - #Chat
+Agent Ldap - techmk.2406278
+Agent Name - Sana 
+Partner - Tech M Kolkata
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed frustration over the delayed delivery of their order, originally promised on the 17th but not delivered by the 20th. The customer requested to cancel the order and mentioned the possibility of approaching consumer court if the issue is not resolved.
+
+Res- Agent apologized for delay in his order and informed that this is due to an unexpected issue faced by the delivery partner. Rest assured, we're also following up with them to get this sorted out on priority and we will share an update with him within September 21, 2025.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-27
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 06:08:40 pm
+UCID - #Chat
+Agent Ldap - tpm.6070220
+Agent Name - Nawaz 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed frustration over repeated delays in the delivery of their order, caused by heavy rain and high delivery load. They inquired about the current location of the order, requested the possibility of early morning delivery, and mentioned the potential of approaching consumer court if the issue is not resolved.
+
+Res- Agent checked the order status and confirmed that it is out for delivery and will be delivered by the end of the day. The agent explained the reasons for the delays and assured the customer that the issue has been escalated to higher authorities. A complaint number was provided for reference, and the agent confirmed that the order will be delivered by 11 PM.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-28
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 06:57:20 pm
+UCID - #Chat
+Agent Ldap - tpm.5611433
+Agent Name - Kazima 
+Partner - TP Mohali
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed frustration over repeated delays in the delivery of their order and inquired about its current status. They also mentioned the possibility of approaching consumer court due to the ongoing inconvenience caused by the delays.
+
+Res- Agent escalated the issue to the concerned team and provided the customer with a resolution timeline, assuring delivery by September 21st. The agent also explained that the delays were due to unforeseen circumstances, including heavy rain and high delivery load.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-29
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-2025, 7:01:51 PM
+UCID - #10003334361758375071
+Agent Ldap - starkluc.81095918
+Agent Name - Tabeena Nazir Baba
+Partner - Startek Lucknow
+AHT (Seconds) - 430
+
+Summary: ""VOC- Customer expressed concern over the delayed delivery of their 'My Fitness Talk Peanut Butter' order, placed on the 17th, and mentioned anxiety about not seeing a cancellation option. They were worried about potential loss of money if the order was not delivered.
+
+Res- Agent checked the order status and confirmed it is at the final delivery hub. The agent apologized for the inconvenience and assured the customer that the order will be delivered by 11 PM on the current date or within the next 24 hours. The agent informed the customer that the issue has been escalated to the backend team with a promised resolution by 22nd September. The agent also assured the customer that they can cancel the order via call if it is not delivered by the next day, and a refund will be initiated.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-30
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-25 , 11:33:02 pm
+UCID - #Chat
+Agent Ldap - techmk.2413623
+Agent Name - Muskan 
+Partner - Tech M Kolkata
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed concern over the delayed delivery of their order, originally promised on the 17th, and inquired about its current status and the possibility of delivery today. They mentioned a willingness to approach consumer court if the issue is not resolved.
+
+Res- Agent checked the order status and explained the reasons for the delay, including logistical challenges. The agent reassured the customer that another delivery attempt will be made by the promised date and escalated the issue to the concerned team. A resolution timeline was provided, and the agent explained the efforts being made to ensure the order is delivered promptly.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-31
+Channel - L1
+Call Sequence - 1
+Call Date - 21-Sep-2025, 12:24:25 AM
+UCID - #10003128331758394408
+Agent Ldap - tp.5996003
+Agent Name - Ganesh Mutkure
+Partner - TP Indore
+AHT (Seconds) - 449
+
+Summary: ""VOC- Customer expressed concern over the delayed delivery of their order, originally scheduled for 16th September, and inquired about the possibility of picking up the product from the nearby delivery hub.
+
+Res- Agent acknowledged the delay and apologized for the inconvenience. The agent informed the customer that there have been two delivery attempts and requested them to wait until 22nd September for delivery. The agent explained that the exact delivery hub location is not available but assured the customer that the issue will be escalated to the team, and efforts will be made to resolve the concern promptly.
+
+What went wrong- NA
+ 
+What should be done- NA""
+
+Call-32
+Channel - L1
+Call Sequence - 1
+Call Date - 21-Sep-25 , 12:50:38 am
+UCID - #Chat
+Agent Ldap - techmk.2411122
+Agent Name - Mohd 
+Partner - Tech M Kolkata
+AHT (Seconds) - Chat
+
+Summary: ""VOC- Customer expressed concern over the significant delay in the delivery of their MYFITNESS Chocolate Peanut Butter order and mentioned the possibility of filing a complaint in consumer court if the issue is not resolved. They also inquired about the possibility of faster delivery and the current location of their order.
+
+Res- Agent acknowledged the delay and assured the customer that they are coordinating with the delivery partner to ensure successful delivery. The agent escalated the issue to the concerned team and provided an expected resolution by 21st September 2025. The agent confirmed that the order is out for delivery and shared the delivery agent’s contact details with the customer for coordination.
+
+What went wrong- NA
+
+What should be done- NA """	Indirect	Logistics	Delivery Related	Delay In Delivery	Customer	Customer comprehension	Customer not willing to wait for TAT given after issue escalated by agent				14 Oct 25	L1	1	18-Sep-25 , 12:07:56 am	#Chat	Delay in delivery	IN25091608302728789575	techmk.2411867	Anchal 	Tech M Kolkata	Chat	"VOC- Customer expressed frustration over the delayed delivery of their MYFITNESS Chocolate order and requested to cancel it due to the delay. The customer also inquired about the exact delivery time and whether faster delivery could be arranged.
+
+Res- Agent explained that the delay was due to logistical issues and reassured the customer that the order was already out for delivery. The agent clarified that cancellation is not possible at this stage since the product is en route and confirmed that the delivery is scheduled to be completed by 11 PM on the same day. The order is being actively monitored to ensure timely delivery.
+
+What went wrong- NA
+
+What should be done- NA"	Process	Logistics	Enquiry call	Need status check								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	2	18-Sep-25 , 10:05:49 am	#Chat	Delay in delivery	IN25091608302728789575	 techmk.2414048	Amaan 	Tech M Kolkata	Chat	"VOC- Customer expressed concern about the delay in receiving their order and requested details on the current location and delivery status. The customer also asked if faster delivery options could be arranged to expedite the process.
+
+Res- Agent provided real-time updates on the order’s current location and informed the customer about the ongoing delivery attempts. The agent acknowledged the customer’s request for faster delivery but clarified that the delivery timeline cannot be modified once the order is placed. The agent assured the customer that the order is being closely tracked and will be delivered at the earliest possible time.
+
+What went wrong- NA
+
+What should be done- NA"	Process	Logistics	Enquiry call	Need status check								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	3	18-Sep-25 , 10:09:52 am	#Chat	Delay in delivery	IN25091608302728789575	tpm.6055027	Mohit	TP Mohali	Chat	"VOC- Customer raised concerns about the delayed delivery of their order and requested to cancel it due to the delay. The customer also asked for the delivery agent’s contact number and inquired if faster delivery options were available.
+
+Res- Agent provided an update on the order’s current delivery status and apologized for the inconvenience caused by the delay. The agent clarified that the delivery timeline cannot be modified once the order is placed and that the order is scheduled for delivery by 11 PM on the same day. The agent reassured the customer that the order is being actively tracked to ensure prompt delivery.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Enquiry call	Need status check								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	4	18-Sep-25 , 11:00:57 am	#Chat	Delay in delivery	IN25091608302728789575	tpm.6062150	Ishpal 	TP Mohali	Chat	"VOC- Customer expressed dissatisfaction over the delayed delivery of their MYFITNESS Chocolate Peanut Butter order and requested to cancel it due to the delay.
+
+Res- Agent explained that the delivery delay was caused by heavy rainfall affecting logistics and assured the customer that another delivery attempt would be made soon. The agent also clarified that the order cannot be canceled since it is already out for delivery.
+
+What went wrong- NA
+
+What should be done- NA"	Process	Logistics	Enquiry call	Need status check								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	5	18-Sep-25 , 11:16:41 am	#Chat	Delay in delivery	IN25091608302728789575	techmn.2332626	Preeti 	Tech M Noida	Chat	"VOC- Customer expressed concern over the delayed delivery of their MYFITNESS Chocolate Peanut Butter order and requested faster delivery options. The customer also asked if the order could be canceled due to the delay.
+
+Res- Agent informed the customer that the order is currently out for delivery and scheduled to be delivered by 19th September before 11 PM. The agent clarified that faster delivery is not possible and that the delivery timeline cannot be modified once the order is placed. The agent assured the customer that the delivery is being tracked closely to ensure it reaches them as soon as possible.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Enquiry call	Need status check								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	6	19-Sep-25 , 12:50:20 am	#Chat	Delay in delivery	IN25091608302728789575	 tpm.6061101	Noor 	TP Mohali	Chat	"VOC- Customer expressed frustration over the delayed delivery of their order and requested an update on its current status. The customer also inquired about faster delivery options and mentioned the possibility of canceling the order if the delay continued.
+
+Res- Agent provided the latest updates on the order’s status and informed the customer about ongoing delivery attempts. The agent explained that faster delivery is not possible due to logistical constraints but offered assistance in canceling the order if the customer decided to proceed.
+
+What went wrong- NA
+
+What should be done- NA"	Process	Logistics	Enquiry call	Need status check								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	7	19-Sep-25 , 01:51:09 am	#Chat	Delay in delivery	IN25091608302728789575	tpm.6066228	Fayiza 	TP Mohali	Chat	"VOC- Customer expressed dissatisfaction over repeated delays in the delivery of their MYFITNESS Chocolate Peanut Butter order and requested an update on its current delivery status. The customer also mentioned the possibility of canceling the order due to the delay.
+
+Res- Agent provided the current delivery status, confirming that the order is “Out for Delivery” and scheduled to be delivered by 19th September before 11 PM. The agent also offered to assist with order cancellation if the customer wished to proceed.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Enquiry call	Need status check								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	8	19-Sep-25 , 03:13:02 am	#Chat	Delay in delivery	IN25091608302728789575	tpm.6060079	Akshita 	TP Mohali	Chat	"VOC- Customer expressed concern about the delayed delivery of their order and requested a clear update on when it would arrive. The customer also insisted on faster delivery due to the inconvenience caused by the delay.
+
+Res- Agent checked and shared the latest delivery status, explaining that the delay was due to logistical challenges. The agent informed the customer that the order is currently out for delivery and confirmed the expected delivery time, assuring that the order will reach them by the specified timeline.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Enquiry call	Need status check								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	9	19-Sep-25 , 08:13:43 am	#Chat	Delay in delivery	IN25091608302728789575	techmn.2284424	Ranjana 	Tech M Noida	Chat	"VOC- Customer expressed concern over repeated delays and the late delivery time of their order, seeking an update on its current delivery status and inquiring if faster delivery could be arranged.
+
+Res- Agent provided the latest updates on the order’s location and ongoing delivery attempts. The agent apologized for the inconvenience caused by the delay and assured the customer that the order is out for delivery and will be delivered within the promised time. The agent also clarified that faster delivery is not possible once the order has been placed.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Enquiry call	Need status check								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	10	19-Sep-25 , 10:04:48 am	#Chat	Delay in delivery	IN25091608302728789575	techmn.2396683	Neha	Tech M Noida	Chat	"VOC- Customer expressed frustration over the delayed delivery of their order, which was initially promised for the 17th but has not yet been delivered. The customer requested either faster delivery or cancellation due to the delay.
+
+Res- Agent checked the current order status and confirmed the next delivery attempt. The agent provided the customer with the delivery executive’s contact details for coordination and explained that the delivery timeline cannot be modified once the order is placed. The agent reassured the customer that the delivery team is actively working with the logistics partner to ensure the order is delivered by the promised time.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Enquiry call	Need status check								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	11	19-Sep-25 , 10:35:41 am	#Chat	Delay in delivery	IN25091716150390223932	tpm.6062028	Labiqua 	TP Mohali	Chat	"VOC- Customer expressed concern over the delayed delivery of their order and requested to cancel it due to the delay.
+
+Res- Agent informed the customer that the order is already out for delivery and cannot be canceled. The agent reassured the customer that the order is being closely tracked and will be delivered by the promised date. Updates on the order’s current location were provided, and efforts were made to expedite the delivery.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Enquiry call	Need status check								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	12	19-Sep-25 , 10:52:14 am	#Chat	Delay in delivery	IN25091608302728789575	techmn.2407834	Ajay 	Tech M Noida	Chat	"VOC- Customer expressed concern over the delayed delivery of their order and requested faster delivery. They also considered canceling the order due to the inconvenience caused by the delays.
+
+Res- Agent provided updates on the order’s current location and ongoing delivery attempts, apologizing for the inconvenience caused. The agent assured the customer that the order is being actively tracked and will be delivered as soon as possible. The agent also explained that the delivery timeline cannot be modified once the order is placed and informed the customer that cancellation is not possible since the order is already out for delivery.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Enquiry call	Need status check								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	13	20-Sep-2025, 1:06:19 AM	#10002034031758310541	Delay in delivery	IN25091608302728789575	starkluc.81071212	SACHIN TIWARI	Startek Lucknow	309	"VOC- Customer expressed concern over repeated delays in the delivery of their My Fitness Chocolate Peanut Butter order, citing weather conditions and other unexpected issues. The customer also inquired about the possibility of canceling the order if it is not delivered by the final promised date.
+
+Res- Agent provided updates on the order’s approval, shipping, and delivery attempts, and explained the reasons for the delays. The agent assured the customer that the issue has been escalated to the backend team for resolution. The agent informed the customer about the cancellation process in case they choose to cancel and advised them to monitor the Flipkart app for updates and be ready to receive a call from the delivery executive.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	14	20-Sep-25 , 01:21:26 am	#Chat	Delay in delivery	IN25091608302728789575	techmn.2405894	Rahul 	Tech M Noida	Chat	"VOC- Customer expressed frustration over the repeated delays and rescheduling of their order. They indicated a desire to cancel the order and mentioned considering consumer court action due to the inconvenience caused.
+
+Res- Agent checked the current order status and explained the reasons for the delays. The agent assured the customer that the order will be delivered by a specified date and attempted to address the cancellation request, clarifying that the order cannot be canceled as it is already out for delivery.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	15	20-Sep-25 , 01:33:28 am	#Chat	Delay in delivery	IN25091608302728789575	tpm.6066232	Jyotiranjan 	TP Mohali	Chat	"VOC- Customer expressed frustration over the delayed delivery of their order, which was originally promised on the 17th but has been delayed due to heavy rain and logistical issues. The customer requested faster delivery or cancellation and mentioned the possibility of approaching consumer court if the issue is not resolved.
+
+Res- Agent acknowledged the delay and assured the customer that team is working on it on a priority basis and will get back to you with a resolution on or before September 21, 2025.
+
+What went wrong- NA
+
+What should be done- NA"	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	16	20-Sep-25 , 01:39:15 am	#Chat	Delay in delivery	IN25091608302728789575	tpm.6060081	Juhi 	TP Mohali	Chat	"VOC- Customer expressed frustration over the delayed delivery of their order, originally promised on the 17th but not delivered by the 19th. The customer was also concerned about the inability to contact the delivery agent and considered canceling the order due to the repeated delays.
+
+Res- Agent checked the current order status and explained the reasons for the delay, including heavy rain and logistical challenges and informed that team is working on it on a priority basis and will get back to you with a resolution on or before September 21, 2025.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	17	20-Sep-25 , 02:36:49 am	#Chat	Delay in delivery	IN25091608302728789575	tpm.6066846	Laaraib 	TP Mohali	Chat	"VOC- Customer expressed frustration over repeated delays in the delivery of their order and inquired about its current location and reasons for the delay. The customer also mentioned the inability to contact the delivery executive and indicated a potential intention to approach consumer court due to the inconvenience.
+
+Res- Agent reassured the customer that the issue is being escalated and confirmed that the order is out for delivery. The agent informed the customer that already highlighted his concern to the team please kindly wait the team will get back to him on or before September 21, 2025.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	18	20-Sep-25 , 07:42:25 am	#Chat	Delay in delivery	IN25091608302728789575	techmnfrm.2400093	Tushar 	Tech M Noida	Chat	"VOC- Customer expressed concern over the delayed delivery of their MYFITNESS Chocolate Peanut Butter order and requested urgent delivery. They also inquired about the possibility of canceling the order if it could not be delivered today.
+
+Res- Agent informed last attempts were unsuccessful due to heavy rain and heavy load. We are working with the delivery partner to ensure a new delivery attempt is made for you within the next 2 days (22nd Sept).
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	19	20-Sep-25 , 07:56:46 am	#Chat	Delay in delivery	IN25091608302728789575	tpm.6068827	Dev 	TP Mohali	Chat	"VOC- Customer expressed frustration over the delayed delivery of their order, which was promised on the 17th but has not yet arrived. They requested delivery today and indicated a willingness to pursue legal action if the issue is not resolved.
+
+Res- Agent confirmed the order status and explained the reasons for the delay. The agent escalated the issue to the concerned team and reassured the customer that the order is scheduled for delivery today. The agent also assured the customer that the delivery executive’s contact details would be shared once the order is out for delivery.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	20	20-Sep-25 , 08:28:52 am	#Chat	Delay in delivery	IN25091608302728789575	tpm.6068667	Ishika 	TP Mohali	Chat	"VOC- Customer expressed frustration over the delayed delivery of their order, originally promised on the 17th but not received by the 20th. The customer was concerned about the lack of communication from the delivery partner and mentioned the possibility of approaching consumer court.
+
+Res- Agent checked the order status and confirmed that it is out for delivery. The agent escalated the issue to the concerned team and provided an update that case has been forwarded to the concerned higher team and they'll get back to him with an update by September21 2025.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	21	20-Sep-25 , 08:47:55 am	#Chat	Delay in delivery	IN25091608302728789575	tpm.6052396	Gracy 	TP Mohali	Chat	"VOC- Customer expressed frustration over the repeated rescheduling and delayed delivery of their order, originally promised on the 17th. They inquired about the delivery agent’s contact number, requested faster delivery, and indicated a willingness to approach consumer court if the issue is not resolved.
+
+Res- Agent informed we are actively working with the delivery partner to ensure the delivery is completed successfully by today (20th Sept). We are closely tracking it.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	22	20-Sep-25 , 11:03:55 am	#Chat	Delay in delivery	IN25091608302728789575	tpm.584685	Chander 	TP Mohali	Chat	"VOC- Customer expressed frustration over the delayed delivery of their MYFITNESS Chocolate Peanut Butter order, originally promised on the 17th, which has been postponed multiple times due to heavy rain and high delivery load.
+
+Res- Agent checked the delivery status and confirmed that the order is out for delivery. The agent assured the customer that  issue is alreday highlighted and the team is working on it and will update him by September 21, 2025.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	23	20-Sep-25 , 11:25:54 am	#Chat	Delay in delivery	IN25091608302728789575	techmk.2414058	Arunima 	Tech M Kolkata	Chat	"VOC- Customer expressed concern over the delayed delivery of their order, originally promised on the 17th, and mentioned the possibility of approaching consumer court due to repeated delays. The customer requested the delivery agent’s contact number and inquired about the possibility of early morning delivery.
+
+Res- Agent reassured the customer that issue has been already escalated to team regarding delay in delivery. Team will try to get back with the resolution on or before September 21, 2025.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											14 Oct 25	L1	24	20-Sep-25 , 11:54:16 am	#Chat	Delay in delivery	IN25091608302728789575	techmk.2411038	Sardar 	Tech M Kolkata	Chat	"VOC- Customer expressed frustration over repeated delays in the delivery of their order and indicated a possibility of taking legal action due to the inconvenience caused.
+
+Res- Agent provided updates on the delivery attempts and the current status of the order. The agent escalated the issue to the concerned team for resolution and assured the customer that the delivery partner is working to ensure the order is delivered by the end of the day.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	25	20-Sep-2025, 12:01:47 PM	#10003605741758349851	Delay in delivery	IN25091608302728789575	starkluc.81076914	Shruti Awasthi	Startek Lucknow	267	"VOC- Customer expressed concern over the delayed delivery of their order, originally scheduled for 17th September, and mentioned uncertainty about being available at home to receive the delivery.
+
+Res- Agent acknowledged the delay and explained the issues faced by the logistics team. A complaint was raised on behalf of the customer, and the issue was escalated to the backend team. The agent informed the customer that the delivery is now expected by 21st September and advised them to ensure availability for the delivery partner’s contact to facilitate smooth delivery.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	26	20-Sep-25 , 01:36:57 pm	#Chat	Delay in delivery	IN25091608302728789575	techmk.2406278	Sana 	Tech M Kolkata	Chat	"VOC- Customer expressed frustration over the delayed delivery of their order, originally promised on the 17th but not delivered by the 20th. The customer requested to cancel the order and mentioned the possibility of approaching consumer court if the issue is not resolved.
+
+Res- Agent apologized for delay in his order and informed that this is due to an unexpected issue faced by the delivery partner. Rest assured, we're also following up with them to get this sorted out on priority and we will share an update with him within September 21, 2025.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	27	20-Sep-25 , 06:08:40 pm	#Chat	Delay in delivery	IN25091608302728789575	tpm.6070220	Nawaz 	TP Mohali	Chat	"VOC- Customer expressed frustration over repeated delays in the delivery of their order, caused by heavy rain and high delivery load. They inquired about the current location of the order, requested the possibility of early morning delivery, and mentioned the potential of approaching consumer court if the issue is not resolved.
+
+Res- Agent checked the order status and confirmed that it is out for delivery and will be delivered by the end of the day. The agent explained the reasons for the delays and assured the customer that the issue has been escalated to higher authorities. A complaint number was provided for reference, and the agent confirmed that the order will be delivered by 11 PM.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	28	20-Sep-25 , 06:57:20 pm	#Chat	Delay in delivery	IN25091608302728789575	tpm.5611433	Kazima 	TP Mohali	Chat	"VOC- Customer expressed frustration over repeated delays in the delivery of their order and inquired about its current status. They also mentioned the possibility of approaching consumer court due to the ongoing inconvenience caused by the delays.
+
+Res- Agent escalated the issue to the concerned team and provided the customer with a resolution timeline, assuring delivery by September 21st. The agent also explained that the delays were due to unforeseen circumstances, including heavy rain and high delivery load.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	29	20-Sep-2025, 7:01:51 PM	#10003334361758375071	Delay in delivery	IN25091608302728789575	starkluc.81095918	Tabeena Nazir Baba	Startek Lucknow	430	"VOC- Customer expressed concern over the delayed delivery of their 'My Fitness Talk Peanut Butter' order, placed on the 17th, and mentioned anxiety about not seeing a cancellation option. They were worried about potential loss of money if the order was not delivered.
+
+Res- Agent checked the order status and confirmed it is at the final delivery hub. The agent apologized for the inconvenience and assured the customer that the order will be delivered by 11 PM on the current date or within the next 24 hours. The agent informed the customer that the issue has been escalated to the backend team with a promised resolution by 22nd September. The agent also assured the customer that they can cancel the order via call if it is not delivered by the next day, and a refund will be initiated.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	30	20-Sep-25 , 11:33:02 pm	#Chat	"Incomplete/inconclusive chat: or
+"	IN25092023332920674483	techmk.2413623	Muskan 	Tech M Kolkata	Chat	"VOC- Customer expressed concern over the delayed delivery of their order, originally promised on the 17th, and inquired about its current status and the possibility of delivery today. They mentioned a willingness to approach consumer court if the issue is not resolved.
+
+Res- Agent checked the order status and explained the reasons for the delay, including logistical challenges. The agent reassured the customer that another delivery attempt will be made by the promised date and escalated the issue to the concerned team. A resolution timeline was provided, and the agent explained the efforts being made to ensure the order is delivered promptly.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	31	21-Sep-2025, 12:24:25 AM	#10003128331758394408	Delay in delivery	IN25091608302728789575	tp.5996003	Ganesh Mutkure	TP Indore	449	"VOC- Customer expressed concern over the delayed delivery of their order, originally scheduled for 16th September, and inquired about the possibility of picking up the product from the nearby delivery hub.
+
+Res- Agent acknowledged the delay and apologized for the inconvenience. The agent informed the customer that there have been two delivery attempts and requested them to wait until 22nd September for delivery. The agent explained that the exact delivery hub location is not available but assured the customer that the issue will be escalated to the team, and efforts will be made to resolve the concern promptly.
+
+What went wrong- NA
+ 
+What should be done- NA"	Process	Logistics	Delivery Related	Delay In Delivery								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	32	21-Sep-25 , 12:50:38 am	#Chat	Delay in delivery	IN25091608302728789575	techmk.2411122	Mohd 	Tech M Kolkata	Chat	"VOC- Customer expressed concern over the significant delay in the delivery of their MYFITNESS Chocolate Peanut Butter order and mentioned the possibility of filing a complaint in consumer court if the issue is not resolved. They also inquired about the possibility of faster delivery and the current location of their order.
+
+Res- Agent acknowledged the delay and assured the customer that they are coordinating with the delivery partner to ensure successful delivery. The agent escalated the issue to the concerned team and provided an expected resolution by 21st September 2025. The agent confirmed that the order is out for delivery and shared the delivery agent’s contact details with the customer for coordination.
+
+What went wrong- NA
+
+What should be done- NA "	Customer	Customer	Customer comprehension	Customer not willing to wait for TAT given after issue escalated by agent	Delay In Delivery		Yes	Agent escalated the issue and tat shared		Customer not willing to wait for TAT given after issue escalated by agent	Customer	"Problem: Customer is frustrated due to the delayed delivery of their order, causing inconvenience and uncertainty about when the product will arrive.
+
+Resolution: The agent checked the order status, shared the updated estimated delivery date (EDD), and informed the customer that the concern has been escalated. The agent provided a resolution timeline (TAT) to keep the customer informed and reassured.
+
+What it Solves: This addresses the customer’s need for clarity on the delivery status, reduces anxiety caused by the delay, and provides a clear timeline for resolution."		-	Yes	Post- SLA
+Aaquib	45922	39	Sep	2025	OD335533471730433100	IN25092218591804240748	MOBGHWFHSV7GUFWA	Mobile	Mobile	Mobile	Handset	Normal	Grevience	Direct Contact	45922	39	Sep	2025	1	BBD-2025	ACC124FDABAD2254C0AB4E1BFAD3E34CCA1F	Cancellation	Cancellation	Price Error	1	Cancellation	Cancellation	FLIPKART	Med-High	FALSE	ECR	NA	NA	435533837166762100	Non_Large	32432	854105	KATIHAR	BIHAR	EKL	NA	NA	-	-	Rejected	22 Sep 25	04 Oct 25	70487	13	F-assured	Order for iPhone 16 Pro 128GB was auto-canceled due to system error in GST verification despite the GST number being valid and accurate.	"VOC - Customer expressed disappointment over the cancellation of their iPhone 16 Pro 128GB (Natural Titanium) order due to GST verification failure, despite providing a valid and active GST number verified on the official portal. The customer stated that the cancellation occurred without any opportunity for correction and requested Flipkart to either reinstate the order at the original price or offer compensation.
+
+Pain point - Customer is frustrated due to an incorrect GST verification failure that led to order cancellation and a price increase, resulting in financial loss and inconvenience.
+
+Summary: Customer order was cancelled without his consent. Agent checked and informed that order was cancelled due to invalid gst number and asked to place new order again. 
+
+Call-1
+Channel - L1
+Call Sequence - 1
+Call Date - 22-Sep-2025, 12:12:45 AM
+UCID - #10002353471758480124
+Agent Ldap -  starkluc.81090619
+Agent Name - Mohd Atif
+Partner - Startek Lucknow
+AHT (Seconds) - 211
+
+Summary: ""VOC- Customer reported that their Apple iPhone 16 Pro Titanium order worth ₹87,800 was canceled without their intent. The customer expressed frustration over being unable to rebook the order due to GST verification issues and sought immediate assistance.
+
+Res- Agent verified the order details and confirmed that the cancellation occurred because of an invalid GST verification. The agent advised the customer to rebook the order after correcting the GST number to ensure successful validation and order processing.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-2
+Channel - L1
+Call Sequence - 1
+Call Date - 22-Sep-2025, 8:57:09 AM
+UCID - #10001527251758511573
+Agent Ldap - starkluc.81044781
+Agent Name - FATIMA ANSAR
+Partner - Startek Lucknow
+AHT (Seconds) - 120
+
+Summary: ""VOC- Customer expressed concern and confusion after their order was canceled unexpectedly due to GST verification failure. The customer wanted clarity on the reason for cancellation and guidance on how to successfully place the order again.
+
+Res- Agent explained that the order was canceled because the GST verification was invalid. The agent advised the customer to remove the GST details and reorder the product to ensure successful processing. The agent apologized for the inconvenience and assured the customer that this issue would not recur.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-3
+Channel - L1
+Call Sequence - 1
+Call Date - 22-Sep-2025, 9:15:04 AM
+UCID - #00003135501758512702
+Agent Ldap - tp.5928168
+Agent Name - SIMRAN RATHORE
+Partner - TP Indore
+AHT (Seconds) - 857
+
+Summary: ""VOC- Customer reported that despite entering the correct GST number, their order was canceled automatically without any prior confirmation or notification. The customer expressed frustration over the repeated cancellations and lack of clarity regarding the reason.
+
+Res- KNE explained that the order could not be reinstated as it was canceled due to GST verification issues. The agent informed the customer that the refund had already been initiated from the seller’s end and apologized for the inconvenience caused. The customer was advised to place a fresh order after 24 hours, and the resolution timeline (TAT) was shared as 23rd September.
+
+What went wrong- NA
+
+What should be done- NA"""	Indirect	Seller	Order cancellation	Order cancelled due to GST verification failure.							15 Oct 25	L1	1	22-Sep-2025, 12:12:45 AM	#10002353471758480124	Customer not aware of cancellation	IN25092200143744133942	 starkluc.81090619	Mohd Atif	Startek Lucknow	211	"VOC- Customer reported that their Apple iPhone 16 Pro Titanium order worth ₹87,800 was canceled without their intent. The customer expressed frustration over being unable to rebook the order due to GST verification issues and sought immediate assistance.
+
+Res- Agent verified the order details and confirmed that the cancellation occurred because of an invalid GST verification. The agent advised the customer to rebook the order after correcting the GST number to ensure successful validation and order processing.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Seller	Order cancellation	Order cancelled due to GST verification failure.								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	2	22-Sep-2025, 8:57:09 AM	#10001527251758511573	Customer not aware of cancellation	IN25092200143744133942	starkluc.81044781	FATIMA ANSAR	Startek Lucknow	120	"VOC- Customer expressed concern and confusion after their order was canceled unexpectedly due to GST verification failure. The customer wanted clarity on the reason for cancellation and guidance on how to successfully place the order again.
+
+Res- Agent explained that the order was canceled because the GST verification was invalid. The agent advised the customer to remove the GST details and reorder the product to ensure successful processing. The agent apologized for the inconvenience and assured the customer that this issue would not recur.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Seller	Order cancellation	Order cancelled due to GST verification failure.								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	KNE	3	22-Sep-2025, 9:15:04 AM	#00003135501758512702	Refund status enquiry	IN25092209265818213590	tp.5928168	SIMRAN RATHORE	TP Indore	857	"VOC- Customer reported that despite entering the correct GST number, their order was canceled automatically without any prior confirmation or notification. The customer expressed frustration over the repeated cancellations and lack of clarity regarding the reason.
+
+Res- KNE explained that the order could not be reinstated as it was canceled due to GST verification issues. The agent informed the customer that the refund had already been initiated from the seller’s end and apologized for the inconvenience caused. The customer was advised to place a fresh order after 24 hours, and the resolution timeline (TAT) was shared as 23rd September.
+
+What went wrong- NA
+
+What should be done- NA"	Process	Seller	Order cancellation	Order cancelled due to GST verification failure.	Order cancelled due to GST verification failure.		Yes	Agent shared cancellation reason		Order cancelled due to GST verification failure.	Seller	"Problem: Customer’s iPhone 16 Pro 128GB (Natural Titanium) order was cancelled due to a GST verification failure, despite providing a valid and active GST number. The cancellation occurred without prior notification or an opportunity to correct the details.
+
+Resolution: Agent verified the order details and informed the customer that the cancellation occurred due to an invalid GST verification. The agent apologized for the inconvenience and advised the customer to reattempt placing the order without GST or with verified details after 24 hours.
+
+What It Solves: The resolution clarified the reason for the cancellation and guided the customer on the correct reordering process to avoid further issues."		-	Yes	Post- SLA
+Aaquib	45922	39	Sep	2025	OD435488998388956100	IN25092221152129646888	MOBGQFVGYU2F5CYT	Mobile	Mobile	Mobile	Handset	Normal	Grevience	Direct Contact	45900	36	Aug	2025	1	Non Sale	ACCCB8AD73AC45943788541AA88E9CBDC77	Returns | FRM | SRT	Returns | FRM | SRT	Defective Product	1	Return Authorization Requests	Returns | FRM | SRT	FLIPKART	null	FALSE	ECR	NA	NA	435348658082172100	Non_Large	904	209728	SAURIKH	UTTAR PRADESH	EKL	NA	NA	-	-	22 Sep 25	22 Sep 25	23 Sep 25	350	2	F-assured	Order falsely marked as Delivered despite non-receipt of the product — a suspected case of delivery agent misconduct leading to financial loss and customer mistrust.	"VOC - Customer reported that their prepaid Flipkart order (FMPP333xxxxx35) for a track pant worth ₹350 was marked as Delivered even though the product was never received. The customer stated that the delivery agent requested the OTP before handing over the product but disappeared after receiving it. The customer expressed frustration, calling it a case of delivery fraud and a violation of consumer rights, and demanded immediate investigation, refund/replacement, and stricter delivery safeguards.
+
+Pain point - Customer is highly dissatisfied and feels cheated due to non-receipt of a prepaid order, lack of accountability from the delivery partner, and perceived negligence from Flipkart in ensuring proper delivery verification.
+
+Summary: Customer reached us stating that courier asked for OTP and he shared the OTP but they did not deliver the product but marked it as delivered. Agent checked and informed that as the order was marked as delivered post sharing the OTP then nothing can be done right now and asked to contact the delivery executive. 
+
+Call-1
+Channel - L1
+Call Sequence - 1
+Call Date - 22-Sep-2025, 12:51:46 PM
+UCID - #10003434041758525648
+Agent Ldap - starkluc.81091101
+Agent Name - Mohd Kaif Qureshi
+Partner - Startek Lucknow
+AHT (Seconds) - 264
+
+Summary: ""VOC- Customer reported that after sharing the OTP with the delivery agent, the product was taken away by someone else, resulting in non-receipt of the order. The customer expressed frustration and concern over the loss of the prepaid product and requested immediate assistance.
+
+Res- Agent explained that sharing the OTP before receiving the product caused the issue and advised the customer to directly contact the delivery executive for clarification. The agent also informed the customer about the importance of verifying product receipt before sharing the OTP in future deliveries.
+
+What went wrong- NA
+ 
+What should be done- NA""
+
+Call-2
+Channel - L1
+Call Sequence - 1
+Call Date - 22-Sep-2025, 12:59:00 PM
+UCID - #10003438901758526081
+Agent Ldap - techmk.2403240
+Agent Name - Salu Baidya
+Partner - Tech M Kolkata
+AHT (Seconds) - 187
+
+Summary: ""VOC- Customer reported that the product was not received at the local shop even though the OTP was shared with the delivery agent. The customer expressed frustration over the non-delivery despite the order being marked as delivered in the system.
+
+Res- Agent verified the delivery status and confirmed that the order was marked as delivered. The agent explained the OTP verification process and emphasized its role as a secure confirmation step. The customer was advised to reconnect with the delivery executive or visit the nearest delivery hub for further assistance and resolution.
+
+What went wrong- NA
+
+What should be done- NA""
+
+Call-3
+Channel - L1
+Call Sequence - 1
+Call Date - 22-Sep-2025, 2:29:21 PM
+UCID - #10003499291758531511
+Agent Ldap - starkluc.81091639
+Agent Name - Priya Dixit
+Partner - Startek Lucknow
+AHT (Seconds) - 324
+
+Summary: ""VOC- Customer reported that they were not present at the time of delivery and had shared the OTP with the delivery person at a nearby shop. However, the product was not received by them despite the OTP being shared.
+
+Res- Agent checked the order details and confirmed that the product was marked as delivered on the 21st. The agent explained that once an OTP is shared and delivery is confirmed, a complaint cannot be raised for OTP-based deliveries.
+
+What went wrong- NA
+
+What should be done- NA """	Indirect	Logistics	Wishmaster related	Wishmaster falsely took OTP							15 Oct 25	L1	1	22-Sep-2025, 12:51:46 PM	#10003434041758525648	Customer not received the product, but got delivery confirmation message/email	IN25092212563442981942	starkluc.81091101	Mohd Kaif Qureshi	Startek Lucknow	264	"VOC- Customer reported that after sharing the OTP with the delivery agent, the product was taken away by someone else, resulting in non-receipt of the order. The customer expressed frustration and concern over the loss of the prepaid product and requested immediate assistance.
+
+Res- Agent explained that sharing the OTP before receiving the product caused the issue and advised the customer to directly contact the delivery executive for clarification. The agent also informed the customer about the importance of verifying product receipt before sharing the OTP in future deliveries.
+
+What went wrong- NA
+ 
+What should be done- NA"	Process	Logistics	Wishmaster related	Wishmaster falsely took OTP								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	2	22-Sep-2025, 12:59:00 PM	#10003438901758526081	Customer not received the product, but got delivery confirmation message/email	IN25092212563442981942	techmk.2403240	Salu Baidya	Tech M Kolkata	187	"VOC- Customer reported that the product was not received at the local shop even though the OTP was shared with the delivery agent. The customer expressed frustration over the non-delivery despite the order being marked as delivered in the system.
+
+Res- Agent verified the delivery status and confirmed that the order was marked as delivered. The agent explained the OTP verification process and emphasized its role as a secure confirmation step. The customer was advised to reconnect with the delivery executive or visit the nearest delivery hub for further assistance and resolution.
+
+What went wrong- NA
+
+What should be done- NA"	Process	Logistics	Wishmaster related	Wishmaster falsely took OTP								-		-		
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	3	22-Sep-2025, 2:29:21 PM	#10003499291758531511	Customer not received the product, but got delivery confirmation message/email	IN25092212563442981942	starkluc.81091639	"	Priya Dixit"	Startek Lucknow	324	"VOC- Customer reported that they were not present at the time of delivery and had shared the OTP with the delivery person at a nearby shop. However, the product was not received by them despite the OTP being shared.
+
+Res- Agent checked the order details and confirmed that the product was marked as delivered on the 21st. The agent explained that once an OTP is shared and delivery is confirmed, a complaint cannot be raised for OTP-based deliveries.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Wishmaster related	Wishmaster falsely took OTP	Wishmaster falsely took OTP		Yes	Agent shared the details as per SOP		Wishmaster falsely took OTP	Logistics	"Problem: Customer reported that their prepaid order was marked as “Delivered” despite not receiving the product. The delivery agent allegedly took the OTP and failed to deliver the item, leading to a potential delivery fraud concern.
+
+Resolution: Agent verified the order status, explained that the delivery was completed post OTP verification, and informed the customer that no complaint could be raised at this stage. The customer was advised to contact the delivery executive directly for clarification.
+
+What it Solves: Provided clarity on the delivery confirmation process and OTP policy while guiding the customer on the next immediate step to seek resolution."		-	Yes	Post- SLA
+Aaquib	45922	39	Sep	2025	OD335533777695023100	IN25092220062730721121	MOBGHWFHABH3G73H	Mobile	Mobile	Mobile	Handset	Normal	Grevience	Direct Contact	45922	39	Sep	2025	1	BBD-2025	ACC7E6C9FD079EF434595404687BAB5B8AC9	Cancellation	Cancellation	Price Error	1	Cancellation	Cancellation	FLIPKART	High	FALSE	ECR	NA	NA	435533865977415100	Non_Large	33108	143502	AMRITSAR	PUNJAB	EKL	NA	NA	-	-	Cancelled	22 Sep 25	24 Sep 25	33008	3	F-assured	iPhone 14 order was canceled by Flipkart after one EMI installment was paid, causing financial and emotional distress to the customer.	Summary: Customer reported placing an order for an iPhone 14, which was successfully processed with an EMI plan (₹11,004 per installment) and one installment already paid. However, Flipkart canceled the order citing an “unexpected issue,” causing embarrassment and mental distress for the customer. The customer expressed frustration over the inconvenience and the emotional impact of the cancellation.	Direct	Seller	Order cancellation	Order Cancelled due to Price error							15 Oct 25		-	-	-	-	-	-	-		-	-	Process	Seller	Order cancellation	Order Cancelled due to Price error	Order cancelled without customer's consent.							"Problem: Customer’s iPhone 14 order, processed under an EMI plan with one installment paid, was unexpectedly canceled by Flipkart, causing financial inconvenience and emotional distress.
+
+Resolution: Agent acknowledged the issue, explained the reason for cancellation, and guided the customer on refund or EMI reversal procedures. The agent also offered support for reordering the product or choosing alternative solutions.
+
+What it Solves: Addresses the customer’s financial concern, provides clarity on the cancellation, and offers a pathway to either recover funds or reorder, reducing frustration and restoring trust."		-	Yes	Post- SLA
+Aaquib	45923	39	Sep	2025	OD435512692839417100	IN25092321521786967170	TVSHCZ2XHNXTGZPV	HomeEntertainmentLarge	LargeAppliances	Large Appliance	Television	Normal	Grevience	Direct Contact	45905	36	Sep	2025	1	Non Sale	ACC13919368057437580	Returns | FRM | SRT	Returns | FRM | SRT	Defective Product	1	Return Authorization Requests	Returns | FRM | SRT	FLIPKART	High	FALSE	ECR	NA	NA	435392337667835100	Large	6267	524003	NELLORE	ANDHRA PRADESH	EKL	NA	NA	-	-	20 Sep 25	20 Sep 25	25 Sep 25	257	6	F-assured	Return cancelled	"VOC - Customer reported that the AWB number for their shipment has been marked as closed because the pickup was canceled and requested guidance on reattempting the pickup.
+
+Pain point - Customer is frustrated due to the canceled shipment pickup, lack of clarity on next steps, and inconvenience caused by having to coordinate with the seller/merchant to reinitiate the pickup.
+
+Summary: Customer received a damaged product and requested a refund or replacement. Agent guided them to upload images, explained that only a refund is available, and detailed the pickup process. Customer’s return was canceled after a failed verification. Agent clarified it failed due to a quality check issue and assured a reattempt by 22nd September. Customer faced repeated return pickup cancellations. Agent apologized, raised a complaint, and informed that the backend team would resolve the issue within 24–48 hours.
+
+Call-1
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-2025, 11:43:24 AM
+UCID - #10003135891758348747
+Agent Ldap - starkluc.81091098
+Agent Name - Shadab Khan
+Partner - Startek Lucknow
+AHT (Seconds) - 436
+
+Summary: ""VOC- Customer reported receiving a damaged product and expressed the need for a replacement or refund. The customer was unsure about the process to initiate either option and sought guidance.
+
+Res- Agent instructed the customer to upload images of the damaged product along with the shipping label. The agent confirmed that a refund is the only available option and explained the pickup process for the damaged item. The customer was also advised to refer to the Help Center in the Flipkart app for additional guidance.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-2
+Channel - L1
+Call Sequence - 1
+Call Date - 20-Sep-2025, 5:11:33 PM
+UCID - #10003038341758368437
+Agent Ldap - tpm.6073566
+Agent Name - Khadija Hussain
+Partner - TP Mohali
+AHT (Seconds) - 259
+
+Summary: ""VOC- Customer reported receiving a defective product and expressed confusion and concern after their return request was canceled due to a failed verification process. The customer sought clarification on why the verification failed and wanted assurance about the pickup of the return order.
+
+Res- Agent acknowledged the customer’s concerns regarding the defective product and the failed return process. Upon checking the system, the agent confirmed that the return was initiated but the pickup did not occur due to a failed quality check. The agent assured the customer that the pickup will be attempted again by 22nd September.
+
+What went wrong- NA
+
+What should be done- NA ""
+
+Call-3
+Channel - L1
+Call Sequence - 1
+Call Date - 22-Sep-2025, 6:18:01 PM
+UCID - #10003638281758545222
+Agent Ldap - tpb.672464
+Agent Name - Aasmin Shaikh
+Partner - TP Bangalore
+AHT (Seconds) - 142
+
+Summary: ""VOC- Customer expressed concern and frustration over the repeated cancellation of the return pickup for her order and sought a resolution.
+
+Res- Agent confirmed the details of the return pickup, including the initiation of the second return and the promised pickup date. The agent acknowledged the inconvenience, apologized, and raised a complaint on the customer’s behalf. The customer was informed that the backend team will work to resolve the issue within 24 to 48 hours.
+
+What went wrong- NA
+
+What should be done-  NA"""	Indirect	Seller	QC check not done	Manufacturing issue/ Defective issue	Logistics	Pickup related	Return cancelled without pickup attempt				15 Oct 25	L1	1	20-Sep-2025, 11:43:24 AM	#10003135891758348747	Customer return requested	IN25092011443052573163	starkluc.81091098	Shadab Khan	Startek Lucknow	436	"VOC- Customer reported receiving a damaged product and expressed the need for a replacement or refund. The customer was unsure about the process to initiate either option and sought guidance.
+
+Res- Agent instructed the customer to upload images of the damaged product along with the shipping label. The agent confirmed that a refund is the only available option and explained the pickup process for the damaged item. The customer was also advised to refer to the Help Center in the Flipkart app for additional guidance.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Seller	QC check not done	Manufacturing issue/ Defective issue								-		-	Yes	Post- SLA
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	2	20-Sep-2025, 5:11:33 PM	#10003038341758368437	Pickup status enquiry	IN25092017151729427272	tpm.6073566	Khadija Hussain	TP Mohali	259	"VOC- Customer reported receiving a defective product and expressed confusion and concern after their return request was canceled due to a failed verification process. The customer sought clarification on why the verification failed and wanted assurance about the pickup of the return order.
+
+Res- Agent acknowledged the customer’s concerns regarding the defective product and the failed return process. Upon checking the system, the agent confirmed that the return was initiated but the pickup did not occur due to a failed quality check. The agent assured the customer that the pickup will be attempted again by 22nd September.
+
+What went wrong- NA
+
+What should be done- NA "	Process	Logistics	Enquiry call	Pickup Status Enquiry								-		-	Yes	Post- SLA
+-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-		-	-											15 Oct 25	L1	3	22-Sep-2025, 6:18:01 PM	#10003638281758545222	Pickup status enquiry	IN25092218195015796141	tpb.672464	Aasmin Shaikh	TP Bangalore	142	"VOC- Customer expressed concern and frustration over the repeated cancellation of the return pickup for her order and sought a resolution.
+
+Res- Agent confirmed the details of the return pickup, including the initiation of the second return and the promised pickup date. The agent acknowledged the inconvenience, apologized, and raised a complaint on the customer’s behalf. The customer was informed that the backend team will work to resolve the issue within 24 to 48 hours.
+
+What went wrong- NA
+
+What should be done-  NA"	Process	Logistics	Pickup related	Return cancelled without pickup attempt	Defective product received		Yes	Agent shared pickup date		Return cancelled without pickup attempt	Logistics	"Problem: Customer reported that the AWB number for their shipment was marked as closed because the pickup was canceled, and sought assistance on how to reattempt the pickup.
+
+Resolution: Agent explained that the pickup was closed as per the client’s instructions and advised the customer to contact the seller/merchant to reinitiate the pickup request. The issue was escalated to ensure the customer receives the correct guidance and support for the reattempt.
+
+What it Solves: Clarifies the reason for pickup closure, provides a clear next step for reinitiating the pickup, and reduces customer confusion regarding the return/refund process."		-	Yes	Post- SLA

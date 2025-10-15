@@ -69,13 +69,15 @@ Railway should auto-detect these, but verify in Settings:
 
 **Build Command:**
 ```bash
-npm install && npm run build && npm run db:push
+npm install && npm run build && npm run db:push --force
 ```
 
 **Start Command:**
 ```bash
 npm start
 ```
+
+**Important:** The `--force` flag is required to skip interactive prompts during database migrations on Railway.
 
 ### 5. Health Check Configuration
 
