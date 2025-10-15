@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Conversation, Message, Agent } from "@shared/schema";
+import { Conversation, Message, Agent, Ticket as TicketType } from "@shared/schema";
 import { ConversationCard } from "@/components/conversation-card";
 import { MessageBubble } from "@/components/message-bubble";
 import { ChatInput } from "@/components/chat-input";
@@ -35,6 +35,10 @@ export default function Inbox() {
   const { data: assignedAgent } = useQuery<Agent>({
     queryKey: ["/api/conversations", selectedConversation, "agent"],
     enabled: !!selectedConversation,
+  });
+
+  const { data: tickets = [] } = useQuery<TicketType[]>({
+    queryKey: ["/api/tickets"],
   });
 
   const sendMessageMutation = useMutation({
@@ -116,10 +120,11 @@ export default function Inbox() {
         description: "Conversation has been converted to a support ticket",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      const errorMessage = error?.message || "Failed to convert to ticket";
       toast({
         title: "Error",
-        description: "Failed to convert to ticket",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -149,6 +154,7 @@ export default function Inbox() {
   const activeConversation = conversations.find(c => c.id === selectedConversation);
   const needsEscalation = activeConversation?.status === "open";
   const isAssigned = activeConversation?.status === "assigned";
+  const existingTicket = tickets.find(t => t.conversationId === selectedConversation);
 
   const filteredConversations = conversations.filter(c =>
     c.customerName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -276,16 +282,18 @@ export default function Inbox() {
                     </Button>
                   ) : activeConversation.status !== "resolved" && (
                     <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleConvertToTicket}
-                        disabled={convertToTicketMutation.isPending}
-                        data-testid="button-convert-to-ticket"
-                      >
-                        <Ticket className="w-4 h-4 mr-2" />
-                        {convertToTicketMutation.isPending ? "Converting..." : "Convert to Ticket"}
-                      </Button>
+                      {!existingTicket && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleConvertToTicket}
+                          disabled={convertToTicketMutation.isPending}
+                          data-testid="button-convert-to-ticket"
+                        >
+                          <Ticket className="w-4 h-4 mr-2" />
+                          {convertToTicketMutation.isPending ? "Converting..." : "Convert to Ticket"}
+                        </Button>
+                      )}
                       <Button
                         variant="default"
                         size="sm"
