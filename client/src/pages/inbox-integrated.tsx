@@ -21,6 +21,10 @@ export default function Inbox() {
   const { send } = useWebSocket();
   const { toast } = useToast();
 
+  const { data: user } = useQuery({
+    queryKey: ["/api/user"],
+  });
+
   const { data: conversations = [], isLoading: loadingConversations } = useQuery<Conversation[]>({
     queryKey: ["/api/conversations"],
   });
@@ -38,8 +42,8 @@ export default function Inbox() {
   const sendMessageMutation = useMutation({
     mutationFn: async ({ conversationId, content }: { conversationId: string; content: string }) => {
       return apiRequest("POST", `/api/conversations/${conversationId}/messages`, {
-        sender: "customer",
-        senderName: "Customer",
+        sender: "agent",
+        senderName: user?.name || "Agent",
         content,
       });
     },
@@ -222,7 +226,7 @@ export default function Inbox() {
                     <MessageBubble
                       key={message.id}
                       message={message}
-                      agentAvatar={assignedAgent?.avatar}
+                      agentAvatar={assignedAgent?.avatar || undefined}
                     />
                   ))
                 )}

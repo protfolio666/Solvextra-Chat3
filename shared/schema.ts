@@ -17,6 +17,7 @@ export const conversations = pgTable("conversations", {
   channel: varchar("channel", { length: 20 }).notNull().$type<Channel>(),
   customerName: text("customer_name").notNull(),
   customerAvatar: text("customer_avatar"),
+  channelUserId: text("channel_user_id"), // External ID (Telegram chat_id, WhatsApp number, etc.)
   status: varchar("status", { length: 20 }).notNull().default("open").$type<ConversationStatus>(),
   assignedAgentId: varchar("assigned_agent_id"),
   lastMessageAt: timestamp("last_message_at").notNull().defaultNow(),

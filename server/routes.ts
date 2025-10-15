@@ -193,6 +193,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const message = await storage.createMessage(result.data);
     broadcast({ type: "message", data: { message } });
 
+    // If message is from agent or AI, send to customer on Telegram
+    if (message.sender === "agent" || message.sender === "ai") {
+      const conversation = await storage.getConversation(message.conversationId);
+      if (conversation && conversation.channel === "telegram" && conversation.channelUserId) {
+        const telegramIntegration = await storage.getChannelIntegration("telegram");
+        if (telegramIntegration?.apiToken) {
+          try {
+            const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+            await fetch(sendMessageUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: conversation.channelUserId,
+                text: message.content,
+              }),
+            });
+            console.log(`✅ Message sent to Telegram customer (chat_id: ${conversation.channelUserId})`);
+          } catch (error) {
+            console.error('❌ Failed to send message to Telegram:', error);
+          }
+        }
+      }
+    }
+
     // If message is from customer, generate AI response
     if (message.sender === "customer") {
       const conversation = await storage.getConversation(message.conversationId);
@@ -453,6 +477,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             channel: "telegram",
             customerName,
             customerAvatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${customerName}`,
+            channelUserId: message.chat.id.toString(), // Store Telegram chat_id
             status: "open",
             lastMessageAt: new Date(),
           });
@@ -532,7 +557,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         } else {
           console.log('⚠️ AI is not enabled - escalating to agent');
-          await handleSmartEscalation(conversation.id, "AI is disabled");
+          const escalationResult = await handleSmartEscalation(conversation.id, "AI is disabled");
+          
+          // Send notification to customer on Telegram
+          const telegramIntegration = await storage.getChannelIntegration("telegram");
+          if (telegramIntegration?.apiToken && escalationResult) {
+            const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+            let responseText = "";
+            
+            if (escalationResult.assignedTo === "agent") {
+              responseText = `Your message has been received. An agent will assist you shortly.`;
+            } else if (escalationResult.assignedTo === "ticket") {
+              responseText = `Thank you for contacting us! We've created a support ticket for you. Our team will respond within 24 hours.`;
+            }
+            
+            if (responseText) {
+              await fetch(sendMessageUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  chat_id: message.chat.id,
+                  text: responseText,
+                }),
+              });
+              console.log('✅ Escalation notification sent to Telegram');
+            }
+          }
         }
       }
       
