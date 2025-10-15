@@ -632,49 +632,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Convert Conversation to Ticket
   app.post("/api/conversations/:id/convert-to-ticket", async (req, res) => {
-    const conversation = await storage.getConversation(req.params.id);
-    if (!conversation) {
-      return res.status(404).json({ error: "Conversation not found" });
-    }
+    try {
+      const conversation = await storage.getConversation(req.params.id);
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
 
-    // Check if conversation is already a ticket
-    if (conversation.status === "ticket") {
-      return res.status(400).json({ error: "Conversation is already a ticket" });
-    }
+      // Check if conversation is already a ticket
+      if (conversation.status === "ticket") {
+        return res.status(400).json({ error: "Conversation is already a ticket" });
+      }
 
-    // Check if a ticket already exists for this conversation
-    const existingTickets = await storage.getTickets();
-    const existingTicket = existingTickets.find(t => t.conversationId === conversation.id);
-    if (existingTicket) {
-      return res.status(400).json({ error: "A ticket already exists for this conversation" });
-    }
+      // Check if a ticket already exists for this conversation
+      const existingTickets = await storage.getTickets();
+      const existingTicket = existingTickets.find(t => t.conversationId === conversation.id);
+      if (existingTicket) {
+        return res.status(400).json({ error: "A ticket already exists for this conversation" });
+      }
 
-    // Create ticket from conversation
-    const ticket = await storage.createTicket({
-      conversationId: conversation.id,
-      title: `Support for ${conversation.customerName}`,
-      description: "Converted from conversation",
-      priority: "medium",
-      status: "open",
-      tat: 24,
-    });
-
-    // Update conversation status to ticket
-    const updatedConversation = await storage.updateConversation(req.params.id, {
-      status: "ticket",
-    });
-
-    // Broadcast update
-    broadcast({
-      type: "status_update",
-      data: {
+      // Create ticket from conversation
+      const ticket = await storage.createTicket({
         conversationId: conversation.id,
-        status: "ticket",
-        ticketId: ticket.id,
-      },
-    });
+        title: `Support for ${conversation.customerName}`,
+        description: "Converted from conversation",
+        priority: "medium",
+        status: "open",
+        tat: 24,
+      });
 
-    res.json({ conversation: updatedConversation, ticket });
+      // Update conversation status to ticket
+      const updatedConversation = await storage.updateConversation(req.params.id, {
+        status: "ticket",
+      });
+
+      // Broadcast update
+      broadcast({
+        type: "status_update",
+        data: {
+          conversationId: conversation.id,
+          status: "ticket",
+          ticketId: ticket.id,
+        },
+      });
+
+      res.json({ conversation: updatedConversation, ticket });
+    } catch (error) {
+      console.error("❌ Error converting conversation to ticket:", error);
+      res.status(500).json({ 
+        error: "Failed to convert conversation to ticket",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
   });
 
   // Close Conversation/Ticket without CSAT (only for ticket status)
