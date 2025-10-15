@@ -14,14 +14,18 @@ export default function CsatPage() {
   const [feedback, setFeedback] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const { data: ticket } = useQuery<{ id: string; title: string }>({
+  const { data: ticket } = useQuery<{ id: string; title: string; ticketNumber: string; conversationId: string }>({
     queryKey: [`/api/public/tickets/${ticketId}`],
     enabled: !!ticketId,
   });
 
   const submitRatingMutation = useMutation({
     mutationFn: async (data: { rating: number; feedback: string }) => {
+      if (!ticket?.conversationId) {
+        throw new Error("Ticket conversation not found");
+      }
       return apiRequest("POST", "/api/csat-ratings", {
+        conversationId: ticket.conversationId,
         ticketId,
         ...data,
       });
@@ -61,7 +65,9 @@ export default function CsatPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Rate Your Experience</CardTitle>
           <CardDescription>
-            {ticket ? `Ticket: ${ticket.title}` : "How was your support experience?"}
+            {ticket 
+              ? `${ticket.ticketNumber || `Ticket #${ticket.id.slice(0, 8)}`} - ${ticket.title}` 
+              : "How was your support experience?"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

@@ -440,6 +440,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(message);
   });
 
+  // Manual agent assignment (Admin only)
+  app.post("/api/conversations/:id/assign", async (req, res) => {
+    const conversation = await storage.getConversation(req.params.id);
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
+    const { agentId } = req.body;
+    if (!agentId) {
+      return res.status(400).json({ error: "Agent ID is required" });
+    }
+
+    const agent = await storage.getAgent(agentId);
+    if (!agent) {
+      return res.status(404).json({ error: "Agent not found" });
+    }
+
+    // Assign to specified agent
+    const updated = await storage.updateConversation(conversation.id, {
+      status: "assigned",
+      assignedAgentId: agent.id,
+    });
+
+    await storage.updateAgentConversations(agent.id, 1);
+    
+    broadcast({ type: "manual_assignment", data: { conversation: updated, agent } });
+    res.json({ conversation: updated, agent });
+  });
+
   // Escalation
   app.post("/api/conversations/:id/escalate", async (req, res) => {
     const conversation = await storage.getConversation(req.params.id);
@@ -898,6 +927,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
 
     res.json(updatedConversation);
+  });
+
+  // Public ticket endpoint for CSAT (no auth required)
+  app.get("/api/public/tickets/:id", async (req, res) => {
+    const ticket = await storage.getTicket(req.params.id);
+    if (!ticket) {
+      return res.status(404).json({ error: "Ticket not found" });
+    }
+    // Return only safe public data
+    res.json({
+      id: ticket.id,
+      ticketNumber: ticket.ticketNumber,
+      title: ticket.title,
+      conversationId: ticket.conversationId,
+    });
   });
 
   // Submit CSAT Rating (from customer)

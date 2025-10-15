@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Conversation, Message, Agent } from "@shared/schema";
+import { Conversation, Message, Agent, User } from "@shared/schema";
 import { ConversationCard } from "@/components/conversation-card";
 import { MessageBubble } from "@/components/message-bubble";
 import { ChatInput } from "@/components/chat-input";
@@ -9,20 +9,41 @@ import { AgentAssignmentCard } from "@/components/agent-assignment-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Bell, Search, Filter, MessageSquarePlus } from "lucide-react";
+import { Bell, Search, Filter, MessageSquarePlus, UserPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function Inbox() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("");
   const { send } = useWebSocket();
   const { toast } = useToast();
 
-  const { data: user } = useQuery({
+  const { data: user } = useQuery<User>({
     queryKey: ["/api/user"],
+  });
+
+  const { data: allAgents = [] } = useQuery<Agent[]>({
+    queryKey: ["/api/agents"],
   });
 
   const { data: conversations = [], isLoading: loadingConversations } = useQuery<Conversation[]>({
@@ -86,9 +107,32 @@ export default function Inbox() {
     },
   });
 
+  const manualAssignMutation = useMutation({
+    mutationFn: async ({ conversationId, agentId }: { conversationId: string; agentId: string }) => {
+      return apiRequest("POST", `/api/conversations/${conversationId}/assign`, { agentId });
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      setShowAssignDialog(false);
+      setSelectedAgentId("");
+      toast({
+        title: "Assigned Successfully",
+        description: `Conversation assigned to ${data.agent?.name || "agent"}`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to assign conversation",
+        variant: "destructive",
+      });
+    },
+  });
+
   const activeConversation = conversations.find(c => c.id === selectedConversation);
   const needsEscalation = activeConversation?.status === "open";
   const isAssigned = activeConversation?.status === "assigned";
+  const isResolved = activeConversation?.status === "resolved";
 
   const filteredConversations = conversations.filter(c =>
     c.customerName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -105,6 +149,18 @@ export default function Inbox() {
       escalateMutation.mutate(selectedConversation);
     }
   };
+
+  const handleManualAssign = () => {
+    if (selectedConversation && selectedAgentId) {
+      manualAssignMutation.mutate({ 
+        conversationId: selectedConversation, 
+        agentId: selectedAgentId 
+      });
+    }
+  };
+
+  const isAdmin = user?.role === "admin";
+  const availableAgents = allAgents.filter(a => a.status === "available");
 
   return (
     <div className="flex h-full">
@@ -185,6 +241,63 @@ export default function Inbox() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
+                  {isAdmin && (
+                    <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+                      <DialogTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          data-testid="button-manual-assign"
+                        >
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          Assign Agent
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Assign to Agent</DialogTitle>
+                          <DialogDescription>
+                            Manually assign this conversation to a specific agent
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <Select 
+                            value={selectedAgentId} 
+                            onValueChange={setSelectedAgentId}
+                          >
+                            <SelectTrigger data-testid="select-agent">
+                              <SelectValue placeholder="Select an agent" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableAgents.length === 0 ? (
+                                <div className="p-2 text-sm text-muted-foreground text-center">
+                                  No available agents
+                                </div>
+                              ) : (
+                                availableAgents.map((agent) => (
+                                  <SelectItem 
+                                    key={agent.id} 
+                                    value={agent.id}
+                                    data-testid={`option-agent-${agent.id}`}
+                                  >
+                                    {agent.name} ({agent.email})
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            onClick={handleManualAssign}
+                            disabled={!selectedAgentId || manualAssignMutation.isPending}
+                            className="w-full"
+                            data-testid="button-confirm-assign"
+                          >
+                            {manualAssignMutation.isPending ? "Assigning..." : "Assign"}
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  )}
                   <Button variant="ghost" size="icon">
                     <Bell className="w-5 h-5" />
                   </Button>
@@ -234,11 +347,19 @@ export default function Inbox() {
             </ScrollArea>
 
             {/* Chat Input */}
-            <ChatInput
-              onSend={handleSendMessage}
-              placeholder="Type your message..."
-              disabled={sendMessageMutation.isPending}
-            />
+            {isResolved ? (
+              <div className="p-4 bg-muted border-t border-border text-center">
+                <p className="text-sm text-muted-foreground">
+                  This conversation is resolved. Agents cannot send messages.
+                </p>
+              </div>
+            ) : (
+              <ChatInput
+                onSend={handleSendMessage}
+                placeholder="Type your message..."
+                disabled={sendMessageMutation.isPending}
+              />
+            )}
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-background">
