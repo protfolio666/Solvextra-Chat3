@@ -63,6 +63,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
+  // Helper function for smart escalation
+  async function handleSmartEscalation(conversationId: string, reason: string = "AI unable to resolve") {
+    try {
+      console.log(`🔄 Smart escalation triggered for conversation ${conversationId}: ${reason}`);
+      
+      // Find available agents
+      const agents = await storage.getAgents();
+      const availableAgents = agents.filter(a => a.status === "available");
+      
+      if (availableAgents.length > 0) {
+        // Assign to agent with lowest active conversations
+        const agentWithLeastLoad = availableAgents.reduce((min, agent) => 
+          agent.activeConversations < min.activeConversations ? agent : min
+        );
+        
+        // Update conversation status and assign agent
+        await storage.updateConversation(conversationId, {
+          status: "assigned",
+          assignedAgentId: agentWithLeastLoad.id,
+        });
+        
+        // Increment agent's active conversation count
+        await storage.updateAgentConversations(agentWithLeastLoad.id, 1);
+        
+        console.log(`✅ Conversation assigned to agent ${agentWithLeastLoad.name}`);
+        
+        // Broadcast assignment
+        broadcast({
+          type: "assignment",
+          data: {
+            conversationId,
+            agentId: agentWithLeastLoad.id,
+            agentName: agentWithLeastLoad.name,
+          },
+        });
+        
+        return { success: true, assignedTo: "agent", agentName: agentWithLeastLoad.name };
+      } else {
+        // No agents available - create ticket
+        console.log('⚠️ No agents available - creating ticket');
+        
+        const conversation = await storage.getConversation(conversationId);
+        if (conversation) {
+          const ticket = await storage.createTicket({
+            conversationId: conversation.id,
+            title: `Support needed for ${conversation.customerName}`,
+            description: reason,
+            priority: "medium",
+            status: "open",
+            tat: 24, // 24 hours TAT by default
+          });
+          
+          // Update conversation status
+          await storage.updateConversation(conversationId, {
+            status: "ticket",
+          });
+          
+          console.log(`🎫 Ticket created with ID ${ticket.id}, TAT: ${ticket.tat} hours`);
+          
+          // Broadcast ticket creation
+          broadcast({
+            type: "escalation",
+            data: {
+              conversationId,
+              ticketId: ticket.id,
+              message: `Ticket created - TAT: ${ticket.tat} hours`,
+            },
+          });
+          
+          return { success: true, assignedTo: "ticket", ticketId: ticket.id };
+        }
+      }
+    } catch (error) {
+      console.error('Smart escalation error:', error);
+      return { success: false, error };
+    }
+  }
+
   // Conversations
   app.get("/api/conversations", async (req, res) => {
     const conversations = await storage.getConversations();
@@ -126,8 +204,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           try {
             const aiResponse = await generateAIResponse(message.content, {
               provider: aiSettings.provider,
-              knowledgeBase: aiSettings.knowledgeBase,
-              systemPrompt: aiSettings.systemPrompt,
+              knowledgeBase: aiSettings.knowledgeBase || undefined,
+              systemPrompt: aiSettings.systemPrompt || undefined,
             });
 
             const aiMessage = await storage.createMessage({
@@ -138,9 +216,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
 
             broadcast({ type: "message", data: { message: aiMessage } });
+            
+            // Check if AI response indicates need for human assistance
+            const needsEscalation = /(?:human agent|speak to someone|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
+            
+            if (needsEscalation) {
+              console.log('🔔 AI detected need for human assistance');
+              await handleSmartEscalation(message.conversationId, "AI detected customer needs human assistance");
+            }
           } catch (error) {
             console.error("AI response error:", error);
+            // On AI error, escalate to human agent
+            await handleSmartEscalation(message.conversationId, "AI service error - escalating to human agent");
           }
+        } else {
+          // If AI is disabled, immediately escalate to available agent or create ticket
+          console.log('⚠️ AI is disabled - escalating to agent');
+          await handleSmartEscalation(message.conversationId, "AI is disabled");
         }
       }
     }
@@ -392,8 +484,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('Generating AI response with provider:', aiSettings.provider);
           const aiResponse = await generateAIResponse(message.text || "", {
             provider: aiSettings.provider,
-            knowledgeBase: aiSettings.knowledgeBase,
-            systemPrompt: aiSettings.systemPrompt,
+            knowledgeBase: aiSettings.knowledgeBase || undefined,
+            systemPrompt: aiSettings.systemPrompt || undefined,
           });
           
           if (aiResponse?.content) {
@@ -429,9 +521,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 content: aiResponse.content,
               },
             });
+            
+            // Check if AI response indicates need for human assistance
+            const needsEscalation = /(?:human agent|speak to someone|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
+            
+            if (needsEscalation) {
+              console.log('🔔 AI detected need for human assistance');
+              await handleSmartEscalation(conversation.id, "AI detected customer needs human assistance");
+            }
           }
         } else {
-          console.log('⚠️ AI is not enabled - customer message will be handled by agents');
+          console.log('⚠️ AI is not enabled - escalating to agent');
+          await handleSmartEscalation(conversation.id, "AI is disabled");
         }
       }
       
