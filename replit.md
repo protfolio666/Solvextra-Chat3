@@ -6,6 +6,13 @@ An omnichannel customer support platform that unifies conversations from multipl
 
 ## Recent Updates (October 15, 2025)
 
+### Customer Information Collection ✨ NEW
+- ✅ **AI Greeting Flow**: AI greets customers warmly based on knowledge base
+- ✅ **Information Collection**: AI asks for name, email, and phone number at conversation start
+- ✅ **Customer Data Storage**: Added customerEmail and customerPhone fields to conversations table
+- ✅ **Intelligent Agent Transfer**: AI detects when customer wants to speak to agent ("talk to human", "speak to agent", etc.) and transfers immediately
+- ✅ **Enhanced Escalation**: Updated escalation detection to recognize agent transfer requests
+
 ### Email Notifications (SendGrid) ✨ NEW
 - ✅ **SendGrid Configuration**: Admin can configure SendGrid API key and sender email in Settings > Notifications
 - ✅ **Email Settings Storage**: Dedicated email_settings table for SendGrid credentials

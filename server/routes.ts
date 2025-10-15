@@ -395,11 +395,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
             }
             
-            // Check if AI response indicates need for human assistance
-            const needsEscalation = /(?:human agent|speak to someone|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
+            // Check if AI response indicates need for human assistance or customer wants agent
+            const needsEscalation = /(?:human agent|speak to someone|talk to human|connect to agent|connect you|let me connect|transfer you|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
             
             if (needsEscalation) {
-              console.log('🔔 AI detected need for human assistance');
+              console.log('🔔 AI detected need for human assistance or customer requested agent');
               await handleSmartEscalation(message.conversationId, "AI detected customer needs human assistance");
             }
           } catch (error) {
@@ -888,11 +888,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 },
               });
               
-              // Check if AI response indicates need for human assistance
-              const needsEscalation = /(?:human agent|speak to someone|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
+              // Check if AI response indicates need for human assistance or customer wants agent
+              const needsEscalation = /(?:human agent|speak to someone|talk to human|connect to agent|connect you|let me connect|transfer you|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
               
               if (needsEscalation) {
-                console.log('🔔 AI detected need for human assistance');
+                console.log('🔔 AI detected need for human assistance or customer requested agent');
                 await handleSmartEscalation(conversation.id, "AI detected customer needs human assistance");
               }
             }

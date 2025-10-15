@@ -16,6 +16,8 @@ export const conversations = pgTable("conversations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   channel: varchar("channel", { length: 20 }).notNull().$type<Channel>(),
   customerName: text("customer_name").notNull(),
+  customerEmail: text("customer_email"),
+  customerPhone: text("customer_phone"),
   customerAvatar: text("customer_avatar"),
   channelUserId: text("channel_user_id"), // External ID (Telegram chat_id, WhatsApp number, etc.)
   status: varchar("status", { length: 20 }).notNull().default("open").$type<ConversationStatus>(),
