@@ -69,7 +69,7 @@ async function generateGeminiResponse(
   return response.text || "I apologize, but I'm having trouble responding right now.";
 }
 
-// OpenRouter Provider
+// OpenRouter Provider with comprehensive error handling
 async function generateOpenRouterResponse(
   message: string,
   config: AIProviderConfig
@@ -79,8 +79,8 @@ async function generateOpenRouterResponse(
     ? `\n\nKnowledge Base:\n${config.knowledgeBase}`
     : "";
 
-  // Default to Claude 3.5 Sonnet if no model specified
-  const model = config.model || "anthropic/claude-3.5-sonnet";
+  // Default to DeepSeek V3 free model if no model specified (better than GPT-4o-mini issues)
+  const model = config.model || "deepseek/deepseek-chat-v3-0324:free";
 
   console.log(`🤖 Calling OpenRouter API with model: ${model}...`);
   
@@ -93,6 +93,8 @@ async function generateOpenRouterResponse(
       headers: {
         "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://solvextra.com", // Optional but recommended
+        "X-Title": "Solvextra Support", // Optional but recommended
       },
       body: JSON.stringify({
         model: model,
@@ -114,8 +116,33 @@ async function generateOpenRouterResponse(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`❌ OpenRouter API error (${response.status}):`, errorText);
-      throw new Error(`OpenRouter API error: ${response.status}`);
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        errorData = { error: { message: errorText } };
+      }
+
+      const errorMessage = errorData?.error?.message || errorText;
+      
+      // Handle specific OpenRouter errors with helpful messages
+      if (response.status === 402) {
+        console.error(`❌ OpenRouter 402: Insufficient credits`);
+        throw new Error(`OpenRouter needs credits. Free tier: 50 requests/day. Add $10 for 1,000/day at https://openrouter.ai/settings/credits`);
+      } else if (response.status === 429) {
+        console.error(`❌ OpenRouter 429: Rate limit exceeded`);
+        throw new Error(`Rate limit exceeded (20 req/min). Please wait a moment or upgrade your OpenRouter account.`);
+      } else if (response.status === 400) {
+        console.error(`❌ OpenRouter 400: Bad request - ${errorMessage}`);
+        // GPT-4o-mini has known function calling issues
+        if (model.includes('gpt-4o-mini')) {
+          throw new Error(`GPT-4o-mini has known issues. Try using DeepSeek V3 or Gemini 2.0 instead.`);
+        }
+        throw new Error(`OpenRouter API error: ${errorMessage}`);
+      } else {
+        console.error(`❌ OpenRouter API error (${response.status}):`, errorMessage);
+        throw new Error(`OpenRouter error (${response.status}): ${errorMessage}`);
+      }
     }
 
     const data = await response.json();
@@ -125,7 +152,7 @@ async function generateOpenRouterResponse(
     clearTimeout(timeoutId);
     if (error instanceof Error && error.name === 'AbortError') {
       console.error('❌ OpenRouter API timeout after 30s');
-      throw new Error('OpenRouter API timeout');
+      throw new Error('OpenRouter API timeout - please try again');
     }
     console.error('❌ OpenRouter API error:', error);
     throw error;

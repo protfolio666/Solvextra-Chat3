@@ -79,16 +79,57 @@ export function AIProviderSelector({
             <CardTitle>Model Selection</CardTitle>
             <CardDescription>Choose the AI model for OpenRouter</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Select value={model || "anthropic/claude-3.5-sonnet"} onValueChange={onModelChange}>
+          <CardContent className="space-y-4">
+            <Select value={model || "deepseek/deepseek-chat-v3-0324:free"} onValueChange={onModelChange}>
               <SelectTrigger data-testid="select-openrouter-model">
                 <SelectValue placeholder="Select a model" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="openai/gpt-4o-mini">GPT-4 Mini</SelectItem>
-                <SelectItem value="anthropic/claude-3.5-sonnet">Claude Sonnet 3.5</SelectItem>
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Free Models (Recommended)</div>
+                <SelectItem value="deepseek/deepseek-chat-v3-0324:free">
+                  DeepSeek V3 (Free, Best for Coding)
+                </SelectItem>
+                <SelectItem value="google/gemini-2.0-flash-exp:free">
+                  Gemini 2.0 Flash (Free)
+                </SelectItem>
+                <SelectItem value="meta-llama/llama-3.3-70b-instruct:free">
+                  Llama 3.3 70B (Free)
+                </SelectItem>
+                <SelectItem value="qwen/qwen-2.5-72b-instruct:free">
+                  Qwen 2.5 72B (Free)
+                </SelectItem>
+                
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground mt-2">Paid Models</div>
+                <SelectItem value="anthropic/claude-3.5-sonnet">
+                  Claude 3.5 Sonnet (Paid)
+                </SelectItem>
+                <SelectItem value="openai/gpt-4o">
+                  GPT-4o (Paid)
+                </SelectItem>
+                <SelectItem value="openai/gpt-4o-mini">
+                  GPT-4o Mini (Paid, Has Known Issues)
+                </SelectItem>
               </SelectContent>
             </Select>
+            
+            <div className="text-xs text-muted-foreground space-y-1 bg-muted/50 p-3 rounded-md">
+              <p><strong>Free Tier Limits:</strong></p>
+              <ul className="list-disc list-inside space-y-0.5 ml-2">
+                <li>50 requests/day (default)</li>
+                <li>1,000 requests/day with $10 balance</li>
+                <li>20 requests/minute rate limit</li>
+              </ul>
+              <p className="mt-2">
+                <a 
+                  href="https://openrouter.ai/settings/credits" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Manage credits →
+                </a>
+              </p>
+            </div>
           </CardContent>
         </Card>
       )}
