@@ -33,18 +33,11 @@ const menuItems = [
     allowedRoles: ["admin", "agent"] as UserRole[],
   },
   {
-    title: "Conversations",
-    url: "/conversations",
-    icon: MessageSquare,
-    testId: "nav-conversations",
-    allowedRoles: ["admin", "agent"] as UserRole[],
-  },
-  {
     title: "Channels",
     url: "/channels",
     icon: Radio,
     testId: "nav-channels",
-    allowedRoles: ["admin", "agent"] as UserRole[],
+    allowedRoles: ["admin"] as UserRole[],
   },
   {
     title: "Agents",
@@ -65,7 +58,7 @@ const menuItems = [
     url: "/knowledge-base",
     icon: BookOpen,
     testId: "nav-knowledge-base",
-    allowedRoles: ["admin", "agent"] as UserRole[],
+    allowedRoles: ["admin"] as UserRole[],
   },
   {
     title: "Analytics",

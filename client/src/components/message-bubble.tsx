@@ -15,18 +15,27 @@ export function MessageBubble({ message, agentAvatar }: MessageBubbleProps) {
 
   return (
     <div
-      className={`flex gap-3 px-4 py-2 ${isCustomer || isAgent ? "justify-end" : "justify-start"}`}
+      className={`flex gap-3 px-4 py-2 ${isCustomer ? "justify-end" : "justify-start"}`}
       data-testid={`message-${message.sender}`}
     >
-      {isAI && (
+      {(isAI || isAgent) && (
         <Avatar className="w-8 h-8 mt-1">
-          <div className="w-full h-full bg-primary/10 flex items-center justify-center">
-            <Bot className="w-4 h-4 text-primary" />
-          </div>
+          {isAI ? (
+            <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+              <Bot className="w-4 h-4 text-primary" />
+            </div>
+          ) : (
+            <>
+              <AvatarImage src={agentAvatar} />
+              <AvatarFallback className="bg-agent text-agent-foreground text-xs">
+                {message.senderName?.slice(0, 2).toUpperCase() || "AG"}
+              </AvatarFallback>
+            </>
+          )}
         </Avatar>
       )}
 
-      <div className={`flex flex-col ${isCustomer || isAgent ? "items-end" : "items-start"} max-w-[70%]`}>
+      <div className={`flex flex-col ${isCustomer ? "items-end" : "items-start"} max-w-[70%]`}>
         <div
           className={`rounded-2xl px-4 py-3 ${
             isCustomer
@@ -55,15 +64,6 @@ export function MessageBubble({ message, agentAvatar }: MessageBubbleProps) {
           <div className="w-full h-full bg-muted flex items-center justify-center">
             <User className="w-4 h-4 text-muted-foreground" />
           </div>
-        </Avatar>
-      )}
-      
-      {isAgent && (
-        <Avatar className="w-8 h-8 mt-1">
-          <AvatarImage src={agentAvatar} />
-          <AvatarFallback className="bg-agent text-agent-foreground text-xs">
-            {message.senderName?.slice(0, 2).toUpperCase() || "AG"}
-          </AvatarFallback>
         </Avatar>
       )}
     </div>

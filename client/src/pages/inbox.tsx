@@ -14,12 +14,14 @@ import { Input } from "@/components/ui/input";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Inbox() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { send } = useWebSocket();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const { data: conversations = [], isLoading: loadingConversations } = useQuery<Conversation[]>({
     queryKey: ["/api/conversations"],
@@ -38,8 +40,8 @@ export default function Inbox() {
   const sendMessageMutation = useMutation({
     mutationFn: async ({ conversationId, content }: { conversationId: string; content: string }) => {
       return apiRequest("POST", `/api/conversations/${conversationId}/messages`, {
-        sender: "customer",
-        senderName: "Customer",
+        sender: "agent",
+        senderName: user?.name || "Agent",
         content,
       });
     },
