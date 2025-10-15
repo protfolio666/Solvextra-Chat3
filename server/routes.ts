@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import { generateAIResponse } from "./ai-providers";
 import { setupAuth } from "./auth";
 import { requireAdmin } from "./middleware/role-check";
-import { sendEmail, generateTicketResolutionEmail, generateTicketCreationEmail } from "./email-service";
+import { sendEmail, generateTicketResolutionEmail, generateTicketCreationEmail, generateTicketReopenEmail } from "./email-service";
 import {
   insertConversationSchema,
   insertMessageSchema,
@@ -573,10 +573,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.patch("/api/tickets/:id", async (req, res) => {
+    const oldTicket = await storage.getTicket(req.params.id);
+    if (!oldTicket) {
+      return res.status(404).json({ error: "Ticket not found" });
+    }
+
     const ticket = await storage.updateTicket(req.params.id, req.body);
     if (!ticket) {
       return res.status(404).json({ error: "Ticket not found" });
     }
+
+    // Send email notification if ticket is reopened (status changed from resolved to open/in_progress)
+    const wasResolved = oldTicket.status === "resolved";
+    const isNowOpen = ticket.status === "open" || ticket.status === "in_progress";
+    
+    if (wasResolved && isNowOpen && ticket.customerEmail) {
+      try {
+        const emailSettings = await storage.getEmailSettings();
+        if (emailSettings?.enabled) {
+          const conversation = await storage.getConversation(ticket.conversationId);
+          const customerName = conversation?.customerName || "Customer";
+
+          const emailHtml = generateTicketReopenEmail(
+            customerName,
+            ticket.ticketNumber,
+            ticket.title,
+            ticket.tat
+          );
+
+          await sendEmail({
+            to: ticket.customerEmail,
+            subject: `Ticket Reopened: ${ticket.ticketNumber}`,
+            html: emailHtml,
+            emailSettings,
+          });
+          console.log(`✅ Ticket reopen email sent to ${ticket.customerEmail}`);
+        }
+      } catch (error) {
+        console.error('❌ Failed to send ticket reopen email:', error);
+      }
+    }
+
     res.json(ticket);
   });
 
