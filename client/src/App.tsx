@@ -49,17 +49,15 @@ function ThemeToggle() {
 }
 
 function UserMenu() {
-  const { user } = useAuth();
+  const { user, logoutMutation } = useAuth();
   const [, setLocation] = useLocation();
 
   const handleLogout = async () => {
-    try {
-      await apiRequest("POST", "/api/logout", {});
-      queryClient.clear();
-      setLocation("/auth");
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        setLocation("/auth");
+      },
+    });
   };
 
   if (!user) return null;
