@@ -129,6 +129,9 @@ export class DbStorage implements IStorage {
           avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Abhishek",
         } as any);
 
+        // Reset the sequence to start from 2 (after admin's ID=1)
+        await db.execute(sql`SELECT setval('users_id_seq', 2, false)`);
+
         console.log("Permanent admin account initialized");
       }
     } catch (error) {
