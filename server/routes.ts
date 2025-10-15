@@ -193,6 +193,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const message = await storage.createMessage(result.data);
     broadcast({ type: "message", data: { message } });
 
+    // If message is from agent, mark conversation as assigned (agent has taken over)
+    if (message.sender === "agent") {
+      const conversation = await storage.getConversation(message.conversationId);
+      if (conversation && conversation.status === "open") {
+        // Find the current user (agent) from session
+        const currentUser = (req as any).user;
+        if (currentUser && currentUser.role === "agent") {
+          await storage.updateConversation(message.conversationId, {
+            status: "assigned",
+            assignedAgentId: currentUser.id,
+          });
+          
+          // Increment agent's active conversation count
+          await storage.updateAgentConversations(currentUser.id, 1);
+          
+          console.log(`✅ Conversation assigned to agent ${currentUser.name} (manual takeover)`);
+          
+          broadcast({
+            type: "assignment",
+            data: {
+              conversationId: message.conversationId,
+              agentId: currentUser.id,
+              agentName: currentUser.name,
+            },
+          });
+        }
+      }
+    }
+
     // If message is from agent or AI, send to customer on Telegram
     if (message.sender === "agent" || message.sender === "ai") {
       const conversation = await storage.getConversation(message.conversationId);
@@ -240,6 +269,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
 
             broadcast({ type: "message", data: { message: aiMessage } });
+            
+            // Send AI response to Telegram customer
+            if (conversation.channel === "telegram" && conversation.channelUserId) {
+              const telegramIntegration = await storage.getChannelIntegration("telegram");
+              if (telegramIntegration?.apiToken) {
+                try {
+                  const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+                  await fetch(sendMessageUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      chat_id: conversation.channelUserId,
+                      text: aiResponse.content,
+                    }),
+                  });
+                  console.log(`✅ AI response sent to Telegram customer (chat_id: ${conversation.channelUserId})`);
+                } catch (error) {
+                  console.error('❌ Failed to send AI response to Telegram:', error);
+                }
+              }
+            }
             
             // Check if AI response indicates need for human assistance
             const needsEscalation = /(?:human agent|speak to someone|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
