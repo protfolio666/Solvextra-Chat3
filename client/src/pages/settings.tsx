@@ -27,6 +27,7 @@ export default function Settings() {
   const [provider, setProvider] = useState<AIProvider>("openai");
   const [knowledgeBase, setKnowledgeBase] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
+  const [isPaused, setIsPaused] = useState(false);
 
   // Channel integration states
   const [telegramToken, setTelegramToken] = useState("");
@@ -43,6 +44,7 @@ export default function Settings() {
       setProvider(aiSettings.provider);
       setKnowledgeBase(aiSettings.knowledgeBase || "");
       setSystemPrompt(aiSettings.systemPrompt || "You are a helpful customer support assistant. Be professional, friendly, and concise.");
+      setIsPaused(aiSettings.paused || false);
     }
   }, [aiSettings]);
 
@@ -67,6 +69,7 @@ export default function Settings() {
       return apiRequest("POST", "/api/settings/ai", {
         provider,
         enabled: true,
+        paused: isPaused,
         knowledgeBase,
         systemPrompt,
       });
@@ -164,6 +167,31 @@ export default function Settings() {
           </TabsList>
 
           <TabsContent value="ai" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>AI Status</CardTitle>
+                    <CardDescription>
+                      {isPaused 
+                        ? "AI is paused. New messages go directly to available agents or admin." 
+                        : "AI is active and responding to customer messages."}
+                    </CardDescription>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      setIsPaused(!isPaused);
+                      setTimeout(() => saveSettingsMutation.mutate(), 100);
+                    }}
+                    variant={isPaused ? "default" : "outline"}
+                    data-testid="button-toggle-ai-pause"
+                  >
+                    {isPaused ? "Resume AI" : "Pause AI"}
+                  </Button>
+                </div>
+              </CardHeader>
+            </Card>
+
             <AIProviderSelector
               currentProvider={provider}
               onProviderChange={setProvider}

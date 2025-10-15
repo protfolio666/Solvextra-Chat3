@@ -96,6 +96,7 @@ export const aiSettings = pgTable("ai_settings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   provider: varchar("provider", { length: 20 }).notNull().$type<AIProvider>(),
   enabled: boolean("enabled").notNull().default(true),
+  paused: boolean("paused").notNull().default(false),
   knowledgeBase: text("knowledge_base"),
   systemPrompt: text("system_prompt"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

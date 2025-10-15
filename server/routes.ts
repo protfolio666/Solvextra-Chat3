@@ -285,7 +285,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (conversation && conversation.status === "open") {
         const aiSettings = await storage.getAISettings();
         
-        if (aiSettings?.enabled) {
+        // Check if AI is paused - if so, skip AI and escalate to agent
+        if (aiSettings?.paused) {
+          console.log('⏸️ AI is paused - escalating to agent or admin');
+          await handleSmartEscalation(message.conversationId, "AI is paused - routing to human agent");
+        } else if (aiSettings?.enabled) {
           try {
             const aiResponse = await generateAIResponse(message.content, {
               provider: aiSettings.provider,
@@ -335,7 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // On AI error, escalate to human agent
             await handleSmartEscalation(message.conversationId, "AI service error - escalating to human agent");
           }
-        } else {
+        } else if (!aiSettings?.enabled) {
           // If AI is disabled, immediately escalate to available agent or create ticket
           console.log('⚠️ AI is disabled - escalating to agent');
           await handleSmartEscalation(message.conversationId, "AI is disabled");
