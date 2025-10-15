@@ -8,6 +8,7 @@ import {
   BarChart3,
   Radio,
   BookOpen,
+  Star,
 } from "lucide-react";
 import logoPath from "@assets/IMG_3463-removebg-preview_1760467422348.png";
 import {
@@ -65,6 +66,13 @@ const menuItems = [
     url: "/analytics",
     icon: BarChart3,
     testId: "nav-analytics",
+    allowedRoles: ["admin"] as UserRole[],
+  },
+  {
+    title: "CSAT Ratings",
+    url: "/csat-dashboard",
+    icon: Star,
+    testId: "nav-csat",
     allowedRoles: ["admin"] as UserRole[],
   },
   {

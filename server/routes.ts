@@ -717,6 +717,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Submit CSAT Rating (from customer)
+  app.get("/api/csat-ratings", requireAdmin, async (req, res) => {
+    const ratings = await storage.getCsatRatings();
+    res.json(ratings);
+  });
+
   app.post("/api/csat-ratings", async (req, res) => {
     const result = insertCsatRatingSchema.safeParse(req.body);
     if (!result.success) {

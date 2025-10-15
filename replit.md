@@ -28,6 +28,12 @@ An omnichannel customer support platform that unifies conversations from multipl
 - ✅ **CSAT Surveys via Email**: Email includes clickable link to public CSAT survey page
 - ✅ **Public CSAT Page**: Customers can rate experience (1-5 stars) and provide feedback at /csat/:ticketId
 
+### CSAT Dashboard ✨ NEW
+- ✅ **Admin Dashboard**: Dedicated page to view all customer satisfaction ratings
+- ✅ **Rating Analytics**: Average rating, total responses, and rating distribution charts
+- ✅ **Feedback Table**: View all ratings with timestamps, ticket IDs, and customer feedback
+- ✅ **Visual Indicators**: Star ratings with color-coded sentiment (green/yellow/red)
+
 ### Smart Escalation System ✨ NEW
 - ✅ **AI-First Response**: All customer messages get AI response first (if AI enabled)
 - ✅ **Automatic Escalation Detection**: AI detects when human help is needed via keyword analysis

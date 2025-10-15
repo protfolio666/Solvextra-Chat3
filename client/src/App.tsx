@@ -25,6 +25,7 @@ import Settings from "@/pages/settings";
 import Analytics from "@/pages/analytics";
 import Channels from "@/pages/channels";
 import KnowledgeBase from "@/pages/knowledge-base";
+import CsatDashboard from "@/pages/csat-dashboard";
 import AuthPage from "@/pages/auth";
 import ChatWidget from "@/pages/widget";
 import CsatPage from "@/pages/csat";
@@ -98,6 +99,7 @@ function ProtectedRouter() {
       <ProtectedRoute path="/tickets" component={Tickets} />
       <ProtectedRoute path="/knowledge-base" component={KnowledgeBase} />
       <ProtectedRoute path="/analytics" component={Analytics} allowedRoles={["admin"]} />
+      <ProtectedRoute path="/csat-dashboard" component={CsatDashboard} allowedRoles={["admin"]} />
       <ProtectedRoute path="/settings" component={Settings} allowedRoles={["admin"]} />
       <Route component={NotFound} />
     </Switch>
