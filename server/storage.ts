@@ -18,12 +18,24 @@ import {
   ChannelIntegration,
   InsertChannelIntegration,
   Channel,
+  conversations,
+  messages,
+  agents,
+  tickets,
+  aiSettings,
+  users,
+  knowledgeFiles,
+  channelIntegrations,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import connectPgSimple from "connect-pg-simple";
+import { db } from "./db";
+import { eq, desc, asc, and, sql } from "drizzle-orm";
 
 const MemoryStore = createMemoryStore(session);
+const PgSession = connectPgSimple(session);
 
 export interface IStorage {
   // Conversations
@@ -70,9 +82,482 @@ export interface IStorage {
   upsertChannelIntegration(integration: InsertChannelIntegration): Promise<ChannelIntegration>;
 
   // Session Store
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 }
 
+export class DbStorage implements IStorage {
+  public sessionStore: session.Store;
+
+  constructor() {
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL environment variable is not set");
+    }
+
+    this.sessionStore = new PgSession({
+      conString: process.env.DATABASE_URL,
+      createTableIfMissing: true,
+    });
+
+    this.initializePermanentAdmin();
+  }
+
+  private async initializePermanentAdmin() {
+    try {
+      const existingAdmin = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, 1))
+        .limit(1);
+
+      if (existingAdmin.length === 0) {
+        const { scrypt, randomBytes } = await import("crypto");
+        const { promisify } = await import("util");
+        const scryptAsync = promisify(scrypt);
+
+        const password = "Solvextra098$#@";
+        const salt = randomBytes(16).toString("hex");
+        const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+        const hashedPassword = `${buf.toString("hex")}.${salt}`;
+
+        await db.insert(users).values({
+          id: 1,
+          username: "abhishek@solvextra.com",
+          password: hashedPassword,
+          role: "admin",
+          name: "Abhishek",
+          email: "abhishek@solvextra.com",
+          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Abhishek",
+        } as any);
+
+        console.log("Permanent admin account initialized");
+      }
+    } catch (error) {
+      console.error("Error initializing permanent admin:", error);
+    }
+  }
+
+  // Conversations
+  async getConversations(): Promise<Conversation[]> {
+    try {
+      return await db
+        .select()
+        .from(conversations)
+        .orderBy(desc(conversations.lastMessageAt));
+    } catch (error) {
+      console.error("Error getting conversations:", error);
+      return [];
+    }
+  }
+
+  async getConversation(id: string): Promise<Conversation | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(conversations)
+        .where(eq(conversations.id, id))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error("Error getting conversation:", error);
+      return undefined;
+    }
+  }
+
+  async createConversation(insertConversation: InsertConversation): Promise<Conversation> {
+    try {
+      const result = await db
+        .insert(conversations)
+        .values(insertConversation as any)
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating conversation:", error);
+      throw error;
+    }
+  }
+
+  async updateConversation(id: string, data: Partial<Conversation>): Promise<Conversation | undefined> {
+    try {
+      const result = await db
+        .update(conversations)
+        .set(data)
+        .where(eq(conversations.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error updating conversation:", error);
+      return undefined;
+    }
+  }
+
+  // Messages
+  async getMessages(conversationId: string): Promise<Message[]> {
+    try {
+      return await db
+        .select()
+        .from(messages)
+        .where(eq(messages.conversationId, conversationId))
+        .orderBy(asc(messages.timestamp));
+    } catch (error) {
+      console.error("Error getting messages:", error);
+      return [];
+    }
+  }
+
+  async createMessage(insertMessage: InsertMessage): Promise<Message> {
+    try {
+      const result = await db
+        .insert(messages)
+        .values(insertMessage as any)
+        .returning();
+
+      await db
+        .update(conversations)
+        .set({ lastMessageAt: new Date() })
+        .where(eq(conversations.id, insertMessage.conversationId));
+
+      return result[0];
+    } catch (error) {
+      console.error("Error creating message:", error);
+      throw error;
+    }
+  }
+
+  // Agents
+  async getAgents(): Promise<Agent[]> {
+    try {
+      return await db.select().from(agents);
+    } catch (error) {
+      console.error("Error getting agents:", error);
+      return [];
+    }
+  }
+
+  async getAgent(id: string): Promise<Agent | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(agents)
+        .where(eq(agents.id, id))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error("Error getting agent:", error);
+      return undefined;
+    }
+  }
+
+  async getAvailableAgent(): Promise<Agent | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(agents)
+        .where(eq(agents.status, "available"))
+        .orderBy(asc(agents.activeConversations))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error("Error getting available agent:", error);
+      return undefined;
+    }
+  }
+
+  async createAgent(insertAgent: InsertAgent): Promise<Agent> {
+    try {
+      const result = await db
+        .insert(agents)
+        .values(insertAgent as any)
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating agent:", error);
+      throw error;
+    }
+  }
+
+  async updateAgentStatus(id: string, status: AgentStatus): Promise<Agent | undefined> {
+    try {
+      const result = await db
+        .update(agents)
+        .set({ status })
+        .where(eq(agents.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error updating agent status:", error);
+      return undefined;
+    }
+  }
+
+  async updateAgentConversations(id: string, delta: number): Promise<Agent | undefined> {
+    try {
+      const agent = await this.getAgent(id);
+      if (!agent) return undefined;
+
+      const newCount = Math.max(0, agent.activeConversations + delta);
+      const result = await db
+        .update(agents)
+        .set({ activeConversations: newCount })
+        .where(eq(agents.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error updating agent conversations:", error);
+      return undefined;
+    }
+  }
+
+  // Tickets
+  async getTickets(): Promise<Ticket[]> {
+    try {
+      return await db
+        .select()
+        .from(tickets)
+        .orderBy(desc(tickets.createdAt));
+    } catch (error) {
+      console.error("Error getting tickets:", error);
+      return [];
+    }
+  }
+
+  async getTicket(id: string): Promise<Ticket | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(tickets)
+        .where(eq(tickets.id, id))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error("Error getting ticket:", error);
+      return undefined;
+    }
+  }
+
+  async createTicket(insertTicket: InsertTicket): Promise<Ticket> {
+    try {
+      const result = await db
+        .insert(tickets)
+        .values(insertTicket as any)
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating ticket:", error);
+      throw error;
+    }
+  }
+
+  async updateTicket(id: string, data: Partial<Ticket>): Promise<Ticket | undefined> {
+    try {
+      const result = await db
+        .update(tickets)
+        .set(data)
+        .where(eq(tickets.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error updating ticket:", error);
+      return undefined;
+    }
+  }
+
+  // AI Settings
+  async getAISettings(): Promise<AISettings | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(aiSettings)
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error("Error getting AI settings:", error);
+      return undefined;
+    }
+  }
+
+  async upsertAISettings(settings: Partial<InsertAISettings>): Promise<AISettings> {
+    try {
+      const existing = await this.getAISettings();
+      
+      if (existing) {
+        const updateData: any = {
+          updatedAt: new Date(),
+        };
+        if (settings.provider !== undefined) updateData.provider = settings.provider;
+        if (settings.enabled !== undefined) updateData.enabled = settings.enabled;
+        if (settings.paused !== undefined) updateData.paused = settings.paused;
+        if (settings.knowledgeBase !== undefined) updateData.knowledgeBase = settings.knowledgeBase;
+        if (settings.systemPrompt !== undefined) updateData.systemPrompt = settings.systemPrompt;
+
+        const result = await db
+          .update(aiSettings)
+          .set(updateData)
+          .where(eq(aiSettings.id, existing.id))
+          .returning();
+        return result[0];
+      } else {
+        const result = await db
+          .insert(aiSettings)
+          .values({
+            provider: settings.provider || "openai",
+            enabled: settings.enabled ?? true,
+            paused: settings.paused ?? false,
+            knowledgeBase: settings.knowledgeBase,
+            systemPrompt: settings.systemPrompt,
+          } as any)
+          .returning();
+        return result[0];
+      }
+    } catch (error) {
+      console.error("Error upserting AI settings:", error);
+      throw error;
+    }
+  }
+
+  // Users
+  async getUser(id: number): Promise<User | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, id))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error("Error getting user:", error);
+      return undefined;
+    }
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(users)
+        .where(eq(users.username, username))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error("Error getting user by username:", error);
+      return undefined;
+    }
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    try {
+      const result = await db
+        .insert(users)
+        .values(user as any)
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating user:", error);
+      throw error;
+    }
+  }
+
+  // Knowledge Files
+  async getKnowledgeFiles(): Promise<KnowledgeFile[]> {
+    try {
+      return await db
+        .select()
+        .from(knowledgeFiles)
+        .orderBy(desc(knowledgeFiles.createdAt));
+    } catch (error) {
+      console.error("Error getting knowledge files:", error);
+      return [];
+    }
+  }
+
+  async createKnowledgeFile(file: InsertKnowledgeFile): Promise<KnowledgeFile> {
+    try {
+      const result = await db
+        .insert(knowledgeFiles)
+        .values(file as any)
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating knowledge file:", error);
+      throw error;
+    }
+  }
+
+  async deleteKnowledgeFile(id: string): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(knowledgeFiles)
+        .where(eq(knowledgeFiles.id, id))
+        .returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error("Error deleting knowledge file:", error);
+      return false;
+    }
+  }
+
+  // Channel Integrations
+  async getChannelIntegrations(): Promise<ChannelIntegration[]> {
+    try {
+      return await db.select().from(channelIntegrations);
+    } catch (error) {
+      console.error("Error getting channel integrations:", error);
+      return [];
+    }
+  }
+
+  async getChannelIntegration(channel: Channel): Promise<ChannelIntegration | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(channelIntegrations)
+        .where(eq(channelIntegrations.channel, channel as any))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error("Error getting channel integration:", error);
+      return undefined;
+    }
+  }
+
+  async upsertChannelIntegration(integration: InsertChannelIntegration): Promise<ChannelIntegration> {
+    try {
+      const existing = await this.getChannelIntegration(integration.channel);
+
+      if (existing) {
+        const updateData: any = {
+          enabled: integration.enabled,
+          updatedAt: new Date(),
+        };
+        if (integration.apiToken !== undefined) updateData.apiToken = integration.apiToken;
+        if (integration.appId !== undefined) updateData.appId = integration.appId;
+        if (integration.appSecret !== undefined) updateData.appSecret = integration.appSecret;
+        if (integration.clientId !== undefined) updateData.clientId = integration.clientId;
+        if (integration.clientSecret !== undefined) updateData.clientSecret = integration.clientSecret;
+        if (integration.webhookUrl !== undefined) updateData.webhookUrl = integration.webhookUrl;
+        if (integration.config !== undefined) updateData.config = integration.config;
+
+        const result = await db
+          .update(channelIntegrations)
+          .set(updateData)
+          .where(eq(channelIntegrations.channel, integration.channel as any))
+          .returning();
+        return result[0];
+      } else {
+        const result = await db
+          .insert(channelIntegrations)
+          .values(integration as any)
+          .returning();
+        return result[0];
+      }
+    } catch (error) {
+      console.error("Error upserting channel integration:", error);
+      throw error;
+    }
+  }
+}
+
+// Commented out MemStorage for reference
+/*
 export class MemStorage implements IStorage {
   private conversations: Map<string, Conversation>;
   private messages: Map<string, Message>;
@@ -98,7 +583,6 @@ export class MemStorage implements IStorage {
       checkPeriod: 86400000,
     });
     
-    // Initialize permanent admin account
     this.initializePermanentAdmin();
   }
 
@@ -124,119 +608,9 @@ export class MemStorage implements IStorage {
     };
     
     this.users.set(1, permanentAdmin);
-    this.userIdCounter = 2; // Start from 2 for new users
+    this.userIdCounter = 2;
   }
 
-  private initializeMockData_REMOVED() {
-    // Create mock agents
-    const mockAgents: Agent[] = [
-      {
-        id: randomUUID(),
-        name: "Sarah Johnson",
-        email: "sarah@supporthub.com",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-        status: "available",
-        activeConversations: 2,
-        createdAt: new Date(),
-      },
-      {
-        id: randomUUID(),
-        name: "Michael Chen",
-        email: "michael@supporthub.com",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael",
-        status: "busy",
-        activeConversations: 5,
-        createdAt: new Date(),
-      },
-      {
-        id: randomUUID(),
-        name: "Emily Rodriguez",
-        email: "emily@supporthub.com",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily",
-        status: "available",
-        activeConversations: 1,
-        createdAt: new Date(),
-      },
-    ];
-
-    mockAgents.forEach(agent => this.agents.set(agent.id, agent));
-
-    // Create mock conversations
-    const channels: Array<"whatsapp" | "telegram" | "instagram" | "twitter" | "website"> = [
-      "whatsapp", "telegram", "instagram", "twitter", "website"
-    ];
-    
-    for (let i = 0; i < 8; i++) {
-      const convId = randomUUID();
-      const conversation: Conversation = {
-        id: convId,
-        channel: channels[i % channels.length],
-        customerName: `Customer ${String.fromCharCode(65 + i)}`,
-        customerAvatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=Customer${i}`,
-        status: i % 3 === 0 ? "open" : i % 3 === 1 ? "assigned" : "resolved",
-        assignedAgentId: i % 3 === 1 ? Array.from(this.agents.values())[0].id : undefined,
-        lastMessageAt: new Date(Date.now() - i * 3600000),
-        createdAt: new Date(Date.now() - i * 3600000),
-      };
-      this.conversations.set(convId, conversation);
-
-      // Add messages for each conversation
-      const msgId1 = randomUUID();
-      const msg1: Message = {
-        id: msgId1,
-        conversationId: convId,
-        sender: "customer",
-        senderName: conversation.customerName,
-        content: `Hi, I need help with my order #${1000 + i}`,
-        timestamp: new Date(Date.now() - i * 3600000),
-      };
-      this.messages.set(msgId1, msg1);
-
-      if (i % 3 !== 0) {
-        const msgId2 = randomUUID();
-        const msg2: Message = {
-          id: msgId2,
-          conversationId: convId,
-          sender: i % 3 === 1 ? "agent" : "ai",
-          senderName: i % 3 === 1 ? "Sarah Johnson" : "AI Assistant",
-          content: i % 3 === 1 
-            ? "I'd be happy to help you with that. Let me check your order details."
-            : "I can help you with your order. Could you provide more details about the issue?",
-          timestamp: new Date(Date.now() - i * 3600000 + 60000),
-        };
-        this.messages.set(msgId2, msg2);
-      }
-    }
-
-    // Create mock tickets
-    for (let i = 0; i < 5; i++) {
-      const ticketId = randomUUID();
-      const ticket: Ticket = {
-        id: ticketId,
-        conversationId: Array.from(this.conversations.keys())[i],
-        title: `Issue with order #${1000 + i}`,
-        description: `Customer reported an issue with their recent purchase. Needs immediate attention.`,
-        priority: i % 3 === 0 ? "high" : i % 3 === 1 ? "medium" : "low",
-        status: i % 2 === 0 ? "open" : "in_progress",
-        tat: 60 + i * 15,
-        createdAt: new Date(Date.now() - i * 7200000),
-        resolvedAt: i % 2 === 1 ? new Date() : undefined,
-      };
-      this.tickets.set(ticketId, ticket);
-    }
-
-    // Initialize AI settings
-    this.aiSettings = {
-      id: randomUUID(),
-      provider: "openai",
-      enabled: true,
-      knowledgeBase: "We are a customer support platform. We help businesses manage customer conversations across multiple channels.",
-      systemPrompt: "You are a helpful customer support assistant. Be professional, friendly, and concise. If you cannot help with a specific request, suggest escalating to a human agent.",
-      updatedAt: new Date(),
-    };
-  }
-
-  // Conversations
   async getConversations(): Promise<Conversation[]> {
     return Array.from(this.conversations.values()).sort(
       (a, b) => b.lastMessageAt.getTime() - a.lastMessageAt.getTime()
@@ -268,7 +642,6 @@ export class MemStorage implements IStorage {
     return updated;
   }
 
-  // Messages
   async getMessages(conversationId: string): Promise<Message[]> {
     return Array.from(this.messages.values())
       .filter(m => m.conversationId === conversationId)
@@ -284,7 +657,6 @@ export class MemStorage implements IStorage {
     };
     this.messages.set(id, message);
 
-    // Update conversation's lastMessageAt
     const conversation = this.conversations.get(insertMessage.conversationId);
     if (conversation) {
       conversation.lastMessageAt = new Date();
@@ -294,7 +666,6 @@ export class MemStorage implements IStorage {
     return message;
   }
 
-  // Agents
   async getAgents(): Promise<Agent[]> {
     return Array.from(this.agents.values());
   }
@@ -341,7 +712,6 @@ export class MemStorage implements IStorage {
     return agent;
   }
 
-  // Tickets
   async getTickets(): Promise<Ticket[]> {
     return Array.from(this.tickets.values()).sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
@@ -373,7 +743,6 @@ export class MemStorage implements IStorage {
     return updated;
   }
 
-  // AI Settings
   async getAISettings(): Promise<AISettings | undefined> {
     return this.aiSettings;
   }
@@ -398,7 +767,6 @@ export class MemStorage implements IStorage {
     return this.aiSettings!;
   }
 
-  // Users
   async getUser(id: number): Promise<User | undefined> {
     return this.users.get(id);
   }
@@ -418,14 +786,12 @@ export class MemStorage implements IStorage {
   }
 
   async deleteUser(id: number): Promise<boolean> {
-    // Prevent deletion of permanent admin (ID: 1)
     if (id === 1) {
       throw new Error("Cannot delete permanent admin account");
     }
     return this.users.delete(id);
   }
 
-  // Knowledge Files
   async getKnowledgeFiles(): Promise<KnowledgeFile[]> {
     return Array.from(this.knowledgeFiles.values()).sort((a, b) => 
       b.createdAt.getTime() - a.createdAt.getTime()
@@ -446,7 +812,6 @@ export class MemStorage implements IStorage {
     return this.knowledgeFiles.delete(id);
   }
 
-  // Channel Integrations
   async getChannelIntegrations(): Promise<ChannelIntegration[]> {
     return Array.from(this.channelIntegrations.values());
   }
@@ -470,5 +835,6 @@ export class MemStorage implements IStorage {
     return newIntegration;
   }
 }
+*/
 
-export const storage = new MemStorage();
+export const storage = new DbStorage();
