@@ -31,8 +31,12 @@ export default function Settings() {
   // Channel integration states
   const [telegramToken, setTelegramToken] = useState("");
   const [whatsappToken, setWhatsappToken] = useState("");
-  const [instagramToken, setInstagramToken] = useState("");
-  const [twitterToken, setTwitterToken] = useState("");
+  // Instagram uses Meta app credentials
+  const [instagramAppId, setInstagramAppId] = useState("");
+  const [instagramAppSecret, setInstagramAppSecret] = useState("");
+  // Twitter uses OAuth2 credentials
+  const [twitterClientId, setTwitterClientId] = useState("");
+  const [twitterClientSecret, setTwitterClientSecret] = useState("");
 
   useEffect(() => {
     if (aiSettings) {
@@ -51,8 +55,10 @@ export default function Settings() {
       
       if (telegram?.apiToken) setTelegramToken(telegram.apiToken);
       if (whatsapp?.apiToken) setWhatsappToken(whatsapp.apiToken);
-      if (instagram?.apiToken) setInstagramToken(instagram.apiToken);
-      if (twitter?.apiToken) setTwitterToken(twitter.apiToken);
+      if (instagram?.appId) setInstagramAppId(instagram.appId);
+      if (instagram?.appSecret) setInstagramAppSecret(instagram.appSecret);
+      if (twitter?.clientId) setTwitterClientId(twitter.clientId);
+      if (twitter?.clientSecret) setTwitterClientSecret(twitter.clientSecret);
     }
   }, [channelIntegrations]);
 
@@ -82,7 +88,7 @@ export default function Settings() {
   });
 
   const saveChannelMutation = useMutation({
-    mutationFn: async (data: { channel: Channel; apiToken: string; enabled: boolean }) => {
+    mutationFn: async (data: { channel: Channel; apiToken?: string; appId?: string; appSecret?: string; clientId?: string; clientSecret?: string; enabled: boolean }) => {
       return apiRequest("POST", "/api/settings/channels", data);
     },
     onSuccess: () => {
@@ -101,18 +107,40 @@ export default function Settings() {
     },
   });
 
-  const handleSaveChannel = (channel: Channel, token: string) => {
-    if (!token.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter an API token",
-        variant: "destructive",
-      });
-      return;
+  const handleSaveChannel = (channel: Channel, credentials: { apiToken?: string; appId?: string; appSecret?: string; clientId?: string; clientSecret?: string }) => {
+    // Validate based on channel type
+    if (channel === "telegram" || channel === "whatsapp") {
+      if (!credentials.apiToken?.trim()) {
+        toast({
+          title: "Error",
+          description: "Please enter an API token",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else if (channel === "instagram") {
+      if (!credentials.appId?.trim() || !credentials.appSecret?.trim()) {
+        toast({
+          title: "Error",
+          description: "Please enter both App ID and App Secret",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else if (channel === "twitter") {
+      if (!credentials.clientId?.trim() || !credentials.clientSecret?.trim()) {
+        toast({
+          title: "Error",
+          description: "Please enter both Client ID and Client Secret",
+          variant: "destructive",
+        });
+        return;
+      }
     }
+    
     saveChannelMutation.mutate({
       channel,
-      apiToken: token,
+      ...credentials,
       enabled: true,
     });
   };
@@ -180,7 +208,7 @@ export default function Settings() {
                   </p>
                 </div>
                 <Button
-                  onClick={() => handleSaveChannel("telegram", telegramToken)}
+                  onClick={() => handleSaveChannel("telegram", { apiToken: telegramToken })}
                   disabled={saveChannelMutation.isPending}
                   data-testid="button-save-telegram"
                 >
@@ -217,7 +245,7 @@ export default function Settings() {
                   />
                 </div>
                 <Button
-                  onClick={() => handleSaveChannel("whatsapp", whatsappToken)}
+                  onClick={() => handleSaveChannel("whatsapp", { apiToken: whatsappToken })}
                   disabled={saveChannelMutation.isPending}
                   data-testid="button-save-whatsapp"
                 >
@@ -243,18 +271,32 @@ export default function Settings() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="instagram-token">Access Token</Label>
+                  <Label htmlFor="instagram-app-id">Meta App ID</Label>
                   <Input
-                    id="instagram-token"
+                    id="instagram-app-id"
                     type="text"
-                    placeholder="Your Instagram access token"
-                    value={instagramToken}
-                    onChange={(e) => setInstagramToken(e.target.value)}
-                    data-testid="input-instagram-token"
+                    placeholder="Your Meta App ID"
+                    value={instagramAppId}
+                    onChange={(e) => setInstagramAppId(e.target.value)}
+                    data-testid="input-instagram-app-id"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Create an app at developers.facebook.com and add Instagram product
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="instagram-app-secret">Meta App Secret</Label>
+                  <Input
+                    id="instagram-app-secret"
+                    type="password"
+                    placeholder="Your Meta App Secret"
+                    value={instagramAppSecret}
+                    onChange={(e) => setInstagramAppSecret(e.target.value)}
+                    data-testid="input-instagram-app-secret"
                   />
                 </div>
                 <Button
-                  onClick={() => handleSaveChannel("instagram", instagramToken)}
+                  onClick={() => handleSaveChannel("instagram", { appId: instagramAppId, appSecret: instagramAppSecret })}
                   disabled={saveChannelMutation.isPending}
                   data-testid="button-save-instagram"
                 >
@@ -282,18 +324,32 @@ export default function Settings() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="twitter-token">API Token</Label>
+                  <Label htmlFor="twitter-client-id">Client ID</Label>
                   <Input
-                    id="twitter-token"
+                    id="twitter-client-id"
                     type="text"
-                    placeholder="Your Twitter API token"
-                    value={twitterToken}
-                    onChange={(e) => setTwitterToken(e.target.value)}
-                    data-testid="input-twitter-token"
+                    placeholder="Your Twitter OAuth2 Client ID"
+                    value={twitterClientId}
+                    onChange={(e) => setTwitterClientId(e.target.value)}
+                    data-testid="input-twitter-client-id"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Create an app at developer.twitter.com and enable OAuth2
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="twitter-client-secret">Client Secret</Label>
+                  <Input
+                    id="twitter-client-secret"
+                    type="password"
+                    placeholder="Your Twitter OAuth2 Client Secret"
+                    value={twitterClientSecret}
+                    onChange={(e) => setTwitterClientSecret(e.target.value)}
+                    data-testid="input-twitter-client-secret"
                   />
                 </div>
                 <Button
-                  onClick={() => handleSaveChannel("twitter", twitterToken)}
+                  onClick={() => handleSaveChannel("twitter", { clientId: twitterClientId, clientSecret: twitterClientSecret })}
                   disabled={saveChannelMutation.isPending}
                   data-testid="button-save-twitter"
                 >
