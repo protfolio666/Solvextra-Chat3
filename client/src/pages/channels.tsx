@@ -2,16 +2,63 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SiWhatsapp, SiTelegram, SiInstagram } from "react-icons/si";
-import { MessageCircle, ExternalLink, Copy, CheckCircle } from "lucide-react";
+import { MessageCircle, ExternalLink, Copy, CheckCircle, Settings } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import type { ChannelIntegration } from "@shared/schema";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Channels() {
   const [copied, setCopied] = useState<string | null>(null);
+  const [telegramDialogOpen, setTelegramDialogOpen] = useState(false);
+  const [telegramToken, setTelegramToken] = useState("");
   const { toast } = useToast();
 
   const widgetUrl = `${window.location.origin}/widget`;
   const embedCode = `<iframe src="${widgetUrl}" width="100%" height="600" frameborder="0"></iframe>`;
+
+  // Fetch Telegram integration status
+  const { data: telegramIntegration } = useQuery<ChannelIntegration>({
+    queryKey: ["/api/settings/channels/telegram"],
+  });
+
+  // Mutation to save Telegram configuration
+  const saveTelegramMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", "/api/settings/channels", {
+        channel: "telegram",
+        enabled: true,
+        apiToken: telegramToken,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/settings/channels/telegram"] });
+      toast({
+        title: "Success!",
+        description: "Telegram bot connected successfully",
+      });
+      setTelegramDialogOpen(false);
+      setTelegramToken("");
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to save Telegram configuration",
+        variant: "destructive",
+      });
+    },
+  });
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -132,7 +179,7 @@ export default function Channels() {
         </Card>
 
         {/* Telegram */}
-        <Card>
+        <Card className={telegramIntegration?.enabled ? "border-success/50" : ""}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -144,23 +191,72 @@ export default function Channels() {
                   <CardDescription>Connect Telegram Bot</CardDescription>
                 </div>
               </div>
-              <Badge variant="outline">Setup Required</Badge>
+              {telegramIntegration?.enabled ? (
+                <Badge className="bg-success text-success-foreground">Connected</Badge>
+              ) : (
+                <Badge variant="outline">Not Connected</Badge>
+              )}
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              To integrate Telegram:
+              {telegramIntegration?.enabled 
+                ? "Your Telegram bot is connected and ready to receive messages."
+                : "Connect your Telegram bot to start receiving customer messages."}
             </p>
-            <ol className="text-sm space-y-2 ml-4 list-decimal">
-              <li>Open Telegram and search for @BotFather</li>
-              <li>Send /newbot and follow instructions</li>
-              <li>Save your bot token</li>
-              <li>Configure webhook URL in settings page</li>
-            </ol>
-            <Button variant="outline" className="w-full" data-testid="button-setup-telegram">
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Telegram Bot Setup Guide
-            </Button>
+            
+            <Dialog open={telegramDialogOpen} onOpenChange={setTelegramDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="w-full" data-testid="button-configure-telegram">
+                  <Settings className="w-4 h-4 mr-2" />
+                  {telegramIntegration?.enabled ? "Reconfigure" : "Configure Telegram Bot"}
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Configure Telegram Bot</DialogTitle>
+                  <DialogDescription>
+                    Enter your Telegram bot API token to connect
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="telegram-token">Bot API Token</Label>
+                    <Input
+                      id="telegram-token"
+                      type="password"
+                      placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+                      value={telegramToken}
+                      onChange={(e) => setTelegramToken(e.target.value)}
+                      data-testid="input-telegram-token"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Get your bot token from @BotFather on Telegram
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={() => saveTelegramMutation.mutate()} 
+                    disabled={!telegramToken || saveTelegramMutation.isPending}
+                    className="w-full"
+                    data-testid="button-save-telegram"
+                  >
+                    {saveTelegramMutation.isPending ? "Saving..." : "Save Configuration"}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {!telegramIntegration?.enabled && (
+              <div className="pt-2 border-t">
+                <p className="text-xs text-muted-foreground mb-2">Setup Instructions:</p>
+                <ol className="text-xs space-y-1 ml-4 list-decimal text-muted-foreground">
+                  <li>Open Telegram and search for @BotFather</li>
+                  <li>Send /newbot and follow instructions</li>
+                  <li>Copy the bot token provided</li>
+                  <li>Click "Configure Telegram Bot" above and paste the token</li>
+                </ol>
+              </div>
+            )}
           </CardContent>
         </Card>
 
