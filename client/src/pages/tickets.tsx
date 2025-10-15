@@ -47,10 +47,23 @@ const createTicketSchema = insertTicketSchema.extend({
 
 type CreateTicketForm = z.infer<typeof createTicketSchema>;
 
+const updateTicketSchema = z.object({
+  status: z.enum(["open", "in_progress", "resolved"]).optional(),
+  priority: z.enum(["low", "medium", "high"]).optional(),
+  tat: z.number().optional(),
+  issue: z.string().optional(),
+  notes: z.string().optional(),
+  customerEmail: z.string().optional(),
+});
+
+type UpdateTicketForm = z.infer<typeof updateTicketSchema>;
+
 export default function Tickets() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const { data: tickets = [] } = useQuery<Ticket[]>({
@@ -74,6 +87,10 @@ export default function Tickets() {
       status: "open",
       tat: 60,
     },
+  });
+
+  const editForm = useForm<UpdateTicketForm>({
+    resolver: zodResolver(updateTicketSchema),
   });
 
   const createTicketMutation = useMutation({
@@ -278,11 +295,9 @@ export default function Tickets() {
                         <FormLabel>Customer Email</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="Auto-populated from conversation" 
+                            placeholder="Enter customer email or select conversation" 
                             {...field} 
-                            readOnly
                             data-testid="input-customer-email"
-                            className="bg-muted"
                           />
                         </FormControl>
                         <FormMessage />

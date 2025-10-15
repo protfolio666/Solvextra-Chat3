@@ -27,14 +27,19 @@ export function TicketCard({ ticket, onClick, onResolve }: TicketCardProps) {
   return (
     <Card className="cursor-pointer hover-elevate transition-all" onClick={onClick} data-testid={`ticket-card-${ticket.id}`}>
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-base font-medium line-clamp-1" data-testid="text-ticket-title">
-            {ticket.title}
-          </CardTitle>
-          <Badge variant="outline" className={`${priorityColors[ticket.priority as keyof typeof priorityColors] || priorityColors.medium}`}>
-            {ticket.priority}
-          </Badge>
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded" data-testid="text-ticket-number">
+              {ticket.ticketNumber}
+            </span>
+            <Badge variant="outline" className={`${priorityColors[ticket.priority as keyof typeof priorityColors] || priorityColors.medium}`}>
+              {ticket.priority}
+            </Badge>
+          </div>
         </div>
+        <CardTitle className="text-base font-medium line-clamp-1" data-testid="text-ticket-title">
+          {ticket.title}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm text-muted-foreground line-clamp-2">{ticket.description}</p>

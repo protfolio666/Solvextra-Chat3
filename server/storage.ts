@@ -353,9 +353,17 @@ export class DbStorage implements IStorage {
 
   async createTicket(insertTicket: InsertTicket): Promise<Ticket> {
     try {
+      // Get count of existing tickets to generate next ticket number
+      const existingTickets = await db.select().from(tickets);
+      const ticketCount = existingTickets.length;
+      const ticketNumber = `TICK-${String(ticketCount + 1).padStart(3, '0')}`;
+
       const result = await db
         .insert(tickets)
-        .values(insertTicket as any)
+        .values({
+          ...insertTicket,
+          ticketNumber,
+        } as any)
         .returning();
       return result[0];
     } catch (error) {
@@ -826,9 +834,13 @@ export class MemStorage implements IStorage {
 
   async createTicket(insertTicket: InsertTicket): Promise<Ticket> {
     const id = randomUUID();
+    const ticketCount = this.tickets.size;
+    const ticketNumber = `TICK-${String(ticketCount + 1).padStart(3, '0')}`;
+    
     const ticket: Ticket = {
       ...insertTicket,
       id,
+      ticketNumber,
       createdAt: new Date(),
       resolvedAt: undefined,
     };

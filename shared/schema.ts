@@ -75,6 +75,7 @@ export type Agent = typeof agents.$inferSelect;
 // Tickets
 export const tickets = pgTable("tickets", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ticketNumber: text("ticket_number").notNull().unique(), // Human-readable ticket ID like TICK-001
   conversationId: varchar("conversation_id").notNull(),
   title: text("title").notNull(),
   description: text("description").notNull(),
@@ -90,6 +91,7 @@ export const tickets = pgTable("tickets", {
 
 export const insertTicketSchema = createInsertSchema(tickets).omit({
   id: true,
+  ticketNumber: true,
   createdAt: true,
 });
 
