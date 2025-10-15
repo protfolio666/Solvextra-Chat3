@@ -164,8 +164,8 @@ export default function Tickets() {
   const handleEditTicket = (ticket: Ticket) => {
     setSelectedTicket(ticket);
     editForm.reset({
-      status: ticket.status,
-      priority: ticket.priority,
+      status: ticket.status as "open" | "in_progress" | "resolved",
+      priority: ticket.priority as "low" | "medium" | "high",
       tat: ticket.tat,
       issue: ticket.issue || "",
       notes: ticket.notes || "",

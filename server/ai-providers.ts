@@ -12,6 +12,7 @@ interface AIProviderConfig {
   knowledgeBase?: string;
   systemPrompt?: string;
   model?: string;
+  knowledgeFiles?: Array<{ filename: string; uploadedAt: Date }>;
 }
 
 // OpenAI Provider
@@ -23,9 +24,18 @@ async function generateOpenAIResponse(
   config: AIProviderConfig
 ): Promise<string> {
   const systemMessage = config.systemPrompt || "You are a helpful customer support assistant.";
-  const knowledgeContext = config.knowledgeBase
-    ? `\n\nKnowledge Base:\n${config.knowledgeBase}`
-    : "";
+  
+  let knowledgeContext = "";
+  if (config.knowledgeBase) {
+    knowledgeContext += `\n\nKnowledge Base Information:\n${config.knowledgeBase}`;
+  }
+  
+  if (config.knowledgeFiles && config.knowledgeFiles.length > 0) {
+    const filesList = config.knowledgeFiles
+      .map(f => `- ${f.filename}`)
+      .join('\n');
+    knowledgeContext += `\n\nAvailable Knowledge Base Files:\n${filesList}\n\nNote: Reference these files when answering customer questions. The knowledge base text above contains key information extracted from these files.`;
+  }
 
   const response = await openai.chat.completions.create({
     model: "gpt-5",
@@ -54,9 +64,18 @@ async function generateGeminiResponse(
   config: AIProviderConfig
 ): Promise<string> {
   const systemMessage = config.systemPrompt || "You are a helpful customer support assistant.";
-  const knowledgeContext = config.knowledgeBase
-    ? `\n\nKnowledge Base:\n${config.knowledgeBase}`
-    : "";
+  
+  let knowledgeContext = "";
+  if (config.knowledgeBase) {
+    knowledgeContext += `\n\nKnowledge Base Information:\n${config.knowledgeBase}`;
+  }
+  
+  if (config.knowledgeFiles && config.knowledgeFiles.length > 0) {
+    const filesList = config.knowledgeFiles
+      .map(f => `- ${f.filename}`)
+      .join('\n');
+    knowledgeContext += `\n\nAvailable Knowledge Base Files:\n${filesList}\n\nNote: Reference these files when answering customer questions. The knowledge base text above contains key information extracted from these files.`;
+  }
 
   const response = await gemini.models.generateContent({
     model: "gemini-2.5-flash",
@@ -75,9 +94,18 @@ async function generateOpenRouterResponse(
   config: AIProviderConfig
 ): Promise<string> {
   const systemMessage = config.systemPrompt || "You are a helpful customer support assistant.";
-  const knowledgeContext = config.knowledgeBase
-    ? `\n\nKnowledge Base:\n${config.knowledgeBase}`
-    : "";
+  
+  let knowledgeContext = "";
+  if (config.knowledgeBase) {
+    knowledgeContext += `\n\nKnowledge Base Information:\n${config.knowledgeBase}`;
+  }
+  
+  if (config.knowledgeFiles && config.knowledgeFiles.length > 0) {
+    const filesList = config.knowledgeFiles
+      .map(f => `- ${f.filename}`)
+      .join('\n');
+    knowledgeContext += `\n\nAvailable Knowledge Base Files:\n${filesList}\n\nNote: Reference these files when answering customer questions. The knowledge base text above contains key information extracted from these files.`;
+  }
 
   // Default to DeepSeek V3 free model if no model specified (better than GPT-4o-mini issues)
   const model = config.model || "deepseek/deepseek-chat-v3-0324:free";

@@ -380,11 +380,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await handleSmartEscalation(message.conversationId, "AI is paused - routing to human agent", true);
         } else if (aiSettings?.enabled) {
           try {
+            // Fetch knowledge files to include in AI context
+            const knowledgeFiles = await storage.getKnowledgeFiles();
+            const knowledgeFilesMetadata = knowledgeFiles.map(f => ({
+              filename: f.filename,
+              uploadedAt: f.uploadedAt,
+            }));
+            
             const aiResponse = await generateAIResponse(message.content, {
               provider: aiSettings.provider,
               knowledgeBase: aiSettings.knowledgeBase || undefined,
               systemPrompt: aiSettings.systemPrompt || undefined,
               model: aiSettings.model || undefined,
+              knowledgeFiles: knowledgeFilesMetadata.length > 0 ? knowledgeFilesMetadata : undefined,
             });
 
             const aiMessage = await storage.createMessage({
@@ -1121,11 +1129,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (conversation.status === "open") {
           if (aiSettings?.enabled) {
             console.log('Generating AI response with provider:', aiSettings.provider, 'model:', aiSettings.model);
+            
+            // Fetch knowledge files to include in AI context
+            const knowledgeFiles = await storage.getKnowledgeFiles();
+            const knowledgeFilesMetadata = knowledgeFiles.map(f => ({
+              filename: f.filename,
+              uploadedAt: f.uploadedAt,
+            }));
+            
             const aiResponse = await generateAIResponse(message.text || "", {
               provider: aiSettings.provider,
               model: aiSettings.model || undefined,
               knowledgeBase: aiSettings.knowledgeBase || undefined,
               systemPrompt: aiSettings.systemPrompt || undefined,
+              knowledgeFiles: knowledgeFilesMetadata.length > 0 ? knowledgeFilesMetadata : undefined,
             });
             
             if (aiResponse?.content) {
@@ -1267,11 +1284,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (aiSettings?.enabled && !aiSettings?.paused) {
               try {
                 console.log('🤖 AI will respond to returning customer');
+                
+                // Fetch knowledge files to include in AI context
+                const knowledgeFiles = await storage.getKnowledgeFiles();
+                const knowledgeFilesMetadata = knowledgeFiles.map(f => ({
+                  filename: f.filename,
+                  uploadedAt: f.uploadedAt,
+                }));
+                
                 const aiResponse = await generateAIResponse(message.text || "", {
                   provider: aiSettings.provider,
                   model: aiSettings.model || undefined,
                   knowledgeBase: aiSettings.knowledgeBase || undefined,
                   systemPrompt: aiSettings.systemPrompt || undefined,
+                  knowledgeFiles: knowledgeFilesMetadata.length > 0 ? knowledgeFilesMetadata : undefined,
                 });
                 
                 if (aiResponse?.content) {
