@@ -137,10 +137,13 @@ Preferred communication style: Simple, everyday language.
 - `conversations` table: Tracks customer conversations across channels with status workflow
 - `messages` table: Stores all messages with sender type (customer/ai/agent)
 - `agents` table: Manages support agents with status and workload tracking
-- `tickets` table: Escalated issues with priority levels and SLA tracking (TAT - Turn Around Time)
+- `tickets` table: Escalated issues with priority levels, SLA tracking (TAT - Turn Around Time), unique ticket numbers (TICK-001, TICK-002, etc.)
 - `ai_settings` table: Configurable AI provider settings and knowledge base
 - `users` table: Authentication with username, password hash, role (admin/agent), and profile info
 - `knowledge_files` table: Uploaded files with name, type, size, url (base64), and uploader tracking
+- `email_settings` table: SendGrid API credentials and configuration for email notifications
+- `csat_ratings` table: Customer satisfaction ratings (1-5 stars) with feedback
+- `ticket_number_seq` sequence: PostgreSQL sequence for atomic ticket number generation
 
 ### AI Integration Layer
 
