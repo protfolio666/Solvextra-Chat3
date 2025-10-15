@@ -6,6 +6,24 @@ An omnichannel customer support platform that unifies conversations from multipl
 
 ## Recent Updates (October 15, 2025)
 
+### 5-Minute CSAT Window & Agent Tools ✨ LATEST
+- ✅ **5-Minute CSAT Window**: After conversation resolution, customers have 5 minutes to submit CSAT rating
+  - Messages within 5 minutes route to the resolved conversation for CSAT submission
+  - Messages after 5 minutes automatically create a NEW conversation
+  - Prevents confusion and ensures clean conversation separation
+- ✅ **Create Ticket from Conversation**: Agents can create support tickets directly from inbox conversations
+  - New "Create Ticket" button in conversation header
+  - Dialog form with title, description, priority, and TAT fields
+  - Automatically updates conversation status to "ticket"
+- ✅ **Resolve Conversation Button**: Agents can mark conversations as resolved directly from inbox
+  - Visible for all non-resolved conversations
+  - Automatically sends CSAT request to customer via their channel
+  - Sets resolvedAt timestamp for 5-minute window tracking
+- ✅ **Smart Conversation Routing**: Enhanced Telegram webhook with intelligent routing logic
+  - Active conversations (open/assigned/ticket) continue without interruption
+  - Resolved conversations within 5-min window accept CSAT responses
+  - Expired CSAT window (>5 min) triggers new conversation creation
+
 ### Smart Escalation System ✨ NEW
 - ✅ **AI-First Response**: All customer messages get AI response first (if AI enabled)
 - ✅ **Automatic Escalation Detection**: AI detects when human help is needed via keyword analysis

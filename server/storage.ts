@@ -551,7 +551,7 @@ export class DbStorage implements IStorage {
 
   async upsertChannelIntegration(integration: InsertChannelIntegration): Promise<ChannelIntegration> {
     try {
-      const existing = await this.getChannelIntegration(integration.channel);
+      const existing = await this.getChannelIntegration(integration.channel as Channel);
 
       if (existing) {
         const updateData: any = {

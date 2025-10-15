@@ -426,7 +426,7 @@ export default function Inbox() {
                     <MessageBubble
                       key={message.id}
                       message={message}
-                      agentAvatar={assignedAgent?.avatar}
+                      agentAvatar={assignedAgent?.avatar || undefined}
                     />
                   ))
                 )}

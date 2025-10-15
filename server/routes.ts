@@ -458,6 +458,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create Ticket from Conversation
+  app.post("/api/conversations/:id/create-ticket", async (req, res) => {
+    const conversation = await storage.getConversation(req.params.id);
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
+    const { title, description, priority, tat } = req.body;
+    
+    if (!title || !description || !priority || !tat) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Create ticket from conversation
+    const ticket = await storage.createTicket({
+      conversationId: conversation.id,
+      title,
+      description,
+      priority,
+      status: "open",
+      tat,
+    });
+
+    // Update conversation status to "ticket"
+    const updated = await storage.updateConversation(conversation.id, {
+      status: "ticket",
+    });
+
+    broadcast({ type: "status_update", data: { conversation: updated, ticket } });
+    res.json({ conversation: updated, ticket });
+  });
+
   // Agents
   app.get("/api/agents", requireAdmin, async (req, res) => {
     const agents = await storage.getAgents();
@@ -702,32 +734,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         console.log(`New message from ${customerName}: ${message.text}`);
         
-        // Check for resolved conversation within 5-minute CSAT window
+        // Smart conversation routing with 5-minute CSAT window
         const channelUserId = message.chat.id.toString();
-        let conversation = await storage.findConversationByChannelUser("telegram", channelUserId);
+        let conversation: any = null;
         
-        if (conversation && conversation.status === "resolved" && conversation.resolvedAt) {
-          // Check if within 5-minute CSAT window
-          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-          const isWithinCsatWindow = new Date(conversation.resolvedAt) > fiveMinutesAgo;
-          
-          if (isWithinCsatWindow) {
-            console.log('📊 Message within 5-min CSAT window - routing to existing resolved conversation');
-            // Continue with this conversation for CSAT response
-          } else {
-            console.log('⏰ Message after 5-min CSAT window - creating new conversation');
-            // Create new conversation after CSAT window expires
-            conversation = await storage.createConversation({
-              channel: "telegram",
-              customerName,
-              customerAvatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${customerName}`,
-              channelUserId,
-              status: "open",
-              lastMessageAt: new Date(),
-            });
+        // First: Check for ANY existing conversation (active or resolved)
+        const allConversations = await storage.getConversations();
+        const existingConversation = allConversations.find(
+          c => c.channel === "telegram" && c.channelUserId === channelUserId
+        );
+        
+        if (existingConversation) {
+          // If conversation is active (open/assigned/ticket), continue with it
+          if (existingConversation.status !== "resolved") {
+            console.log(`📬 Routing to active ${existingConversation.status} conversation`);
+            conversation = existingConversation;
+          } 
+          // If conversation is resolved, check the 5-minute CSAT window
+          else if (existingConversation.resolvedAt) {
+            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+            const isWithinCsatWindow = new Date(existingConversation.resolvedAt) > fiveMinutesAgo;
+            
+            if (isWithinCsatWindow) {
+              console.log('📊 Message within 5-min CSAT window - routing to resolved conversation for CSAT');
+              conversation = existingConversation;
+            } else {
+              console.log('⏰ Message after 5-min CSAT window - creating new conversation');
+              conversation = await storage.createConversation({
+                channel: "telegram",
+                customerName,
+                customerAvatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${customerName}`,
+                channelUserId,
+                status: "open",
+                lastMessageAt: new Date(),
+              });
+            }
           }
-        } else if (!conversation) {
-          // No previous conversation or not resolved - create new
+        } else {
+          // No previous conversation - create new
           console.log('Creating new conversation for', customerName);
           conversation = await storage.createConversation({
             channel: "telegram",
