@@ -78,6 +78,9 @@ export const tickets = pgTable("tickets", {
   conversationId: varchar("conversation_id").notNull(),
   title: text("title").notNull(),
   description: text("description").notNull(),
+  issue: text("issue"), // Detailed issue description
+  notes: text("notes"), // Internal notes for agents
+  customerEmail: text("customer_email"), // Customer email for notifications
   priority: varchar("priority", { length: 20 }).notNull().default("medium"),
   status: varchar("status", { length: 20 }).notNull().default("open"),
   tat: integer("tat").notNull(), // Turn Around Time in minutes

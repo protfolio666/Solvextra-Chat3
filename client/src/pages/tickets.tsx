@@ -40,6 +40,9 @@ import { useToast } from "@/hooks/use-toast";
 const createTicketSchema = insertTicketSchema.extend({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
+  issue: z.string().optional(),
+  notes: z.string().optional(),
+  customerEmail: z.string().optional(),
 });
 
 type CreateTicketForm = z.infer<typeof createTicketSchema>;
@@ -64,6 +67,9 @@ export default function Tickets() {
       conversationId: "",
       title: "",
       description: "",
+      issue: "",
+      notes: "",
+      customerEmail: "",
       priority: "medium",
       status: "open",
       tat: 60,
@@ -154,7 +160,7 @@ export default function Tickets() {
                 Create Ticket
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Create New Ticket</DialogTitle>
                 <DialogDescription>
@@ -169,7 +175,15 @@ export default function Tickets() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Conversation</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={(value) => {
+                          field.onChange(value);
+                          const selectedConv = conversations.find(c => c.id === value);
+                          if (selectedConv?.customerEmail) {
+                            form.setValue('customerEmail', selectedConv.customerEmail);
+                          } else {
+                            form.setValue('customerEmail', '');
+                          }
+                        }} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger data-testid="select-conversation">
                               <SelectValue placeholder="Select a conversation" />
@@ -213,6 +227,62 @@ export default function Tickets() {
                             placeholder="Describe the issue..."
                             {...field}
                             data-testid="textarea-ticket-description"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="issue"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Issue Details (Optional)</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Detailed issue description for customer email..."
+                            {...field}
+                            data-testid="textarea-ticket-issue"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Internal Notes (Optional)</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Internal notes for agents..."
+                            {...field}
+                            data-testid="textarea-ticket-notes"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="customerEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Customer Email</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Auto-populated from conversation" 
+                            {...field} 
+                            readOnly
+                            data-testid="input-customer-email"
+                            className="bg-muted"
                           />
                         </FormControl>
                         <FormMessage />

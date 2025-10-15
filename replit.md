@@ -13,6 +13,12 @@ An omnichannel customer support platform that unifies conversations from multipl
 - ✅ **Intelligent Agent Transfer**: AI detects when customer wants to speak to agent ("talk to human", "speak to agent", etc.) and transfers immediately
 - ✅ **Enhanced Escalation**: Updated escalation detection to recognize agent transfer requests
 
+### Enhanced Ticket Management ✨ NEW
+- ✅ **Issue Details Field**: Added detailed issue description field for customer emails
+- ✅ **Internal Notes**: Added notes field for internal agent communication
+- ✅ **Customer Email Auto-Population**: Auto-fills customer email from selected conversation
+- ✅ **Scrollable Dialog**: Improved ticket creation form with scrollable content
+
 ### Email Notifications (SendGrid) ✨ NEW
 - ✅ **SendGrid Configuration**: Admin can configure SendGrid API key and sender email in Settings > Notifications
 - ✅ **Email Settings Storage**: Dedicated email_settings table for SendGrid credentials
