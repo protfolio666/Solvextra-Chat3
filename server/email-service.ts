@@ -9,22 +9,29 @@ interface SendEmailParams {
 }
 
 export async function sendEmail({ to, subject, html, emailSettings }: SendEmailParams): Promise<void> {
+  const logMessage = `[${new Date().toISOString()}] Email attempt to: ${to}, subject: ${subject}`;
+  
   if (!emailSettings.enabled) {
-    console.log('📧 Email notifications disabled - skipping email send');
+    const msg = `${logMessage} - SKIPPED: Email notifications disabled`;
+    console.log(msg);
+    console.error(msg); // Also log to stderr so it appears in logs
     return;
   }
 
   if (!emailSettings.sendgridApiKey) {
-    console.error('❌ SendGrid API key not configured');
+    const msg = `${logMessage} - ERROR: SendGrid API key not configured`;
+    console.error(msg);
     throw new Error('SendGrid API key not configured');
   }
 
   if (!emailSettings.senderEmail) {
-    console.error('❌ Sender email not configured');
+    const msg = `${logMessage} - ERROR: Sender email not configured`;
+    console.error(msg);
     throw new Error('Sender email not configured');
   }
 
   try {
+    console.error(`${logMessage} - SENDING...`);
     sgMail.setApiKey(emailSettings.sendgridApiKey);
 
     const msg = {
@@ -37,10 +44,13 @@ export async function sendEmail({ to, subject, html, emailSettings }: SendEmailP
       html,
     };
 
-    await sgMail.send(msg);
-    console.log(`✅ Email sent successfully to ${to}`);
+    const result = await sgMail.send(msg);
+    const successMsg = `${logMessage} - SUCCESS: Email sent (status: ${result[0]?.statusCode})`;
+    console.log(successMsg);
+    console.error(successMsg); // Also log to stderr
   } catch (error: any) {
-    console.error('❌ SendGrid error:', error.response?.body || error.message);
+    const errorMsg = `${logMessage} - SENDGRID ERROR: ${JSON.stringify(error.response?.body || error.message)}`;
+    console.error(errorMsg);
     throw new Error(`Failed to send email: ${error.response?.body?.errors?.[0]?.message || error.message}`);
   }
 }
