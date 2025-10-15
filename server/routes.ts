@@ -14,6 +14,7 @@ import {
   insertKnowledgeFileSchema,
   insertChannelIntegrationSchema,
   insertCsatRatingSchema,
+  insertEmailSettingsSchema,
   Channel,
   WSMessage,
   Conversation,
@@ -774,6 +775,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ error: "File not found" });
     }
     res.json({ success: true });
+  });
+
+  // Email Settings
+  app.get("/api/settings/email", requireAdmin, async (req, res) => {
+    const settings = await storage.getEmailSettings();
+    res.json(settings);
+  });
+
+  app.post("/api/settings/email", requireAdmin, async (req, res) => {
+    const result = insertEmailSettingsSchema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    const settings = await storage.upsertEmailSettings(result.data);
+    res.json(settings);
   });
 
   // Webhooks for external channels

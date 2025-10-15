@@ -20,6 +20,8 @@ import {
   Channel,
   CsatRating,
   InsertCsatRating,
+  EmailSettings,
+  InsertEmailSettings,
   conversations,
   messages,
   agents,
@@ -29,6 +31,7 @@ import {
   knowledgeFiles,
   channelIntegrations,
   csatRatings,
+  emailSettings,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import session from "express-session";
@@ -87,6 +90,10 @@ export interface IStorage {
   // CSAT Ratings
   createCsatRating(rating: InsertCsatRating): Promise<CsatRating>;
   getCsatRatings(conversationId?: string, ticketId?: string): Promise<CsatRating[]>;
+
+  // Email Settings
+  getEmailSettings(): Promise<EmailSettings | undefined>;
+  upsertEmailSettings(settings: Partial<InsertEmailSettings>): Promise<EmailSettings>;
 
   // Session Store
   sessionStore: session.Store;
@@ -596,6 +603,57 @@ export class DbStorage implements IStorage {
     } catch (error) {
       console.error("Error getting CSAT ratings:", error);
       return [];
+    }
+  }
+
+  // Email Settings
+  async getEmailSettings(): Promise<EmailSettings | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(emailSettings)
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error("Error getting email settings:", error);
+      return undefined;
+    }
+  }
+
+  async upsertEmailSettings(settings: Partial<InsertEmailSettings>): Promise<EmailSettings> {
+    try {
+      const existing = await this.getEmailSettings();
+      
+      if (existing) {
+        const updateData: any = {
+          updatedAt: new Date(),
+        };
+        if (settings.sendgridApiKey !== undefined) updateData.sendgridApiKey = settings.sendgridApiKey;
+        if (settings.senderEmail !== undefined) updateData.senderEmail = settings.senderEmail;
+        if (settings.senderName !== undefined) updateData.senderName = settings.senderName;
+        if (settings.enabled !== undefined) updateData.enabled = settings.enabled;
+
+        const result = await db
+          .update(emailSettings)
+          .set(updateData)
+          .where(eq(emailSettings.id, existing.id))
+          .returning();
+        return result[0];
+      } else {
+        const result = await db
+          .insert(emailSettings)
+          .values({
+            sendgridApiKey: settings.sendgridApiKey,
+            senderEmail: settings.senderEmail,
+            senderName: settings.senderName || "Solvextra Support",
+            enabled: settings.enabled ?? false,
+          } as any)
+          .returning();
+        return result[0];
+      }
+    } catch (error) {
+      console.error("Error upserting email settings:", error);
+      throw error;
     }
   }
 }

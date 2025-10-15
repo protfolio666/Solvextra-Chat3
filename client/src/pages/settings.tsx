@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { AISettings, AIProvider, ChannelIntegration, Channel } from "@shared/schema";
+import { AISettings, AIProvider, ChannelIntegration, Channel, EmailSettings } from "@shared/schema";
 import { AIProviderSelector } from "@/components/ai-provider-selector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +24,10 @@ export default function Settings() {
     queryKey: ["/api/settings/channels"],
   });
 
+  const { data: emailSettings } = useQuery<EmailSettings>({
+    queryKey: ["/api/settings/email"],
+  });
+
   const [provider, setProvider] = useState<AIProvider>("openai");
   const [knowledgeBase, setKnowledgeBase] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
@@ -39,6 +43,12 @@ export default function Settings() {
   // Twitter uses OAuth2 credentials
   const [twitterClientId, setTwitterClientId] = useState("");
   const [twitterClientSecret, setTwitterClientSecret] = useState("");
+
+  // Email settings (SendGrid)
+  const [sendgridApiKey, setSendgridApiKey] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
+  const [senderName, setSenderName] = useState("Solvextra Support");
+  const [emailEnabled, setEmailEnabled] = useState(false);
 
   useEffect(() => {
     if (aiSettings) {
@@ -65,6 +75,15 @@ export default function Settings() {
       if (twitter?.clientSecret) setTwitterClientSecret(twitter.clientSecret);
     }
   }, [channelIntegrations]);
+
+  useEffect(() => {
+    if (emailSettings) {
+      setSendgridApiKey(emailSettings.sendgridApiKey || "");
+      setSenderEmail(emailSettings.senderEmail || "");
+      setSenderName(emailSettings.senderName || "Solvextra Support");
+      setEmailEnabled(emailSettings.enabled || false);
+    }
+  }, [emailSettings]);
 
   const saveSettingsMutation = useMutation({
     mutationFn: async () => {
@@ -150,6 +169,31 @@ export default function Settings() {
       enabled: true,
     });
   };
+
+  const saveEmailSettingsMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", "/api/settings/email", {
+        sendgridApiKey,
+        senderEmail,
+        senderName,
+        enabled: emailEnabled,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/settings/email"] });
+      toast({
+        title: "Email Settings Saved",
+        description: "SendGrid configuration has been updated successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to save email settings",
+        variant: "destructive",
+      });
+    },
+  });
 
   return (
     <div className="h-full overflow-auto">
@@ -435,6 +479,94 @@ export default function Settings() {
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Email Configuration (SendGrid)</CardTitle>
+                    <CardDescription>Configure email notifications and CSAT surveys</CardDescription>
+                  </div>
+                  {emailEnabled && (
+                    <Badge className="bg-success text-success-foreground">Active</Badge>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="sendgrid-api-key">SendGrid API Key</Label>
+                  <Input
+                    id="sendgrid-api-key"
+                    type="password"
+                    placeholder="Enter your SendGrid API key"
+                    value={sendgridApiKey}
+                    onChange={(e) => setSendgridApiKey(e.target.value)}
+                    data-testid="input-sendgrid-api-key"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Get your API key from{" "}
+                    <a
+                      href="https://app.sendgrid.com/settings/api_keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      SendGrid Settings
+                    </a>
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="sender-email">Sender Email Address</Label>
+                  <Input
+                    id="sender-email"
+                    type="email"
+                    placeholder="support@solvextra.com"
+                    value={senderEmail}
+                    onChange={(e) => setSenderEmail(e.target.value)}
+                    data-testid="input-sender-email"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    This email must be verified in your SendGrid account
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="sender-name">Sender Name</Label>
+                  <Input
+                    id="sender-name"
+                    type="text"
+                    placeholder="Solvextra Support"
+                    value={senderName}
+                    onChange={(e) => setSenderName(e.target.value)}
+                    data-testid="input-sender-name"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Enable Email Notifications</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Send ticket resolution emails and CSAT surveys
+                    </p>
+                  </div>
+                  <Switch
+                    checked={emailEnabled}
+                    onCheckedChange={setEmailEnabled}
+                    data-testid="switch-email-enabled"
+                  />
+                </div>
+
+                <Button
+                  onClick={() => saveEmailSettingsMutation.mutate()}
+                  disabled={saveEmailSettingsMutation.isPending}
+                  className="w-full"
+                  data-testid="button-save-email-settings"
+                >
+                  {saveEmailSettingsMutation.isPending ? "Saving..." : "Save Email Settings"}
+                </Button>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Notification Preferences</CardTitle>

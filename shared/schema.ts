@@ -194,6 +194,24 @@ export const insertCsatRatingSchema = createInsertSchema(csatRatings).omit({
 export type InsertCsatRating = z.infer<typeof insertCsatRatingSchema>;
 export type CsatRating = typeof csatRatings.$inferSelect;
 
+// Email Settings (SendGrid)
+export const emailSettings = pgTable("email_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sendgridApiKey: text("sendgrid_api_key"),
+  senderEmail: text("sender_email"),
+  senderName: text("sender_name").default("Solvextra Support"),
+  enabled: boolean("enabled").notNull().default(false),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertEmailSettingsSchema = createInsertSchema(emailSettings).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type InsertEmailSettings = z.infer<typeof insertEmailSettingsSchema>;
+export type EmailSettings = typeof emailSettings.$inferSelect;
+
 // WebSocket message types
 export interface WSMessage {
   type: "message" | "status_update" | "typing" | "escalation" | "assignment" | "admin_notification" | "csat_request";

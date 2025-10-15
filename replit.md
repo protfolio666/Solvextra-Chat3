@@ -6,6 +6,14 @@ An omnichannel customer support platform that unifies conversations from multipl
 
 ## Recent Updates (October 15, 2025)
 
+### Email Notifications (SendGrid) ✨ NEW
+- ✅ **SendGrid Configuration**: Admin can configure SendGrid API key and sender email in Settings > Notifications
+- ✅ **Email Settings Storage**: Dedicated email_settings table for SendGrid credentials
+- ✅ **Sender Customization**: Configure sender name and email address
+- ✅ **Enable/Disable Toggle**: Turn email notifications on/off without removing credentials
+- ⏳ **Ticket Resolution Emails**: Send notification when tickets are resolved (upcoming)
+- ⏳ **CSAT Surveys via Email**: Automated customer satisfaction surveys (upcoming)
+
 ### Smart Escalation System ✨ NEW
 - ✅ **AI-First Response**: All customer messages get AI response first (if AI enabled)
 - ✅ **Automatic Escalation Detection**: AI detects when human help is needed via keyword analysis
