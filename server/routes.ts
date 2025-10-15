@@ -406,6 +406,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create user account with "agent" role
       const user = await storage.createUser({
         username: email,
+        email: email,
         password: await hashPassword(password),
         role: "agent",
         name: name,
