@@ -695,7 +695,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) {
       return res.status(400).json({ error: result.error });
     }
+    console.log("📝 Saving AI settings:", JSON.stringify(result.data, null, 2));
     const settings = await storage.upsertAISettings(result.data);
+    console.log("✅ Saved AI settings:", JSON.stringify(settings, null, 2));
     res.json(settings);
   });
 
