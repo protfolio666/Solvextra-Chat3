@@ -651,6 +651,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const csatUrl = `${process.env.REPLIT_DEV_DOMAIN || 'https://your-domain.com'}/csat/${ticket.id}`;
             const emailHtml = generateTicketResolutionEmail(
               conversation.customerName,
+              ticket.ticketNumber,
               ticket.title,
               ticket.id,
               csatUrl
@@ -700,6 +701,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const csatUrl = `${process.env.REPLIT_DEV_DOMAIN || 'https://your-domain.com'}/csat/${ticket.id}`;
             const emailHtml = generateTicketResolutionEmail(
               conversation.customerName,
+              ticket.ticketNumber,
               ticket.title,
               ticket.id,
               csatUrl

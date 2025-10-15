@@ -149,6 +149,7 @@ export function generateTicketReopenEmail(
 
 export function generateTicketResolutionEmail(
   customerName: string,
+  ticketNumber: string,
   ticketTitle: string,
   ticketId: string,
   csatSurveyUrl: string
@@ -174,7 +175,7 @@ export function generateTicketResolutionEmail(
         <div class="content">
           <p>Hello ${customerName},</p>
           <p>We're pleased to inform you that your support ticket <strong>"${ticketTitle}"</strong> has been resolved.</p>
-          <p>Ticket ID: <strong>${ticketId}</strong></p>
+          <p>Ticket Number: <strong>${ticketNumber}</strong></p>
           <p>We hope this resolution meets your expectations. Your feedback is important to us!</p>
           <div style="text-align: center;">
             <a href="${csatSurveyUrl}" class="button">Rate Your Experience</a>
