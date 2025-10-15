@@ -2,102 +2,7 @@
 
 ## Overview
 
-An omnichannel customer support platform that unifies conversations from multiple channels (WhatsApp, Telegram, Instagram, Twitter, Website) into a single inbox. The system features role-based authentication (Admin/Agent), AI-powered automated responses with intelligent escalation to human agents, comprehensive ticket management, knowledge base with file uploads, and real-time analytics. Built with a focus on information clarity and rapid conversation processing, inspired by industry leaders like Intercom and Zendesk.
-
-## Recent Updates (October 15, 2025)
-
-### Export & Analytics ✨ NEW
-- ✅ **Comprehensive Export Page**: Admin-only page to view and export all conversation data
-- ✅ **Advanced Filtering**: Filter by channel, status, customer name, email, and ticket number
-- ✅ **CSV Export**: One-click CSV export with complete conversation details (channel, timestamps, agent, escalation, CSAT)
-- ✅ **Joined Data Display**: Shows agent names, ticket numbers, CSAT ratings, and resolution times in single view
-- ✅ **Visual Indicators**: Color-coded status badges, star ratings, and channel icons
-
-### CSAT Rating Improvements ✨ NEW
-- ✅ **Smart Rating Detection**: Customer CSAT ratings (1-5) no longer reopen resolved conversations
-- ✅ **Automatic Thank You**: System sends thank you message after rating received
-- ✅ **Persistent Resolution**: Conversations stay resolved after customer provides feedback
-
-### Customer Information Collection ✨ NEW
-- ✅ **AI Greeting Flow**: AI greets customers warmly based on knowledge base
-- ✅ **Information Collection**: AI asks for name, email, and phone number at conversation start
-- ✅ **Customer Data Storage**: Added customerEmail and customerPhone fields to conversations table
-- ✅ **Intelligent Agent Transfer**: AI detects when customer wants to speak to agent ("talk to human", "speak to agent", etc.) and transfers immediately
-- ✅ **Enhanced Escalation**: Updated escalation detection to recognize agent transfer requests
-
-### Enhanced Ticket Management ✨ NEW
-- ✅ **Unique Ticket Numbers**: Auto-generated sequential ticket IDs (TICK-001, TICK-002) using PostgreSQL sequence for race-condition-safe numbering
-- ✅ **Issue Details Field**: Added detailed issue description field for customer emails
-- ✅ **Internal Notes**: Added notes field for internal agent communication
-- ✅ **Customer Email Auto-Population**: Auto-fills customer email from selected conversation (editable)
-- ✅ **Scrollable Dialog**: Improved ticket creation form with scrollable content
-- ✅ **Ticket Edit Dialog**: Complete edit functionality with all fields (status, priority, TAT, email, issue, notes)
-- ✅ **Re-open Tickets**: Change status from resolved back to open/in_progress
-- ✅ **Minimize/Maximize**: Floating minimized button to collapse ticket edit dialog while keeping it accessible
-
-### Email Notifications (SendGrid) ✨ NEW
-- ✅ **SendGrid Configuration**: Admin can configure SendGrid API key and sender email in Settings > Notifications
-- ✅ **Email Settings Storage**: Dedicated email_settings table for SendGrid credentials
-- ✅ **Sender Customization**: Configure sender name and email address
-- ✅ **Enable/Disable Toggle**: Turn email notifications on/off without removing credentials
-- ✅ **Ticket Creation Emails**: Send notification when tickets are created/escalated (open status) with ticket number, issue details, and TAT
-- ✅ **Ticket Resolution Emails**: Send notification when tickets are resolved with beautiful HTML template
-- ✅ **CSAT Surveys via Email**: Email includes clickable link to public CSAT survey page
-- ✅ **Public CSAT Page**: Customers can rate experience (1-5 stars) and provide feedback at /csat/:ticketId
-- ✅ **Email Fetching**: Customer email automatically populated from conversation data provided by agents
-
-### CSAT Dashboard ✨ NEW
-- ✅ **Admin Dashboard**: Dedicated page to view all customer satisfaction ratings
-- ✅ **Rating Analytics**: Average rating, total responses, and rating distribution charts
-- ✅ **Feedback Table**: View all ratings with timestamps, ticket IDs, and customer feedback
-- ✅ **Visual Indicators**: Star ratings with color-coded sentiment (green/yellow/red)
-
-### Smart Escalation System ✨ NEW
-- ✅ **AI-First Response**: All customer messages get AI response first (if AI enabled)
-- ✅ **Automatic Escalation Detection**: AI detects when human help is needed via keyword analysis
-- ✅ **Load-Balanced Agent Assignment**: Finds available agents and assigns to least loaded agent
-- ✅ **Automatic Ticket Creation**: Creates ticket with TAT when no agents available
-- ✅ **Agent Workload Tracking**: Accurately tracks and updates agent activeConversations count
-- ✅ **Escalation Flow**: Customer → AI → Available Agent OR Ticket (24hr TAT default)
-
-### Enhanced Channel Integration ✨ NEW
-- ✅ **Platform-Specific Authentication**: Different auth methods per channel
-  - Telegram & WhatsApp: Simple API token
-  - Instagram (Meta): App ID + App Secret
-  - Twitter/X: Client ID + Client Secret (OAuth2)
-- ✅ **Auto-Webhook Registration**: Telegram webhook auto-registers when token saved
-- ✅ **Improved Error Logging**: Detailed logs for webhook delivery and AI responses
-- ✅ **Multi-Channel AI Support**: AI auto-responds on all channels (Telegram, Web, etc.)
-
-### Authentication & Authorization
-- ✅ **Role-Based Access Control**: Implemented admin and agent roles with different permission levels
-- ✅ **Protected Routes**: Frontend routes protected with role-based access checks
-- ✅ **Server-Side Authorization**: Backend endpoints secured with requireAdmin middleware
-- ✅ **Session Management**: Passport.js with express-session for secure authentication
-- ✅ **Login/Signup Pages**: User registration with role selection (admin/agent)
-
-### Channel Integration (Previous)
-- ✅ **Web Chat Widget**: Fully functional chat widget at `/widget` for website embedding
-- ✅ **Channel Setup Guide**: Instructions for WhatsApp, Telegram, Instagram, Twitter integration
-- ✅ **Embeddable Widget**: Copy-paste embed code for any website
-- ✅ **Real-time Messaging**: WebSocket-powered live chat with auto-reconnect
-
-### Knowledge Base
-- ✅ **File Upload System**: Upload documents, PDFs, images, and other files (max 5MB)
-- ✅ **File Management UI**: View, download, and delete knowledge base files
-- ✅ **Base64 Storage**: Files stored as data URLs in memory storage
-- ✅ **User Tracking**: Track who uploaded each file
-
-### Ticket Management
-- ✅ **Create Ticket Dialog**: Form with validation for creating support tickets
-- ✅ **Tab Filtering**: Filter tickets by status (all, open, in_progress, resolved)
-- ✅ **Ticket Counts**: Display count for each status tab
-- ✅ **Priority & TAT**: Set ticket priority and turn-around time
-
-### Data Management
-- ✅ **Clean State**: Removed all demo/mock data
-- ✅ **Production Ready**: Starts with empty state, real data only from user interactions
-- ✅ **Empty AI Settings**: AI configuration starts uninitialized until user configures
+An omnichannel customer support platform designed to unify customer conversations from various channels (WhatsApp, Telegram, Instagram, Twitter, Website) into a single inbox. The platform supports role-based authentication (Admin/Agent), features AI-powered automated responses with intelligent escalation to human agents, and provides comprehensive ticket management, a knowledge base with file upload capabilities, and real-time analytics. Its core purpose is to enhance information clarity and accelerate conversation processing, drawing inspiration from leading industry solutions. The platform also includes advanced features like CSAT rating collection, email notifications, and comprehensive data export functionalities.
 
 ## User Preferences
 
@@ -107,143 +12,31 @@ Preferred communication style: Simple, everyday language.
 
 ### Frontend Architecture
 
-**Framework & Build System:**
-- React 18 with TypeScript for type-safe component development
-- Vite as the build tool and development server with HMR support
-- Wouter for lightweight client-side routing
-- TanStack Query (React Query) for server state management and caching
-
-**UI Component Strategy:**
-- Shadcn/ui component library with Radix UI primitives for accessibility
-- Tailwind CSS for utility-first styling with custom design tokens
-- Theme system supporting light/dark modes with persistent preferences
-- Design approach follows Intercom/Zendesk patterns prioritizing information density and productivity
-
-**State Management:**
-- React Query for all server state with infinite stale time and disabled auto-refetch
-- Local component state using React hooks
-- WebSocket integration for real-time updates that trigger query invalidation
-- Custom hooks pattern for reusable logic (useWebSocket, useToast, useIsMobile)
+The frontend is built with React 18 and TypeScript, using Vite for development and bundling. Wouter handles client-side routing, and TanStack Query manages server state. UI components are developed using Shadcn/ui with Radix UI primitives for accessibility, styled with Tailwind CSS, and support light/dark modes. The design emphasizes information density and productivity, akin to Intercom and Zendesk. React Query manages server state with WebSocket integration for real-time updates.
 
 ### Backend Architecture
 
-**Server Framework:**
-- Express.js with TypeScript running on Node.js
-- HTTP server wrapped with WebSocket server for real-time bidirectional communication
-- RESTful API design with conventional CRUD operations
-- Middleware chain for JSON parsing, logging, and error handling
-
-**Real-time Communication:**
-- WebSocket server (ws library) on `/ws` path for live message broadcasting
-- Automatic reconnection logic on client side
-- Message-based protocol with typed events (message, status_update, escalation)
-- Broadcasts trigger React Query cache invalidation for reactive UI updates
-
-**Data Layer:**
-- Drizzle ORM with PostgreSQL dialect for type-safe database operations
-- Schema-first approach using Drizzle's table definitions
-- Zod schema integration for runtime validation via drizzle-zod
-- In-memory storage implementation (MemStorage) as abstraction layer, designed to be swapped with database implementation
-
-**Database Schema Design:**
-- `conversations` table: Tracks customer conversations across channels with status workflow
-- `messages` table: Stores all messages with sender type (customer/ai/agent)
-- `agents` table: Manages support agents with status and workload tracking
-- `tickets` table: Escalated issues with priority levels, SLA tracking (TAT - Turn Around Time), unique ticket numbers (TICK-001, TICK-002, etc.)
-- `ai_settings` table: Configurable AI provider settings and knowledge base
-- `users` table: Authentication with username, password hash, role (admin/agent), and profile info
-- `knowledge_files` table: Uploaded files with name, type, size, url (base64), and uploader tracking
-- `email_settings` table: SendGrid API credentials and configuration for email notifications
-- `csat_ratings` table: Customer satisfaction ratings (1-5 stars) with feedback
-- `ticket_number_seq` sequence: PostgreSQL sequence for atomic ticket number generation
+The backend uses Express.js with TypeScript and Node.js, featuring a RESTful API and a WebSocket server for real-time communication. Drizzle ORM with PostgreSQL is used for type-safe database operations, supported by Zod for runtime validation. An in-memory storage (MemStorage) acts as an abstraction layer for data. The database schema includes `conversations`, `messages`, `agents`, `tickets` (with unique sequential IDs), `ai_settings`, `users`, `knowledge_files`, `email_settings`, and `csat_ratings` tables, along with a PostgreSQL sequence for ticket numbers.
 
 ### AI Integration Layer
 
-**Multi-Provider Architecture:**
-- Abstraction layer supporting OpenAI, Google Gemini, and OpenRouter
-- Provider-agnostic response generation with unified interface
-- Configurable system prompts and knowledge base injection
-- Default model: GPT-5 for OpenAI, Gemini 2.5 series for Google
+The platform features a multi-provider AI architecture supporting OpenAI and Google Gemini, with a unified interface for response generation. It includes configurable system prompts and knowledge base injection. The AI handles initial customer messages, and an intelligent escalation system automatically detects when human intervention is needed, assigning conversations to available agents or creating tickets with defined TATs.
 
-**AI Response Flow:**
-1. Customer message received via WebSocket or API
-2. AI settings fetched to determine active provider and configuration
-3. Context assembled from system prompt and knowledge base
-4. Provider-specific API called with conversation context
-5. Response generated and sent back through message pipeline
-6. Automatic escalation triggers if AI cannot resolve
+### System Features
 
-**Escalation Logic:**
-- AI-to-agent handoff when conversation cannot be resolved automatically
-- Available agent selection based on current workload and status
-- Ticket creation for complex issues requiring follow-up
-- Status transitions: open → assigned → resolved/ticket
+- **Authentication & Authorization**: Role-Based Access Control (Admin/Agent) with protected routes and server-side authorization using Passport.js.
+- **Channel Integration**: Supports Web Chat Widget, WhatsApp, Telegram, Instagram, and Twitter with platform-specific authentication and auto-webhook registration.
+- **Ticket Management**: Features unique ticket numbers, issue details, internal notes, priority, TAT, and status management (create, edit, re-open, filter).
+- **Knowledge Base**: Allows file uploads (documents, PDFs, images) with management UI, storing files as data URLs.
+- **Email Notifications**: Integrates with SendGrid for configurable email notifications on ticket creation, resolution, and CSAT survey distribution.
+- **CSAT Management**: Collects customer satisfaction ratings (1-5 stars) with automated thank-you messages, and provides an admin dashboard for analytics and feedback.
+- **Export & Analytics**: An admin-only page for exporting conversation data to CSV, with advanced filtering and message analytics.
 
-### External Dependencies
+## External Dependencies
 
-**AI Services:**
-- OpenAI API (GPT-5 model) - Primary AI response generation
-- Google Gemini API (2.5-flash/2.5-pro series) - Alternative AI provider
-- API keys configured via environment variables (OPENAI_API_KEY, GEMINI_API_KEY)
-
-**Database:**
-- PostgreSQL via Neon serverless driver (@neondatabase/serverless)
-- Connection string from DATABASE_URL environment variable
-- Drizzle Kit for schema migrations in `./migrations` directory
-
-**UI Libraries:**
-- Radix UI primitives for 20+ accessible components (dialog, dropdown, popover, etc.)
-- React Icons (react-icons/si) for social media channel badges
-- Lucide React for general iconography
-- date-fns for timestamp formatting and relative time display
-
-**Session Management:**
-- connect-pg-simple for PostgreSQL session store
-- Express session middleware (implied but not shown in files)
-
-**Development Tools:**
-- Replit-specific plugins for runtime error overlay and dev banner
-- ESBuild for production bundling with ESM output
-- TypeScript with strict mode and path aliases (@/, @shared, @assets)
-
-**Channel Integration Points:**
-- **Web Chat Widget**: Fully functional at `/widget` - embeddable on any website with copy-paste code
-- **WhatsApp Business**: Setup guide provided - requires WhatsApp Business API access
-- **Telegram Bot**: Setup guide provided - requires bot creation via @BotFather
-- **Instagram DM**: Setup guide provided - requires Facebook App with Instagram product
-- **Twitter/X DM**: Setup guide provided - requires X Developer account
-- Unified message normalization layer to abstract channel-specific formats
-- Channel type stored with each conversation for routing and display
-
-## Access Control
-
-### Admin Role
-Full platform access including:
-- Agents management (view, create, update status)
-- Analytics dashboard
-- AI settings configuration
-- All agent capabilities
-
-### Agent Role
-Limited access including:
-- Inbox/Conversations
-- Channels setup
-- Tickets (view, create, update)
-- Knowledge Base (upload, view, delete files)
-
-## Key Routes
-
-### Public Routes
-- `/auth` - Login/signup page with role selection
-- `/widget` - Embeddable chat widget for customers
-
-### Protected Routes (Authentication Required)
-- `/` or `/conversations` - Unified inbox (all users)
-- `/channels` - Channel integration setup (all users)
-- `/tickets` - Ticket management (all users)
-- `/knowledge-base` - File upload and management (all users)
-- `/agents` - Agent management (**admin only**)
-- `/analytics` - Analytics dashboard (**admin only**)
-- `/csat-dashboard` - CSAT ratings overview (**admin only**)
-- `/export` - Export conversation data with filters (**admin only**)
-- `/settings` - AI settings and configuration (**admin only**)
+- **AI Services**: OpenAI API (GPT-5) and Google Gemini API (2.5-flash/2.5-pro series).
+- **Database**: PostgreSQL via Neon serverless driver, with Drizzle Kit for migrations.
+- **UI Libraries**: Radix UI primitives, React Icons, Lucide React, and `date-fns`.
+- **Session Management**: `connect-pg-simple` for PostgreSQL session storage.
+- **Email Service**: SendGrid for transactional emails.
+- **Channel Integration Points**: WhatsApp Business API, Telegram Bot API, Instagram Graph API, Twitter/X API.

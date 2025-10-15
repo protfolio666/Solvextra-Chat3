@@ -219,9 +219,21 @@ export class DbStorage implements IStorage {
           const aiMessages = convMessages.filter(m => m.sender === "ai").length;
           const agentMessages = convMessages.filter(m => m.sender === "agent").length;
 
-          // Create message transcript
+          // Create message transcript with clear sender labels for audit
           const messageTranscript = convMessages
-            .map(m => `[${format(new Date(m.timestamp), "yyyy-MM-dd HH:mm:ss")}] ${m.senderName || m.sender}: ${m.content}`)
+            .map(m => {
+              let senderLabel = "";
+              if (m.sender === "customer") {
+                senderLabel = `Customer - ${m.senderName || "Unknown"}`;
+              } else if (m.sender === "agent") {
+                senderLabel = `Agent - ${m.senderName || "Unknown Agent"}`;
+              } else if (m.sender === "ai") {
+                senderLabel = "AI - AI Assistant";
+              } else {
+                senderLabel = m.senderName || m.sender;
+              }
+              return `[${format(new Date(m.timestamp), "yyyy-MM-dd HH:mm:ss")}] ${senderLabel}: ${m.content}`;
+            })
             .join("\n");
 
           return {
