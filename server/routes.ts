@@ -583,12 +583,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ error: "Ticket not found" });
     }
 
-    // Send email notification if ticket is reopened (status changed from resolved to open/in_progress)
+    // Handle status change email notifications
     const wasResolved = oldTicket.status === "resolved";
+    const isNowResolved = ticket.status === "resolved";
     const isNowOpen = ticket.status === "open" || ticket.status === "in_progress";
     
     console.log('📧 Ticket update check:', {
       wasResolved,
+      isNowResolved,
       isNowOpen,
       hasEmail: !!ticket.customerEmail,
       oldStatus: oldTicket.status,
@@ -596,6 +598,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       customerEmail: ticket.customerEmail
     });
     
+    // Send reopen email if ticket was resolved and is now open/in_progress
     if (wasResolved && isNowOpen && ticket.customerEmail) {
       console.log('📧 Attempting to send ticket reopen email...');
       try {
@@ -630,6 +633,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       } catch (error) {
         console.error('❌ Failed to send ticket reopen email:', error);
+      }
+    }
+
+    // Send CSAT email if ticket is newly resolved (from any non-resolved status to resolved)
+    if (!wasResolved && isNowResolved && ticket.customerEmail) {
+      console.log('📧 Attempting to send ticket resolution/CSAT email...');
+      try {
+        const emailSettings = await storage.getEmailSettings();
+        if (emailSettings?.enabled) {
+          const conversation = await storage.getConversation(ticket.conversationId);
+          if (conversation) {
+            // Send CSAT request message to customer via chat
+            await sendCsatRequest(conversation, ticket.id);
+
+            // Send CSAT email
+            const csatUrl = `${process.env.REPLIT_DEV_DOMAIN || 'https://your-domain.com'}/csat/${ticket.id}`;
+            const emailHtml = generateTicketResolutionEmail(
+              conversation.customerName,
+              ticket.title,
+              ticket.id,
+              csatUrl
+            );
+
+            await sendEmail({
+              to: ticket.customerEmail,
+              subject: `Ticket Resolved: ${ticket.title}`,
+              html: emailHtml,
+              emailSettings,
+            });
+            console.log(`✅ Ticket resolution/CSAT email sent to ${ticket.customerEmail}`);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Failed to send ticket resolution email:', error);
       }
     }
 
