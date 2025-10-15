@@ -907,39 +907,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
         } else if (conversation.status === "resolved") {
-          // Customer returned after resolution - reopen and assign to available agent
-          console.log('🔄 Customer returned after resolution - reopening conversation');
+          // Customer returned after resolution - reopen and let AI help first
+          console.log('🔄 Customer returned after resolution - reopening for AI assistance');
           
-          // Update last message time first
+          // Reopen conversation status to "open" so AI can respond
           await storage.updateConversation(conversation.id, {
+            status: "open",
             lastMessageAt: new Date(),
           });
           
-          // Reopen conversation and assign to available agent (this will set status to "assigned" or "ticket")
-          const escalationResult = await handleSmartEscalation(conversation.id, "Customer returned after resolution");
+          // Try AI response first
+          const aiSettings = await storage.getAISettings();
+          let aiHandled = false;
           
-          // Send notification to customer on Telegram
-          const telegramIntegration = await storage.getChannelIntegration("telegram");
-          if (telegramIntegration?.apiToken) {
-            const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
-            let responseText = "";
-            
-            if (escalationResult?.assignedTo === "agent") {
-              responseText = `Welcome back! An agent will assist you shortly.`;
-            } else if (escalationResult?.assignedTo === "ticket") {
-              responseText = `Thank you for contacting us again! We've created a support ticket for you. Our team will respond within 24 hours.`;
-            }
-            
-            if (responseText) {
-              await fetch(sendMessageUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  chat_id: message.chat.id,
-                  text: responseText,
-                }),
+          if (aiSettings?.enabled && !aiSettings?.paused) {
+            try {
+              console.log('🤖 AI will respond to returning customer');
+              const aiResponse = await generateAIResponse(message.text || "", {
+                provider: aiSettings.provider,
+                knowledgeBase: aiSettings.knowledgeBase || undefined,
+                systemPrompt: aiSettings.systemPrompt || undefined,
               });
-              console.log('✅ Reopening notification sent to Telegram');
+              
+              if (aiResponse?.content) {
+                // Save AI response
+                await storage.createMessage({
+                  conversationId: conversation.id,
+                  sender: "ai",
+                  senderName: "AI Assistant",
+                  content: aiResponse.content,
+                });
+                
+                // Send response back to Telegram
+                const telegramIntegration = await storage.getChannelIntegration("telegram");
+                if (telegramIntegration?.apiToken) {
+                  const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+                  await fetch(sendMessageUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      chat_id: message.chat.id,
+                      text: aiResponse.content,
+                    }),
+                  });
+                  console.log('✅ AI response sent to returning customer');
+                }
+                
+                // Broadcast AI response via WebSocket  
+                const messages = await storage.getMessages(conversation.id);
+                const latestAiMessage = messages.filter(m => m.sender === "ai").sort((a, b) => 
+                  new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+                )[0];
+                
+                if (latestAiMessage) {
+                  broadcast({ 
+                    type: "message", 
+                    data: { message: latestAiMessage } 
+                  });
+                }
+                
+                // Check if AI response indicates need for human assistance
+                const needsEscalation = /(?:human agent|speak to someone|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
+                
+                if (needsEscalation) {
+                  console.log('🔔 AI detected need for human assistance');
+                  await handleSmartEscalation(conversation.id, "AI detected customer needs human assistance");
+                }
+                
+                aiHandled = true;
+              }
+            } catch (error) {
+              console.error('❌ AI response error for returning customer:', error);
+              // Will escalate below
+            }
+          }
+          
+          // If AI didn't handle it (disabled, paused, or error), escalate immediately
+          if (!aiHandled) {
+            console.log('⚠️ AI not available - escalating returning customer to agent');
+            const escalationResult = await handleSmartEscalation(conversation.id, "Customer returned - AI not available");
+            
+            // Send notification to customer on Telegram
+            const telegramIntegration = await storage.getChannelIntegration("telegram");
+            if (telegramIntegration?.apiToken && escalationResult) {
+              const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+              let responseText = "";
+              
+              if (escalationResult.assignedTo === "agent") {
+                responseText = `Welcome back! An agent will assist you shortly.`;
+              } else if (escalationResult.assignedTo === "ticket") {
+                responseText = `Thank you for contacting us again! We've created a support ticket for you. Our team will respond within 24 hours.`;
+              }
+              
+              if (responseText) {
+                await fetch(sendMessageUrl, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    chat_id: message.chat.id,
+                    text: responseText,
+                  }),
+                });
+                console.log('✅ Escalation notification sent to returning customer');
+              }
             }
           }
         } else {
