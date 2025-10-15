@@ -152,7 +152,14 @@ export const channelIntegrations = pgTable("channel_integrations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   channel: varchar("channel", { length: 20 }).notNull().unique().$type<Channel>(),
   enabled: boolean("enabled").notNull().default(false),
+  // Telegram, WhatsApp use apiToken
   apiToken: text("api_token"),
+  // Meta/Instagram use appId + appSecret
+  appId: text("app_id"),
+  appSecret: text("app_secret"),
+  // Twitter/X use clientId + clientSecret
+  clientId: text("client_id"),
+  clientSecret: text("client_secret"),
   webhookUrl: text("webhook_url"),
   config: text("config"), // JSON string for additional config
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
