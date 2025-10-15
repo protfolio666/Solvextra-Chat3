@@ -588,6 +588,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(updatedConversation);
   });
 
+  // Convert Conversation to Ticket
+  app.post("/api/conversations/:id/convert-to-ticket", async (req, res) => {
+    const conversation = await storage.getConversation(req.params.id);
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
+    // Check if conversation is already a ticket
+    if (conversation.status === "ticket") {
+      return res.status(400).json({ error: "Conversation is already a ticket" });
+    }
+
+    // Check if a ticket already exists for this conversation
+    const existingTickets = await storage.getTickets();
+    const existingTicket = existingTickets.find(t => t.conversationId === conversation.id);
+    if (existingTicket) {
+      return res.status(400).json({ error: "A ticket already exists for this conversation" });
+    }
+
+    // Create ticket from conversation
+    const ticket = await storage.createTicket({
+      conversationId: conversation.id,
+      title: `Support for ${conversation.customerName}`,
+      description: "Converted from conversation",
+      priority: "medium",
+      status: "open",
+      tat: 24,
+    });
+
+    // Update conversation status to ticket
+    const updatedConversation = await storage.updateConversation(req.params.id, {
+      status: "ticket",
+    });
+
+    // Broadcast update
+    broadcast({
+      type: "status_update",
+      data: {
+        conversationId: conversation.id,
+        status: "ticket",
+        ticketId: ticket.id,
+      },
+    });
+
+    res.json({ conversation: updatedConversation, ticket });
+  });
+
+  // Close Conversation/Ticket without CSAT (only for ticket status)
+  app.post("/api/conversations/:id/close", async (req, res) => {
+    const conversation = await storage.getConversation(req.params.id);
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
+    // Only allow closing tickets without CSAT
+    if (conversation.status !== "ticket") {
+      return res.status(400).json({ error: "Can only close conversations that are tickets. Use resolve endpoint for regular conversations." });
+    }
+
+    // Update conversation status to resolved
+    const updatedConversation = await storage.updateConversation(req.params.id, {
+      status: "resolved",
+    });
+
+    // Find and update associated ticket
+    const tickets = await storage.getTickets();
+    const ticket = tickets.find(t => t.conversationId === conversation.id);
+    if (ticket) {
+      await storage.updateTicket(ticket.id, {
+        status: "resolved",
+        resolvedAt: new Date(),
+      });
+    }
+
+    // Broadcast update
+    broadcast({
+      type: "status_update",
+      data: {
+        conversationId: conversation.id,
+        status: "resolved",
+      },
+    });
+
+    res.json(updatedConversation);
+  });
+
   // Submit CSAT Rating (from customer)
   app.post("/api/csat-ratings", async (req, res) => {
     const result = insertCsatRatingSchema.safeParse(req.body);
@@ -818,6 +904,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 });
                 console.log('✅ Escalation notification sent to Telegram');
               }
+            }
+          }
+        } else if (conversation.status === "resolved") {
+          // Customer returned after resolution - reopen and assign to available agent
+          console.log('🔄 Customer returned after resolution - reopening conversation');
+          
+          // Update last message time first
+          await storage.updateConversation(conversation.id, {
+            lastMessageAt: new Date(),
+          });
+          
+          // Reopen conversation and assign to available agent (this will set status to "assigned" or "ticket")
+          const escalationResult = await handleSmartEscalation(conversation.id, "Customer returned after resolution");
+          
+          // Send notification to customer on Telegram
+          const telegramIntegration = await storage.getChannelIntegration("telegram");
+          if (telegramIntegration?.apiToken) {
+            const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+            let responseText = "";
+            
+            if (escalationResult?.assignedTo === "agent") {
+              responseText = `Welcome back! An agent will assist you shortly.`;
+            } else if (escalationResult?.assignedTo === "ticket") {
+              responseText = `Thank you for contacting us again! We've created a support ticket for you. Our team will respond within 24 hours.`;
+            }
+            
+            if (responseText) {
+              await fetch(sendMessageUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  chat_id: message.chat.id,
+                  text: responseText,
+                }),
+              });
+              console.log('✅ Reopening notification sent to Telegram');
             }
           }
         } else {

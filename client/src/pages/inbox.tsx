@@ -9,7 +9,7 @@ import { AgentAssignmentCard } from "@/components/agent-assignment-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Bell, Search, Filter, MessageSquarePlus, CheckCircle } from "lucide-react";
+import { Bell, Search, Filter, MessageSquarePlus, CheckCircle, Ticket, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -104,6 +104,48 @@ export default function Inbox() {
     },
   });
 
+  const convertToTicketMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      return apiRequest("POST", `/api/conversations/${conversationId}/convert-to-ticket`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tickets"] });
+      toast({
+        title: "Converted to ticket",
+        description: "Conversation has been converted to a support ticket",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to convert to ticket",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const closeWithoutCsatMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      return apiRequest("POST", `/api/conversations/${conversationId}/close`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tickets"] });
+      toast({
+        title: "Ticket closed",
+        description: "Ticket has been closed without CSAT survey",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to close ticket",
+        variant: "destructive",
+      });
+    },
+  });
+
   const activeConversation = conversations.find(c => c.id === selectedConversation);
   const needsEscalation = activeConversation?.status === "open";
   const isAssigned = activeConversation?.status === "assigned";
@@ -127,6 +169,18 @@ export default function Inbox() {
   const handleResolve = () => {
     if (selectedConversation) {
       resolveConversationMutation.mutate(selectedConversation);
+    }
+  };
+
+  const handleConvertToTicket = () => {
+    if (selectedConversation) {
+      convertToTicketMutation.mutate(selectedConversation);
+    }
+  };
+
+  const handleClose = () => {
+    if (selectedConversation) {
+      closeWithoutCsatMutation.mutate(selectedConversation);
     }
   };
 
@@ -209,17 +263,40 @@ export default function Inbox() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {activeConversation.status !== "resolved" && (
+                  {activeConversation.status === "ticket" ? (
                     <Button
-                      variant="default"
+                      variant="destructive"
                       size="sm"
-                      onClick={handleResolve}
-                      disabled={resolveConversationMutation.isPending}
-                      data-testid="button-resolve-conversation"
+                      onClick={handleClose}
+                      disabled={closeWithoutCsatMutation.isPending}
+                      data-testid="button-close-ticket"
                     >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      {resolveConversationMutation.isPending ? "Resolving..." : "Resolve"}
+                      <X className="w-4 h-4 mr-2" />
+                      {closeWithoutCsatMutation.isPending ? "Closing..." : "Close"}
                     </Button>
+                  ) : activeConversation.status !== "resolved" && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleConvertToTicket}
+                        disabled={convertToTicketMutation.isPending}
+                        data-testid="button-convert-to-ticket"
+                      >
+                        <Ticket className="w-4 h-4 mr-2" />
+                        {convertToTicketMutation.isPending ? "Converting..." : "Convert to Ticket"}
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={handleResolve}
+                        disabled={resolveConversationMutation.isPending}
+                        data-testid="button-resolve-conversation"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        {resolveConversationMutation.isPending ? "Resolving..." : "Resolve"}
+                      </Button>
+                    </>
                   )}
                   <Button variant="ghost" size="icon">
                     <Bell className="w-5 h-5" />
@@ -262,7 +339,7 @@ export default function Inbox() {
                     <MessageBubble
                       key={message.id}
                       message={message}
-                      agentAvatar={assignedAgent?.avatar}
+                      agentAvatar={assignedAgent?.avatar ?? undefined}
                     />
                   ))
                 )}
