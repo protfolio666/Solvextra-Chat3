@@ -11,6 +11,7 @@ interface AIProviderConfig {
   provider: AIProvider;
   knowledgeBase?: string;
   systemPrompt?: string;
+  model?: string;
 }
 
 // OpenAI Provider
@@ -78,7 +79,10 @@ async function generateOpenRouterResponse(
     ? `\n\nKnowledge Base:\n${config.knowledgeBase}`
     : "";
 
-  console.log('🤖 Calling OpenRouter API...');
+  // Default to Claude 3.5 Sonnet if no model specified
+  const model = config.model || "anthropic/claude-3.5-sonnet";
+
+  console.log(`🤖 Calling OpenRouter API with model: ${model}...`);
   
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
@@ -91,7 +95,7 @@ async function generateOpenRouterResponse(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "anthropic/claude-3.5-sonnet",
+        model: model,
         messages: [
           {
             role: "system",

@@ -97,6 +97,7 @@ export const aiSettings = pgTable("ai_settings", {
   provider: varchar("provider", { length: 20 }).notNull().$type<AIProvider>(),
   enabled: boolean("enabled").notNull().default(true),
   paused: boolean("paused").notNull().default(false),
+  model: text("model"), // For OpenRouter: "openai/gpt-4o-mini" or "anthropic/claude-3.5-sonnet"
   knowledgeBase: text("knowledge_base"),
   systemPrompt: text("system_prompt"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
