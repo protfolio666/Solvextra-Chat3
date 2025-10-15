@@ -9,46 +9,19 @@ import { AgentAssignmentCard } from "@/components/agent-assignment-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Bell, Search, Filter, MessageSquarePlus, CheckCircle, Ticket } from "lucide-react";
+import { Bell, Search, Filter, MessageSquarePlus, CheckCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 
-const createTicketSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  priority: z.enum(["low", "medium", "high", "urgent"]),
-  tat: z.number().min(1, "TAT must be at least 1 hour"),
-});
-
-type CreateTicketForm = z.infer<typeof createTicketSchema>;
-
 export default function Inbox() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [createTicketOpen, setCreateTicketOpen] = useState(false);
   const { send } = useWebSocket();
   const { toast } = useToast();
   const { user } = useAuth();
-
-  const createTicketForm = useForm<CreateTicketForm>({
-    resolver: zodResolver(createTicketSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      priority: "medium",
-      tat: 24,
-    },
-  });
 
   const { data: conversations = [], isLoading: loadingConversations } = useQuery<Conversation[]>({
     queryKey: ["/api/conversations"],
@@ -131,29 +104,6 @@ export default function Inbox() {
     },
   });
 
-  const createTicketMutation = useMutation({
-    mutationFn: async (data: CreateTicketForm & { conversationId: string }) => {
-      return apiRequest("POST", `/api/conversations/${data.conversationId}/create-ticket`, data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/tickets"] });
-      setCreateTicketOpen(false);
-      createTicketForm.reset();
-      toast({
-        title: "Ticket created",
-        description: "A new support ticket has been created from this conversation",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to create ticket",
-        variant: "destructive",
-      });
-    },
-  });
-
   const activeConversation = conversations.find(c => c.id === selectedConversation);
   const needsEscalation = activeConversation?.status === "open";
   const isAssigned = activeConversation?.status === "assigned";
@@ -177,12 +127,6 @@ export default function Inbox() {
   const handleResolve = () => {
     if (selectedConversation) {
       resolveConversationMutation.mutate(selectedConversation);
-    }
-  };
-
-  const handleCreateTicket = (data: CreateTicketForm) => {
-    if (selectedConversation) {
-      createTicketMutation.mutate({ ...data, conversationId: selectedConversation });
     }
   };
 
@@ -265,114 +209,6 @@ export default function Inbox() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {activeConversation.status !== "resolved" && activeConversation.status !== "ticket" && (
-                    <Dialog open={createTicketOpen} onOpenChange={setCreateTicketOpen}>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          data-testid="button-create-ticket"
-                        >
-                          <Ticket className="w-4 h-4 mr-2" />
-                          Create Ticket
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Create Support Ticket</DialogTitle>
-                        </DialogHeader>
-                        <Form {...createTicketForm}>
-                          <form onSubmit={createTicketForm.handleSubmit(handleCreateTicket)} className="space-y-4">
-                            <FormField
-                              control={createTicketForm.control}
-                              name="title"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Title</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="Brief description of the issue" {...field} data-testid="input-ticket-title" />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={createTicketForm.control}
-                              name="description"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Description</FormLabel>
-                                  <FormControl>
-                                    <Textarea placeholder="Detailed description of the issue" {...field} data-testid="input-ticket-description" />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={createTicketForm.control}
-                              name="priority"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Priority</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                      <SelectTrigger data-testid="select-ticket-priority">
-                                        <SelectValue placeholder="Select priority" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value="low">Low</SelectItem>
-                                      <SelectItem value="medium">Medium</SelectItem>
-                                      <SelectItem value="high">High</SelectItem>
-                                      <SelectItem value="urgent">Urgent</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={createTicketForm.control}
-                              name="tat"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Turn Around Time (hours)</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      placeholder="24"
-                                      {...field}
-                                      onChange={e => field.onChange(parseInt(e.target.value))}
-                                      data-testid="input-ticket-tat"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={() => setCreateTicketOpen(false)}
-                                data-testid="button-cancel-ticket"
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                type="submit"
-                                disabled={createTicketMutation.isPending}
-                                data-testid="button-submit-ticket"
-                              >
-                                {createTicketMutation.isPending ? "Creating..." : "Create Ticket"}
-                              </Button>
-                            </div>
-                          </form>
-                        </Form>
-                      </DialogContent>
-                    </Dialog>
-                  )}
                   {activeConversation.status !== "resolved" && (
                     <Button
                       variant="default"
@@ -426,7 +262,7 @@ export default function Inbox() {
                     <MessageBubble
                       key={message.id}
                       message={message}
-                      agentAvatar={assignedAgent?.avatar || undefined}
+                      agentAvatar={assignedAgent?.avatar}
                     />
                   ))
                 )}

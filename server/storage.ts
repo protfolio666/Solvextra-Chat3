@@ -44,7 +44,6 @@ export interface IStorage {
   // Conversations
   getConversations(): Promise<Conversation[]>;
   getConversation(id: string): Promise<Conversation | undefined>;
-  findConversationByChannelUser(channel: Channel, channelUserId: string): Promise<Conversation | undefined>;
   createConversation(conversation: InsertConversation): Promise<Conversation>;
   updateConversation(id: string, data: Partial<Conversation>): Promise<Conversation | undefined>;
 
@@ -170,25 +169,6 @@ export class DbStorage implements IStorage {
       return result[0];
     } catch (error) {
       console.error("Error getting conversation:", error);
-      return undefined;
-    }
-  }
-
-  async findConversationByChannelUser(channel: Channel, channelUserId: string): Promise<Conversation | undefined> {
-    try {
-      const result = await db
-        .select()
-        .from(conversations)
-        .where(and(
-          eq(conversations.channel, channel),
-          eq(conversations.channelUserId, channelUserId),
-          eq(conversations.status, "resolved")
-        ))
-        .orderBy(desc(conversations.resolvedAt))
-        .limit(1);
-      return result[0];
-    } catch (error) {
-      console.error("Error finding conversation by channel user:", error);
       return undefined;
     }
   }
@@ -551,7 +531,7 @@ export class DbStorage implements IStorage {
 
   async upsertChannelIntegration(integration: InsertChannelIntegration): Promise<ChannelIntegration> {
     try {
-      const existing = await this.getChannelIntegration(integration.channel as Channel);
+      const existing = await this.getChannelIntegration(integration.channel);
 
       if (existing) {
         const updateData: any = {

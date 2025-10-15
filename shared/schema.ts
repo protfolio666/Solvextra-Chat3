@@ -22,7 +22,6 @@ export const conversations = pgTable("conversations", {
   assignedAgentId: varchar("assigned_agent_id"),
   lastMessageAt: timestamp("last_message_at").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  resolvedAt: timestamp("resolved_at"),
 });
 
 export const insertConversationSchema = createInsertSchema(conversations).omit({
