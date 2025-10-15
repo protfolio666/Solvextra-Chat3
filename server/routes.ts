@@ -587,9 +587,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const wasResolved = oldTicket.status === "resolved";
     const isNowOpen = ticket.status === "open" || ticket.status === "in_progress";
     
+    console.log('📧 Ticket update check:', {
+      wasResolved,
+      isNowOpen,
+      hasEmail: !!ticket.customerEmail,
+      oldStatus: oldTicket.status,
+      newStatus: ticket.status,
+      customerEmail: ticket.customerEmail
+    });
+    
     if (wasResolved && isNowOpen && ticket.customerEmail) {
+      console.log('📧 Attempting to send ticket reopen email...');
       try {
         const emailSettings = await storage.getEmailSettings();
+        console.log('📧 Email settings:', {
+          exists: !!emailSettings,
+          enabled: emailSettings?.enabled,
+          hasApiKey: !!emailSettings?.sendgridApiKey,
+          hasSenderEmail: !!emailSettings?.senderEmail
+        });
+        
         if (emailSettings?.enabled) {
           const conversation = await storage.getConversation(ticket.conversationId);
           const customerName = conversation?.customerName || "Customer";
@@ -608,6 +625,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             emailSettings,
           });
           console.log(`✅ Ticket reopen email sent to ${ticket.customerEmail}`);
+        } else {
+          console.log('📧 Email notifications disabled or not configured');
         }
       } catch (error) {
         console.error('❌ Failed to send ticket reopen email:', error);
