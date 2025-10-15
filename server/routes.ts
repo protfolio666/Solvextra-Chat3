@@ -197,27 +197,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (message.sender === "agent") {
       const conversation = await storage.getConversation(message.conversationId);
       if (conversation && conversation.status === "open") {
-        // Find the current user (agent) from session
+        // Find the current user (agent/admin) from session
         const currentUser = (req as any).user;
-        if (currentUser && currentUser.role === "agent") {
-          await storage.updateConversation(message.conversationId, {
-            status: "assigned",
-            assignedAgentId: currentUser.id,
-          });
+        if (currentUser) {
+          // Check if user has an agent profile (works for both agents and admins who are also agents)
+          const agents = await storage.getAgents();
+          const agentProfile = agents.find(a => a.email === currentUser.username);
           
-          // Increment agent's active conversation count
-          await storage.updateAgentConversations(currentUser.id, 1);
-          
-          console.log(`✅ Conversation assigned to agent ${currentUser.name} (manual takeover)`);
-          
-          broadcast({
-            type: "assignment",
-            data: {
-              conversationId: message.conversationId,
-              agentId: currentUser.id,
-              agentName: currentUser.name,
-            },
-          });
+          if (agentProfile) {
+            // User has agent profile - assign conversation and track workload
+            await storage.updateConversation(message.conversationId, {
+              status: "assigned",
+              assignedAgentId: agentProfile.id,
+            });
+            
+            // Increment agent's active conversation count
+            await storage.updateAgentConversations(agentProfile.id, 1);
+            
+            console.log(`✅ Conversation assigned to ${agentProfile.name} (manual takeover)`);
+            
+            broadcast({
+              type: "assignment",
+              data: {
+                conversationId: message.conversationId,
+                agentId: agentProfile.id,
+                agentName: agentProfile.name,
+              },
+            });
+          } else {
+            // Admin without agent profile - just mark as assigned without specific agent
+            await storage.updateConversation(message.conversationId, {
+              status: "assigned",
+            });
+            console.log(`✅ Conversation taken over by admin ${currentUser.name} (manual takeover)`);
+          }
         }
       }
     }
