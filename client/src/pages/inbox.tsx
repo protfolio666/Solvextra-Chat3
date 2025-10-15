@@ -9,7 +9,7 @@ import { AgentAssignmentCard } from "@/components/agent-assignment-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Bell, Search, Filter, MessageSquarePlus } from "lucide-react";
+import { Bell, Search, Filter, MessageSquarePlus, CheckCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -84,6 +84,26 @@ export default function Inbox() {
     },
   });
 
+  const resolveConversationMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      return apiRequest("POST", `/api/conversations/${conversationId}/resolve`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      toast({
+        title: "Conversation resolved",
+        description: "Conversation has been marked as resolved and CSAT request sent to customer",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to resolve conversation",
+        variant: "destructive",
+      });
+    },
+  });
+
   const activeConversation = conversations.find(c => c.id === selectedConversation);
   const needsEscalation = activeConversation?.status === "open";
   const isAssigned = activeConversation?.status === "assigned";
@@ -101,6 +121,12 @@ export default function Inbox() {
   const handleEscalate = () => {
     if (selectedConversation) {
       escalateMutation.mutate(selectedConversation);
+    }
+  };
+
+  const handleResolve = () => {
+    if (selectedConversation) {
+      resolveConversationMutation.mutate(selectedConversation);
     }
   };
 
@@ -183,6 +209,18 @@ export default function Inbox() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
+                  {activeConversation.status !== "resolved" && (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={handleResolve}
+                      disabled={resolveConversationMutation.isPending}
+                      data-testid="button-resolve-conversation"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      {resolveConversationMutation.isPending ? "Resolving..." : "Resolve"}
+                    </Button>
+                  )}
                   <Button variant="ghost" size="icon">
                     <Bell className="w-5 h-5" />
                   </Button>

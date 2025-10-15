@@ -92,6 +92,30 @@ export default function Tickets() {
     },
   });
 
+  const resolveTicketMutation = useMutation({
+    mutationFn: async (ticketId: string) => {
+      return apiRequest("POST", `/api/tickets/${ticketId}/resolve`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/tickets"] });
+      toast({
+        title: "Ticket resolved",
+        description: "Ticket has been marked as resolved and CSAT request sent to customer",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to resolve ticket",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleResolveTicket = (ticketId: string) => {
+    resolveTicketMutation.mutate(ticketId);
+  };
+
   const onSubmit = (data: CreateTicketForm) => {
     createTicketMutation.mutate(data);
   };
@@ -296,7 +320,7 @@ export default function Tickets() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredTickets.map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} />
+              <TicketCard key={ticket.id} ticket={ticket} onResolve={handleResolveTicket} />
             ))}
           </div>
         )}

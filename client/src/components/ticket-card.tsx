@@ -1,15 +1,17 @@
 import { Ticket } from "@shared/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, AlertCircle, CheckCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface TicketCardProps {
   ticket: Ticket;
   onClick?: () => void;
+  onResolve?: (ticketId: string) => void;
 }
 
-export function TicketCard({ ticket, onClick }: TicketCardProps) {
+export function TicketCard({ ticket, onClick, onResolve }: TicketCardProps) {
   const priorityColors = {
     low: "bg-muted text-muted-foreground",
     medium: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20",
@@ -51,6 +53,22 @@ export function TicketCard({ ticket, onClick }: TicketCardProps) {
         <div className="text-xs text-muted-foreground">
           Created {formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true })}
         </div>
+
+        {ticket.status !== "resolved" && onResolve && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              onResolve(ticket.id);
+            }}
+            data-testid={`button-resolve-ticket-${ticket.id}`}
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Mark as Resolved
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

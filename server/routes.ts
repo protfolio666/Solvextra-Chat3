@@ -67,7 +67,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Helper function to send CSAT rating request to customer
   async function sendCsatRequest(conversation: Conversation, ticketId?: string) {
-    const csatMessage = `Thank you for contacting us! 🎉\n\nYour issue has been resolved. We'd love to hear your feedback!\n\nPlease rate your experience:\n⭐ 1 - Poor\n⭐⭐ 2 - Fair\n⭐⭐⭐ 3 - Good\n⭐⭐⭐⭐ 4 - Very Good\n⭐⭐⭐⭐⭐ 5 - Excellent\n\nReply with a number (1-5) to rate your experience.`;
+    const csatMessage = `Thank you for contacting us!\n\nYour issue has been resolved. We'd love to hear your feedback!\n\nPlease rate your experience:\n1 - Poor\n2 - Fair\n3 - Good\n4 - Very Good\n5 - Excellent\n\nReply with a number (1-5) to rate your experience.`;
 
     // Create the CSAT request message in the conversation
     const message = await storage.createMessage({
