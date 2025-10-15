@@ -846,9 +846,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const aiSettings = await storage.getAISettings();
         if (conversation.status === "open") {
           if (aiSettings?.enabled) {
-            console.log('Generating AI response with provider:', aiSettings.provider);
+            console.log('Generating AI response with provider:', aiSettings.provider, 'model:', aiSettings.model);
             const aiResponse = await generateAIResponse(message.text || "", {
               provider: aiSettings.provider,
+              model: aiSettings.model || undefined,
               knowledgeBase: aiSettings.knowledgeBase || undefined,
               systemPrompt: aiSettings.systemPrompt || undefined,
             });
@@ -943,6 +944,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.log('🤖 AI will respond to returning customer');
               const aiResponse = await generateAIResponse(message.text || "", {
                 provider: aiSettings.provider,
+                model: aiSettings.model || undefined,
                 knowledgeBase: aiSettings.knowledgeBase || undefined,
                 systemPrompt: aiSettings.systemPrompt || undefined,
               });
