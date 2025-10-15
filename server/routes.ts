@@ -577,9 +577,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ error: "Conversation not found" });
     }
 
-    // Update conversation status to resolved
+    // Update conversation status to resolved with timestamp
     const updatedConversation = await storage.updateConversation(req.params.id, {
       status: "resolved",
+      resolvedAt: new Date(),
     });
 
     // Send CSAT request message to customer
