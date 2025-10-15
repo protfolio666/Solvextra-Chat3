@@ -20,7 +20,9 @@ The backend uses Express.js with TypeScript and Node.js, featuring a RESTful API
 
 ### AI Integration Layer
 
-The platform features a multi-provider AI architecture supporting OpenAI and Google Gemini, with a unified interface for response generation. It includes configurable system prompts and knowledge base injection. The AI handles initial customer messages, and an intelligent escalation system automatically detects when human intervention is needed, assigning conversations to available agents or creating tickets with defined TATs.
+The platform features a multi-provider AI architecture supporting OpenAI, Google Gemini, and OpenRouter (with free models like DeepSeek V3), with a unified interface for response generation. It includes configurable system prompts and knowledge base injection. The AI automatically receives metadata from uploaded knowledge files (filenames and upload dates) in its context, enabling it to reference available resources when responding to customers. The AI handles initial customer messages, and an intelligent escalation system automatically detects when human intervention is needed, assigning conversations to available agents or creating tickets with defined TATs.
+
+**Note on Knowledge File Text Extraction**: Currently, the AI receives file names and metadata but cannot automatically extract text from PDF, Excel, or Word documents. For full text extraction, install these packages: `pdf-parse` (for PDFs), `xlsx` (for Excel), and `mammoth` (for Word documents). Admins can manually add key information from these files to the Knowledge Base text field as a workaround.
 
 ### System Features
 
@@ -34,7 +36,7 @@ The platform features a multi-provider AI architecture supporting OpenAI and Goo
 
 ## External Dependencies
 
-- **AI Services**: OpenAI API (GPT-5) and Google Gemini API (2.5-flash/2.5-pro series).
+- **AI Services**: OpenAI API (GPT-5), Google Gemini API (2.5-flash/2.5-pro series), and OpenRouter (provides access to free models like DeepSeek V3).
 - **Database**: PostgreSQL via Neon serverless driver, with Drizzle Kit for migrations.
 - **UI Libraries**: Radix UI primitives, React Icons, Lucide React, and `date-fns`.
 - **Session Management**: `connect-pg-simple` for PostgreSQL session storage.
