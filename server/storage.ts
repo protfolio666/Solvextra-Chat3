@@ -396,6 +396,7 @@ export class DbStorage implements IStorage {
         if (settings.provider !== undefined) updateData.provider = settings.provider;
         if (settings.enabled !== undefined) updateData.enabled = settings.enabled;
         if (settings.paused !== undefined) updateData.paused = settings.paused;
+        if (settings.model !== undefined) updateData.model = settings.model;
         if (settings.knowledgeBase !== undefined) updateData.knowledgeBase = settings.knowledgeBase;
         if (settings.systemPrompt !== undefined) updateData.systemPrompt = settings.systemPrompt;
 
@@ -412,6 +413,7 @@ export class DbStorage implements IStorage {
             provider: settings.provider || "openai",
             enabled: settings.enabled ?? true,
             paused: settings.paused ?? false,
+            model: settings.model,
             knowledgeBase: settings.knowledgeBase,
             systemPrompt: settings.systemPrompt,
           } as any)
@@ -801,6 +803,8 @@ export class MemStorage implements IStorage {
         id: randomUUID(),
         provider: settings.provider || "openai",
         enabled: settings.enabled ?? true,
+        paused: settings.paused ?? false,
+        model: settings.model,
         knowledgeBase: settings.knowledgeBase,
         systemPrompt: settings.systemPrompt,
         updatedAt: new Date(),

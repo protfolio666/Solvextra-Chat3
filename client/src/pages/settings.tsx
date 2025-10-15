@@ -28,7 +28,7 @@ export default function Settings() {
   const [knowledgeBase, setKnowledgeBase] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [isPaused, setIsPaused] = useState(false);
-  const [model, setModel] = useState<string>("anthropic/claude-3.5-sonnet");
+  const [model, setModel] = useState<string>("deepseek/deepseek-chat-v3-0324:free");
 
   // Channel integration states
   const [telegramToken, setTelegramToken] = useState("");
@@ -46,7 +46,7 @@ export default function Settings() {
       setKnowledgeBase(aiSettings.knowledgeBase || "");
       setSystemPrompt(aiSettings.systemPrompt || "You are a helpful customer support assistant. Be professional, friendly, and concise.");
       setIsPaused(aiSettings.paused || false);
-      setModel(aiSettings.model || "anthropic/claude-3.5-sonnet");
+      setModel(aiSettings.model || "deepseek/deepseek-chat-v3-0324:free");
     }
   }, [aiSettings]);
 
