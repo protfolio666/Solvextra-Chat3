@@ -1,0 +1,463 @@
+2025-10-15T11:18:10.020131804Z [inf]  
+2025-10-15T11:18:12.887465533Z [inf]  [35m[Region: asia-southeast1][0m
+2025-10-15T11:18:12.891118609Z [inf]  [35m==============
+2025-10-15T11:18:12.891168422Z [inf]  Using Nixpacks
+2025-10-15T11:18:12.891172472Z [inf]  ==============
+2025-10-15T11:18:12.891176322Z [inf]  [0m
+2025-10-15T11:18:12.891307460Z [inf]  context: js0z-2w5k
+2025-10-15T11:18:12.993029374Z [inf]  ╔══════════════════════ Nixpacks v1.38.0 ══════════════════════╗
+2025-10-15T11:18:12.993091431Z [inf]  ║ setup      │ nodejs_18, npm-9_x, openssl                     ║
+2025-10-15T11:18:12.993097659Z [inf]  ║──────────────────────────────────────────────────────────────║
+2025-10-15T11:18:12.993101928Z [inf]  ║ caddy      │ pkgs: caddy                                     ║
+2025-10-15T11:18:12.993108899Z [inf]  ║            │ cmds: caddy fmt --overwrite /assets/Caddyfile   ║
+2025-10-15T11:18:12.993113016Z [inf]  ║──────────────────────────────────────────────────────────────║
+2025-10-15T11:18:12.993116360Z [inf]  ║ install    │ npm ci                                          ║
+2025-10-15T11:18:12.993119878Z [inf]  ║──────────────────────────────────────────────────────────────║
+2025-10-15T11:18:12.993123169Z [inf]  ║ build      │ npm install && npm run build && npm run db:push ║
+2025-10-15T11:18:12.993126661Z [inf]  ║──────────────────────────────────────────────────────────────║
+2025-10-15T11:18:12.993129984Z [inf]  ║ start      │ npm start                                       ║
+2025-10-15T11:18:12.993133954Z [inf]  ╚══════════════════════════════════════════════════════════════╝
+2025-10-15T11:18:13.257271748Z [inf]  [internal] load build definition from Dockerfile
+2025-10-15T11:18:13.257355010Z [inf]  [internal] load build definition from Dockerfile
+2025-10-15T11:18:13.257370644Z [inf]  [internal] load build definition from Dockerfile
+2025-10-15T11:18:13.271474685Z [inf]  [internal] load build definition from Dockerfile
+2025-10-15T11:18:13.274486339Z [inf]  [internal] load metadata for ghcr.io/railwayapp/nixpacks:ubuntu-1745885067
+2025-10-15T11:18:14.636753980Z [inf]  [internal] load metadata for ghcr.io/railwayapp/nixpacks:ubuntu-1745885067
+2025-10-15T11:18:14.637020127Z [inf]  [internal] load .dockerignore
+2025-10-15T11:18:14.637045304Z [inf]  [internal] load .dockerignore
+2025-10-15T11:18:14.637063943Z [inf]  [internal] load .dockerignore
+2025-10-15T11:18:14.649993681Z [inf]  [internal] load .dockerignore
+2025-10-15T11:18:14.659322674Z [inf]  [stage-0 11/15] RUN --mount=type=cache,id=s/93893145-85be-4d18-8688-168363da6632-/root/npm,target=/root/.npm npm ci
+2025-10-15T11:18:14.659380677Z [inf]  [stage-0 10/15] COPY . /app/.
+2025-10-15T11:18:14.659391085Z [inf]  [stage-0  9/15] RUN  caddy fmt --overwrite /assets/Caddyfile
+2025-10-15T11:18:14.659398772Z [inf]  [stage-0  1/15] FROM ghcr.io/railwayapp/nixpacks:ubuntu-1745885067@sha256:d45c89d80e13d7ad0fd555b5130f22a866d9dd10e861f589932303ef2314c7de
+2025-10-15T11:18:14.659407110Z [inf]  [stage-0  3/15] COPY .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix
+2025-10-15T11:18:14.659420547Z [inf]  [stage-0 13/15] RUN --mount=type=cache,id=s/93893145-85be-4d18-8688-168363da6632-node_modules/cache,target=/app/node_modules/.cache npm install && npm run build && npm run db:push
+2025-10-15T11:18:14.659429012Z [inf]  [stage-0 15/15] COPY . /app
+2025-10-15T11:18:14.659436248Z [inf]  [stage-0  4/15] RUN nix-env -if .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix && nix-collect-garbage -d
+2025-10-15T11:18:14.659475514Z [inf]  [stage-0  7/15] COPY .nixpacks/assets /assets/
+2025-10-15T11:18:14.659484890Z [inf]  [internal] load build context
+2025-10-15T11:18:14.659492546Z [inf]  [stage-0  2/15] WORKDIR /app/
+2025-10-15T11:18:14.659499722Z [inf]  [stage-0 12/15] COPY . /app/.
+2025-10-15T11:18:14.659507217Z [inf]  [stage-0 14/15] RUN printf '\nPATH=/app/node_modules/.bin:$PATH' >> /root/.profile
+2025-10-15T11:18:14.659514337Z [inf]  [stage-0  6/15] RUN nix-env -if .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix && nix-collect-garbage -d
+2025-10-15T11:18:14.659527299Z [inf]  [stage-0  5/15] COPY .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix
+2025-10-15T11:18:14.659534837Z [inf]  [stage-0  8/15] COPY . /app/.
+2025-10-15T11:18:14.659560256Z [inf]  [stage-0  1/15] FROM ghcr.io/railwayapp/nixpacks:ubuntu-1745885067@sha256:d45c89d80e13d7ad0fd555b5130f22a866d9dd10e861f589932303ef2314c7de
+2025-10-15T11:18:14.659568213Z [inf]  [internal] load build context
+2025-10-15T11:18:14.659990510Z [inf]  [internal] load build context
+2025-10-15T11:18:14.708663598Z [inf]  [internal] load build context
+2025-10-15T11:18:14.712585626Z [inf]  [stage-0  2/15] WORKDIR /app/
+2025-10-15T11:18:14.712626687Z [inf]  [stage-0  3/15] COPY .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix
+2025-10-15T11:18:14.712645786Z [inf]  [stage-0  4/15] RUN nix-env -if .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix && nix-collect-garbage -d
+2025-10-15T11:18:14.712658797Z [inf]  [stage-0  5/15] COPY .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix
+2025-10-15T11:18:14.712668971Z [inf]  [stage-0  6/15] RUN nix-env -if .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix && nix-collect-garbage -d
+2025-10-15T11:18:14.712680621Z [inf]  [stage-0  7/15] COPY .nixpacks/assets /assets/
+2025-10-15T11:18:14.712701285Z [inf]  [stage-0  8/15] COPY . /app/.
+2025-10-15T11:18:14.752833853Z [inf]  [stage-0  8/15] COPY . /app/.
+2025-10-15T11:18:14.754813144Z [inf]  [stage-0  9/15] RUN  caddy fmt --overwrite /assets/Caddyfile
+2025-10-15T11:18:14.983576143Z [inf]  [stage-0  9/15] RUN  caddy fmt --overwrite /assets/Caddyfile
+2025-10-15T11:18:14.985126051Z [inf]  [stage-0 10/15] COPY . /app/.
+2025-10-15T11:18:15.065495196Z [inf]  [stage-0 10/15] COPY . /app/.
+2025-10-15T11:18:15.066777016Z [inf]  [stage-0 11/15] RUN --mount=type=cache,id=s/93893145-85be-4d18-8688-168363da6632-/root/npm,target=/root/.npm npm ci
+2025-10-15T11:18:15.303673991Z [inf]  npm warn config production Use `--omit=dev` instead.
+
+2025-10-15T11:18:15.972902267Z [inf]  npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: '@google/genai@1.24.0',
+npm warn EBADENGINE   required: { node: '>=20.0.0' },
+npm warn EBADENGINE   current: { node: 'v18.20.5', npm: '10.8.2' }
+npm warn EBADENGINE }
+
+2025-10-15T11:18:18.794134133Z [inf]  npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+
+2025-10-15T11:18:18.884881922Z [inf]  npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+
+2025-10-15T11:18:22.38313128Z [inf]  
+added 518 packages, and audited 519 packages in 7s
+
+2025-10-15T11:18:22.383195725Z [inf]  
+
+2025-10-15T11:18:22.383210859Z [inf]  68 packages are looking for funding
+
+2025-10-15T11:18:22.383244121Z [inf]    run `npm fund` for details
+
+2025-10-15T11:18:22.4122447Z [inf]  
+8 vulnerabilities (3 low, 5 moderate)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+2025-10-15T11:18:22.570322222Z [inf]  [stage-0 11/15] RUN --mount=type=cache,id=s/93893145-85be-4d18-8688-168363da6632-/root/npm,target=/root/.npm npm ci
+2025-10-15T11:18:22.572049058Z [inf]  [stage-0 12/15] COPY . /app/.
+2025-10-15T11:18:22.802641923Z [inf]  [stage-0 12/15] COPY . /app/.
+2025-10-15T11:18:22.804094428Z [inf]  [stage-0 13/15] RUN --mount=type=cache,id=s/93893145-85be-4d18-8688-168363da6632-node_modules/cache,target=/app/node_modules/.cache npm install && npm run build && npm run db:push
+2025-10-15T11:18:23.017267092Z [inf]  npm warn config production Use `--omit=dev` instead.
+
+2025-10-15T11:18:23.584607868Z [inf]  npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: '@google/genai@1.24.0',
+npm warn EBADENGINE   required: { node: '>=20.0.0' },
+npm warn EBADENGINE   current: { node: 'v18.20.5', npm: '10.8.2' }
+npm warn EBADENGINE }
+
+2025-10-15T11:18:26.249673491Z [inf]  
+up to date, audited 519 packages in 3s
+
+2025-10-15T11:18:26.249777941Z [inf]  
+
+2025-10-15T11:18:26.249828424Z [inf]  68 packages are looking for funding
+
+2025-10-15T11:18:26.249842742Z [inf]    run `npm fund` for details
+
+2025-10-15T11:18:26.291122827Z [inf]  
+8 vulnerabilities (3 low, 5 moderate)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+2025-10-15T11:18:26.439601752Z [inf]  npm warn config production Use `--omit=dev` instead.
+
+2025-10-15T11:18:26.476764949Z [inf]  
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+
+2025-10-15T11:18:26.731213553Z [inf]  [36mvite v5.4.20 [32mbuilding for production...[36m[39m
+
+2025-10-15T11:18:26.795533775Z [inf]  transforming...
+
+2025-10-15T11:18:27.117408756Z [inf]  Browserslist: browsers data (caniuse-lite) is 12 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+2025-10-15T11:18:28.46656075Z [inf]  
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+
+2025-10-15T11:18:33.256573887Z [inf]  [32m✓[39m 2186 modules transformed.
+
+2025-10-15T11:18:33.724203893Z [inf]  rendering chunks...
+
+2025-10-15T11:18:33.738814651Z [inf]  computing gzip size...
+
+2025-10-15T11:18:33.765762075Z [inf]  [2m../dist/public/[22m[32mindex.html                                                   [39m[1m[2m  0.67 kB[22m[1m[22m[2m │ gzip:   0.38 kB[22m
+[2m../dist/public/[22m[2massets/[22m[32mIMG_3463-removebg-preview_1760467422348-CfbEqdrw.png  [39m[1m[2m 68.95 kB[22m[1m[22m
+[2m../dist/public/[22m[2massets/[22m[35mindex-DK240tav.css                                    [39m[1m[2m 78.72 kB[22m[1m[22m[2m │ gzip:  12.79 kB[22m
+
+2025-10-15T11:18:33.765784378Z [inf]  [2m../dist/public/[22m[2massets/[22m[36mindex-ceNx4y9p.js                                     [39m[1m[33m651.99 kB[39m[22m[2m │ gzip: 191.12 kB[22m
+
+2025-10-15T11:18:33.765887935Z [inf]  [33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+
+2025-10-15T11:18:33.766409311Z [inf]  [32m✓ built in 7.01s[39m
+
+2025-10-15T11:18:33.836325063Z [inf]  
+  dist/index.js  96.5kb
+
+⚡ Done in 10ms
+
+2025-10-15T11:18:33.976689818Z [inf]  npm warn config production Use `--omit=dev` instead.
+
+2025-10-15T11:18:34.006641132Z [inf]  
+> rest-express@1.0.0 db:push
+> drizzle-kit push
+
+
+2025-10-15T11:18:34.187273716Z [inf]  No config path provided, using default 'drizzle.config.ts'
+
+2025-10-15T11:18:34.187703975Z [inf]  Reading config file '/app/drizzle.config.ts'
+
+2025-10-15T11:18:34.519448834Z [inf]  Using 'pg' driver for database querying
+
+2025-10-15T11:18:34.599527564Z [inf]  [⣷] Pulling schema from database...
+
+2025-10-15T11:18:34.722070228Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:34.849937417Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:34.977440397Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:35.106102316Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:35.233813424Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:35.361515241Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:35.48954978Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:35.618180236Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:35.746749966Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:35.874481648Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:36.003273242Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:36.131678418Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:36.259675052Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:36.387848841Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:36.516312958Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:36.64445766Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:36.772297143Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:36.900689505Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:37.028906822Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:37.156469798Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:37.284863934Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:37.412639338Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:37.54053661Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:37.668900555Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:37.796405228Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:37.925034537Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:38.052462684Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:38.181261893Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:38.310110535Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:38.438471402Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:38.567213335Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:38.695307271Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:38.823694874Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:38.951725614Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:39.080126401Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:39.208490041Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:39.336406164Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:39.464803681Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:39.593016852Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:39.720242036Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:39.848636854Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:39.977332041Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:40.105944064Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:40.234302737Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:40.362536068Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:40.491042183Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:40.618426467Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:40.746382861Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:40.874676933Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:41.003127617Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:41.132099526Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:41.260743661Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:41.389103345Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:41.517874622Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:41.645791833Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:41.774247719Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:41.902899881Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:42.030708181Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:42.158948744Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:42.286389696Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:42.414259251Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:42.543137741Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:42.671523179Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:42.799909886Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:42.927894888Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:43.056228974Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:43.184354733Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:43.313147592Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:43.441513354Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:43.56994676Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:43.697600581Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:43.825933785Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:43.953313306Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:44.081942957Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:44.209303136Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:44.337806583Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:44.465990485Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:44.593453337Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:44.721831811Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:44.849795691Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:44.978212891Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:45.106742255Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:45.234619851Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:45.363036059Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:45.490997024Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:45.619082604Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:45.746453018Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:45.875181041Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:46.003475941Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:46.131808482Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:46.259754558Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:46.3880242Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:46.515346519Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:46.643343588Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:46.771597811Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:46.899870363Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:47.028201894Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:47.157084398Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:47.286173601Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:47.414546787Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:47.54232309Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:47.670756683Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:47.799086103Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:47.927528321Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:48.055887068Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:48.184158415Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:48.312472981Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:48.441161915Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:48.569404184Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:48.697798341Z [inf]  [2K[1G[⣻] Pulling schema from database...
+
+2025-10-15T11:18:48.825743717Z [inf]  [2K[1G[⣽] Pulling schema from database...
+
+2025-10-15T11:18:48.95399616Z [inf]  [2K[1G[⣷] Pulling schema from database...
+
+2025-10-15T11:18:49.082224566Z [inf]  [2K[1G[⣯] Pulling schema from database...
+
+2025-10-15T11:18:49.210850703Z [inf]  [2K[1G[⣟] Pulling schema from database...
+
+2025-10-15T11:18:49.339159891Z [inf]  [2K[1G[⡿] Pulling schema from database...
+
+2025-10-15T11:18:49.467602008Z [inf]  [2K[1G[⢿] Pulling schema from database...
+
+2025-10-15T11:18:49.548082501Z [inf]  [2K[1G[✓] Pulling schema from database...
+
+2025-10-15T11:18:49.756822971Z [inf]   Warning  Found data-loss statements:
+· You're about to delete session table with 1 items
+
+
+2025-10-15T11:18:49.756840852Z [inf]  THIS ACTION WILL CAUSE DATA LOSS AND CANNOT BE REVERTED
+
+
+2025-10-15T11:18:49.756844548Z [inf]  Do you still want to push changes?
+
+2025-10-15T11:18:49.759480026Z [inf]  [?25l
+2025-10-15T11:18:49.760170707Z [inf]  ❯ No, abort
+  Yes, I want to remove 1 table, 
+2025-10-15T11:19:01.135171615Z [inf]  [stage-0 13/15] RUN --mount=type=cache,id=s/93893145-85be-4d18-8688-168363da6632-node_modules/cache,target=/app/node_modules/.cache npm install && npm run build && npm run db:push
+2025-10-15T11:19:01.136034008Z [inf]  [stage-0 14/15] RUN printf '\nPATH=/app/node_modules/.bin:$PATH' >> /root/.profile
+2025-10-15T11:19:01.324999011Z [inf]  [stage-0 14/15] RUN printf '\nPATH=/app/node_modules/.bin:$PATH' >> /root/.profile
+2025-10-15T11:19:01.326145562Z [inf]  [stage-0 15/15] COPY . /app
+2025-10-15T11:19:01.360578010Z [inf]  [stage-0 15/15] COPY . /app
+2025-10-15T11:19:01.363144274Z [inf]  exporting to docker image format
+2025-10-15T11:19:01.363189101Z [inf]  exporting to image
+2025-10-15T11:19:21.029944602Z [inf]  importing to docker
+2025-10-15T11:19:21.735204100Z [inf]  [auth] sharing credentials for production-asia-southeast1-eqsg3a.railway-registry.com
+2025-10-15T11:19:21.735260346Z [inf]  [auth] sharing credentials for production-asia-southeast1-eqsg3a.railway-registry.com
+2025-10-15T11:19:39.122082799Z [inf]  importing to docker
+2025-10-15T11:19:49.546238370Z [inf]  === Successfully Built! ===
+2025-10-15T11:19:49.546299760Z [inf]  Run:
+2025-10-15T11:19:49.546305617Z [inf]  docker run -it production-asia-southeast1-eqsg3a.railway-registry.com/93893145-85be-4d18-8688-168363da6632:261982a9-6c97-43e7-b41d-87986590e24f
+2025-10-15T11:19:49.726731314Z [inf]  [92mBuild time: 96.84 seconds[0m
+2025-10-15T11:20:07.435827914Z [inf]  
+2025-10-15T11:20:07.435951110Z [inf]  [35m====================
+Starting Healthcheck
+====================
+[0m
+2025-10-15T11:20:07.435955721Z [inf]  [37mPath: /health[0m
+2025-10-15T11:20:07.435958825Z [inf]  [37mRetry window: 1m40s[0m
+2025-10-15T11:20:07.435960864Z [inf]  
+2025-10-15T11:20:07.665395188Z [inf]  [93mAttempt #1 failed with service unavailable. Continuing to retry for 1m39s[0m
+2025-10-15T11:20:18.855796939Z [inf]  [93mAttempt #2 failed with service unavailable. Continuing to retry for 1m28s[0m
+2025-10-15T11:20:25.141716882Z [inf]  [93mAttempt #3 failed with service unavailable. Continuing to retry for 1m22s[0m
+2025-10-15T11:20:29.335091537Z [inf]  [93mAttempt #4 failed with service unavailable. Continuing to retry for 1m18s[0m
+2025-10-15T11:20:37.524938836Z [inf]  [93mAttempt #5 failed with service unavailable. Continuing to retry for 1m9s[0m
+2025-10-15T11:20:53.768935969Z [inf]  [93mAttempt #6 failed with service unavailable. Continuing to retry for 53s[0m
+2025-10-15T11:21:23.978309589Z [inf]  [93mAttempt #7 failed with service unavailable. Continuing to retry for 23s[0m
+2025-10-15T11:21:24.049504535Z [inf]  
+2025-10-15T11:21:24.049575021Z [inf]  [91m1/1 replicas never became healthy![0m
+2025-10-15T11:21:24.049578412Z [inf]  [91mHealthcheck failed![0m
