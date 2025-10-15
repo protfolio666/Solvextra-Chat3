@@ -389,16 +389,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Auto-respond with AI (if enabled)
         const aiSettings = await storage.getAISettings();
         if (aiSettings?.enabled) {
-          console.log('Generating AI response...');
-          const aiResponse = await generateAIResponse(conversation.id, message.text, aiSettings);
+          console.log('Generating AI response with provider:', aiSettings.provider);
+          const aiResponse = await generateAIResponse(message.text || "", {
+            provider: aiSettings.provider,
+            knowledgeBase: aiSettings.knowledgeBase,
+            systemPrompt: aiSettings.systemPrompt,
+          });
           
-          if (aiResponse) {
+          if (aiResponse?.content) {
             // Save AI response
             await storage.createMessage({
               conversationId: conversation.id,
               sender: "ai",
               senderName: "AI Assistant",
-              content: aiResponse,
+              content: aiResponse.content,
             });
             
             // Send response back to Telegram
@@ -410,10 +414,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   chat_id: message.chat.id,
-                  text: aiResponse,
+                  text: aiResponse.content,
                 }),
               });
-              console.log('AI response sent to Telegram');
+              console.log('✅ AI response sent to Telegram');
             }
             
             // Broadcast AI response via WebSocket
@@ -422,10 +426,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
               data: {
                 conversationId: conversation.id,
                 sender: "ai",
-                content: aiResponse,
+                content: aiResponse.content,
               },
             });
           }
+        } else {
+          console.log('⚠️ AI is not enabled - customer message will be handled by agents');
         }
       }
       
