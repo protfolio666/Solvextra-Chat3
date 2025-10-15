@@ -224,12 +224,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 agentName: agentProfile.name,
               },
             });
-          } else {
+          } else if (currentUser.role === "admin") {
             // Admin without agent profile - just mark as assigned without specific agent
             await storage.updateConversation(message.conversationId, {
               status: "assigned",
             });
             console.log(`✅ Conversation taken over by admin ${currentUser.name} (manual takeover)`);
+          } else {
+            // Agent role but no profile - shouldn't happen but handle gracefully
+            console.log(`⚠️ User ${currentUser.name} has agent role but no agent profile`);
           }
         }
       }
@@ -384,13 +387,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/agents", requireAdmin, async (req, res) => {
-    const result = insertAgentSchema.safeParse(req.body);
-    if (!result.success) {
-      return res.status(400).json({ error: result.error });
+    try {
+      const { name, email, password, status } = req.body;
+      
+      if (!name || !email || !password) {
+        return res.status(400).json({ error: "Name, email, and password are required" });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(email);
+      if (existingUser) {
+        return res.status(400).json({ error: "An account with this email already exists" });
+      }
+
+      // Import hashPassword from auth
+      const { hashPassword } = await import("./auth");
+      
+      // Create user account with "agent" role
+      const user = await storage.createUser({
+        username: email,
+        password: await hashPassword(password),
+        role: "agent",
+        name: name,
+      });
+
+      // Create agent profile linked to user
+      const agent = await storage.createAgent({
+        name,
+        email,
+        status: status || "offline",
+      });
+
+      broadcast({ type: "status_update", data: { agent } });
+      res.json(agent);
+    } catch (error) {
+      console.error("Error creating agent:", error);
+      res.status(500).json({ error: "Failed to create agent" });
     }
-    const agent = await storage.createAgent(result.data);
-    broadcast({ type: "status_update", data: { agent } });
-    res.json(agent);
   });
 
   app.patch("/api/agents/:id/status", requireAdmin, async (req, res) => {

@@ -25,6 +25,7 @@ export default function Agents() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    password: "",
     status: "offline" as "available" | "busy" | "offline",
   });
   const { toast } = useToast();
@@ -40,10 +41,10 @@ export default function Agents() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/agents"] });
       setDialogOpen(false);
-      setFormData({ name: "", email: "", status: "offline" });
+      setFormData({ name: "", email: "", password: "", status: "offline" });
       toast({
         title: "Success",
-        description: "Agent created successfully",
+        description: "Agent account created successfully. They can now log in with their email and password.",
       });
     },
     onError: () => {
@@ -57,10 +58,18 @@ export default function Agents() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email) {
+    if (!formData.name || !formData.email || !formData.password) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (formData.password.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters",
         variant: "destructive",
       });
       return;
@@ -96,7 +105,7 @@ export default function Agents() {
                 <DialogHeader>
                   <DialogTitle>Add New Agent</DialogTitle>
                   <DialogDescription>
-                    Create an agent profile. Use your login email to link it to your account.
+                    Create a new agent account with login credentials. Agents can respond to customers and manage tickets.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
@@ -111,7 +120,7 @@ export default function Agents() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">Email (Username)</Label>
                     <Input
                       id="email"
                       type="email"
@@ -119,6 +128,17 @@ export default function Agents() {
                       data-testid="input-agent-email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Minimum 6 characters"
+                      data-testid="input-agent-password"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
