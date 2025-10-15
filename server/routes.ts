@@ -191,6 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     const message = await storage.createMessage(result.data);
+    console.log(`💬 Message created - sender: ${message.sender}, content: ${message.content}, conversationId: ${message.conversationId}`);
     broadcast({ type: "message", data: { message } });
 
     // If message is from agent, mark conversation as assigned (agent has taken over)
