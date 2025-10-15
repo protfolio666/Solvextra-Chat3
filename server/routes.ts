@@ -240,13 +240,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     // If message is from agent or AI, send to customer on Telegram
     if (message.sender === "agent" || message.sender === "ai") {
+      console.log(`📤 Attempting to send ${message.sender} message to customer...`);
       const conversation = await storage.getConversation(message.conversationId);
+      console.log(`📋 Conversation details - channel: ${conversation?.channel}, channelUserId: ${conversation?.channelUserId}`);
+      
       if (conversation && conversation.channel === "telegram" && conversation.channelUserId) {
         const telegramIntegration = await storage.getChannelIntegration("telegram");
+        console.log(`🔑 Telegram integration found: ${telegramIntegration ? 'YES' : 'NO'}, has token: ${telegramIntegration?.apiToken ? 'YES' : 'NO'}`);
+        
         if (telegramIntegration?.apiToken) {
           try {
             const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
-            await fetch(sendMessageUrl, {
+            const response = await fetch(sendMessageUrl, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -254,11 +259,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 text: message.content,
               }),
             });
-            console.log(`✅ Message sent to Telegram customer (chat_id: ${conversation.channelUserId})`);
+            
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error(`❌ Telegram API error: ${response.status} - ${errorText}`);
+            } else {
+              console.log(`✅ Message sent to Telegram customer (chat_id: ${conversation.channelUserId})`);
+            }
           } catch (error) {
             console.error('❌ Failed to send message to Telegram:', error);
           }
+        } else {
+          console.log('⚠️ No Telegram API token configured');
         }
+      } else {
+        console.log(`⚠️ Cannot send to Telegram - Missing: ${!conversation ? 'conversation' : !conversation.channelUserId ? 'channelUserId' : 'not telegram channel'}`);
       }
     }
 
