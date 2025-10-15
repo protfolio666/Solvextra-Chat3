@@ -24,6 +24,16 @@ import {
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
+  // Health check endpoint for deployment monitoring (Railway, etc.)
+  app.get("/health", (_req, res) => {
+    res.status(200).json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || "development",
+    });
+  });
+
   // Setup authentication
   setupAuth(app);
 
@@ -212,6 +222,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/conversations", async (req, res) => {
     const conversations = await storage.getConversations();
     res.json(conversations);
+  });
+
+  // Export conversations with all details (admin only)
+  app.get("/api/export/conversations", requireAdmin, async (req, res) => {
+    try {
+      const exportData = await storage.getConversationsForExport();
+      res.json(exportData);
+    } catch (error) {
+      console.error("Error exporting conversations:", error);
+      res.status(500).json({ error: "Failed to export conversations" });
+    }
   });
 
   app.get("/api/conversations/:id", async (req, res) => {
@@ -1135,63 +1156,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
         } else if (conversation.status === "resolved") {
-          // Customer returned after resolution - reopen and let AI help first
-          console.log('🔄 Customer returned after resolution - reopening for AI assistance');
+          // Check if this is a CSAT rating response (customer replying with 1-5)
+          const isNumericRating = /^[1-5]$/.test(message.text?.trim() || "");
+          const conversationMessages = await storage.getMessages(conversation.id);
+          const lastAgentMessage = conversationMessages
+            .filter(m => m.sender === "agent" || m.sender === "ai")
+            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
           
-          // Reopen conversation status to "open" so AI can respond
-          await storage.updateConversation(conversation.id, {
-            status: "open",
-            lastMessageAt: new Date(),
-          });
+          const isCsatResponse = isNumericRating && 
+            lastAgentMessage?.content.includes("rate your experience") &&
+            lastAgentMessage?.content.includes("1 - Poor");
           
-          // Try AI response first
-          const aiSettings = await storage.getAISettings();
-          let aiHandled = false;
-          
-          if (aiSettings?.enabled && !aiSettings?.paused) {
+          if (isCsatResponse) {
+            // This is a CSAT rating - process it without reopening conversation
+            console.log('⭐ CSAT rating received:', message.text);
+            
             try {
-              console.log('🤖 AI will respond to returning customer');
-              const aiResponse = await generateAIResponse(message.text || "", {
-                provider: aiSettings.provider,
-                model: aiSettings.model || undefined,
-                knowledgeBase: aiSettings.knowledgeBase || undefined,
-                systemPrompt: aiSettings.systemPrompt || undefined,
+              const rating = parseInt(message.text?.trim() || "0");
+              
+              // Find related ticket for this conversation
+              const tickets = await storage.getTickets();
+              const relatedTicket = tickets.find(t => t.conversationId === conversation.id);
+              
+              // Save CSAT rating with ticket ID if available
+              await storage.createCsatRating({
+                ticketId: relatedTicket?.id || "",
+                conversationId: conversation.id,
+                rating,
+                feedback: "",
               });
               
-              if (aiResponse?.content) {
-                // Save AI response
-                await storage.createMessage({
-                  conversationId: conversation.id,
-                  sender: "ai",
-                  senderName: "AI Assistant",
-                  content: aiResponse.content,
+              // Send thank you message
+              const telegramIntegration = await storage.getChannelIntegration("telegram");
+              if (telegramIntegration?.apiToken) {
+                const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+                await fetch(sendMessageUrl, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    chat_id: message.chat.id,
+                    text: `Thank you for your ${rating}-star rating! We appreciate your feedback. 🙏`,
+                  }),
+                });
+                console.log('✅ CSAT thank you message sent');
+              }
+              
+              // Keep conversation resolved - don't reopen
+              console.log('✅ CSAT rating saved, conversation remains resolved');
+            } catch (error) {
+              console.error('❌ Failed to save CSAT rating:', error);
+            }
+          } else {
+            // Not a CSAT response - customer returned after resolution, reopen and let AI help first
+            console.log('🔄 Customer returned after resolution - reopening for AI assistance');
+            
+            // Reopen conversation status to "open" so AI can respond
+            await storage.updateConversation(conversation.id, {
+              status: "open",
+              lastMessageAt: new Date(),
+            });
+            
+            // Try AI response first
+            const aiSettings = await storage.getAISettings();
+            let aiHandled = false;
+            
+            if (aiSettings?.enabled && !aiSettings?.paused) {
+              try {
+                console.log('🤖 AI will respond to returning customer');
+                const aiResponse = await generateAIResponse(message.text || "", {
+                  provider: aiSettings.provider,
+                  model: aiSettings.model || undefined,
+                  knowledgeBase: aiSettings.knowledgeBase || undefined,
+                  systemPrompt: aiSettings.systemPrompt || undefined,
                 });
                 
-                // Send response back to Telegram
-                const telegramIntegration = await storage.getChannelIntegration("telegram");
-                if (telegramIntegration?.apiToken) {
-                  const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
-                  await fetch(sendMessageUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      chat_id: message.chat.id,
-                      text: aiResponse.content,
-                    }),
+                if (aiResponse?.content) {
+                  // Save AI response
+                  await storage.createMessage({
+                    conversationId: conversation.id,
+                    sender: "ai",
+                    senderName: "AI Assistant",
+                    content: aiResponse.content,
                   });
-                  console.log('✅ AI response sent to returning customer');
-                }
-                
-                // Broadcast AI response via WebSocket  
-                const messages = await storage.getMessages(conversation.id);
-                const latestAiMessage = messages.filter(m => m.sender === "ai").sort((a, b) => 
-                  new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-                )[0];
-                
-                if (latestAiMessage) {
-                  broadcast({ 
-                    type: "message", 
-                    data: { message: latestAiMessage } 
+                  
+                  // Send response back to Telegram
+                  const telegramIntegration = await storage.getChannelIntegration("telegram");
+                  if (telegramIntegration?.apiToken) {
+                    const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+                    await fetch(sendMessageUrl, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        chat_id: message.chat.id,
+                        text: aiResponse.content,
+                      }),
+                    });
+                    console.log('✅ AI response sent to returning customer');
+                  }
+                  
+                  // Broadcast AI response via WebSocket  
+                  const messages = await storage.getMessages(conversation.id);
+                  const latestAiMessage = messages.filter(m => m.sender === "ai").sort((a, b) => 
+                    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+                  )[0];
+                  
+                  if (latestAiMessage) {
+                    broadcast({ 
+                      type: "message", 
+                      data: { message: latestAiMessage } 
                   });
                 }
                 
@@ -1240,6 +1312,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 console.log('✅ Escalation notification sent to returning customer');
               }
             }
+          }
           }
         } else {
           console.log(`⏭️ Conversation already ${conversation.status} - skipping AI response`);

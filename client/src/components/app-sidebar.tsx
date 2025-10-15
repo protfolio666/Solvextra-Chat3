@@ -9,6 +9,7 @@ import {
   Radio,
   BookOpen,
   Star,
+  Download,
 } from "lucide-react";
 import logoPath from "@assets/IMG_3463-removebg-preview_1760467422348.png";
 import {
@@ -73,6 +74,13 @@ const menuItems = [
     url: "/csat-dashboard",
     icon: Star,
     testId: "nav-csat",
+    allowedRoles: ["admin"] as UserRole[],
+  },
+  {
+    title: "Export",
+    url: "/export",
+    icon: Download,
+    testId: "nav-export",
     allowedRoles: ["admin"] as UserRole[],
   },
   {

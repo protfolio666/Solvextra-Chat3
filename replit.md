@@ -6,6 +6,18 @@ An omnichannel customer support platform that unifies conversations from multipl
 
 ## Recent Updates (October 15, 2025)
 
+### Export & Analytics ✨ NEW
+- ✅ **Comprehensive Export Page**: Admin-only page to view and export all conversation data
+- ✅ **Advanced Filtering**: Filter by channel, status, customer name, email, and ticket number
+- ✅ **CSV Export**: One-click CSV export with complete conversation details (channel, timestamps, agent, escalation, CSAT)
+- ✅ **Joined Data Display**: Shows agent names, ticket numbers, CSAT ratings, and resolution times in single view
+- ✅ **Visual Indicators**: Color-coded status badges, star ratings, and channel icons
+
+### CSAT Rating Improvements ✨ NEW
+- ✅ **Smart Rating Detection**: Customer CSAT ratings (1-5) no longer reopen resolved conversations
+- ✅ **Automatic Thank You**: System sends thank you message after rating received
+- ✅ **Persistent Resolution**: Conversations stay resolved after customer provides feedback
+
 ### Customer Information Collection ✨ NEW
 - ✅ **AI Greeting Flow**: AI greets customers warmly based on knowledge base
 - ✅ **Information Collection**: AI asks for name, email, and phone number at conversation start
@@ -232,4 +244,6 @@ Limited access including:
 - `/knowledge-base` - File upload and management (all users)
 - `/agents` - Agent management (**admin only**)
 - `/analytics` - Analytics dashboard (**admin only**)
+- `/csat-dashboard` - CSAT ratings overview (**admin only**)
+- `/export` - Export conversation data with filters (**admin only**)
 - `/settings` - AI settings and configuration (**admin only**)

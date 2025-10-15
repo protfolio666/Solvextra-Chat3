@@ -39,6 +39,7 @@ import createMemoryStore from "memorystore";
 import connectPgSimple from "connect-pg-simple";
 import { db } from "./db";
 import { eq, desc, asc, and, sql } from "drizzle-orm";
+import { format } from "date-fns";
 
 const MemoryStore = createMemoryStore(session);
 const PgSession = connectPgSimple(session);
@@ -49,6 +50,7 @@ export interface IStorage {
   getConversation(id: string): Promise<Conversation | undefined>;
   createConversation(conversation: InsertConversation): Promise<Conversation>;
   updateConversation(id: string, data: Partial<Conversation>): Promise<Conversation | undefined>;
+  getConversationsForExport(): Promise<any[]>;
 
   // Messages
   getMessages(conversationId: string): Promise<Message[]>;
@@ -162,6 +164,80 @@ export class DbStorage implements IStorage {
         .orderBy(desc(conversations.lastMessageAt));
     } catch (error) {
       console.error("Error getting conversations:", error);
+      return [];
+    }
+  }
+
+  async getConversationsForExport(): Promise<any[]> {
+    try {
+      const result = await db
+        .select({
+          // Conversation fields
+          conversationId: conversations.id,
+          channel: conversations.channel,
+          customerName: conversations.customerName,
+          customerEmail: conversations.customerEmail,
+          customerPhone: conversations.customerPhone,
+          status: conversations.status,
+          createdAt: conversations.createdAt,
+          lastMessageAt: conversations.lastMessageAt,
+          
+          // Agent fields
+          agentId: agents.id,
+          agentName: agents.name,
+          agentEmail: agents.email,
+          
+          // Ticket fields
+          ticketId: tickets.id,
+          ticketNumber: tickets.ticketNumber,
+          ticketStatus: tickets.status,
+          ticketPriority: tickets.priority,
+          ticketCreatedAt: tickets.createdAt,
+          ticketResolvedAt: tickets.resolvedAt,
+          
+          // CSAT fields
+          csatRating: csatRatings.rating,
+          csatFeedback: csatRatings.feedback,
+          csatCreatedAt: csatRatings.createdAt,
+        })
+        .from(conversations)
+        .leftJoin(agents, eq(conversations.assignedAgentId, agents.id))
+        .leftJoin(tickets, eq(tickets.conversationId, conversations.id))
+        .leftJoin(csatRatings, eq(csatRatings.conversationId, conversations.id))
+        .orderBy(desc(conversations.createdAt));
+
+      // Fetch message counts and messages for each conversation
+      const enrichedResult = await Promise.all(
+        result.map(async (conv) => {
+          const convMessages = await db
+            .select()
+            .from(messages)
+            .where(eq(messages.conversationId, conv.conversationId))
+            .orderBy(asc(messages.timestamp));
+
+          const customerMessages = convMessages.filter(m => m.sender === "customer").length;
+          const aiMessages = convMessages.filter(m => m.sender === "ai").length;
+          const agentMessages = convMessages.filter(m => m.sender === "agent").length;
+
+          // Create message transcript
+          const messageTranscript = convMessages
+            .map(m => `[${format(new Date(m.timestamp), "yyyy-MM-dd HH:mm:ss")}] ${m.senderName || m.sender}: ${m.content}`)
+            .join("\n");
+
+          return {
+            ...conv,
+            totalMessages: convMessages.length,
+            customerMessages,
+            aiMessages,
+            agentMessages,
+            messageTranscript,
+          };
+        })
+      );
+
+      return enrichedResult;
+    } catch (error) {
+      console.error("Error getting conversations for export:", error);
       return [];
     }
   }
