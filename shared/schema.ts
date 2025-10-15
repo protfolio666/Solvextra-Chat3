@@ -177,7 +177,7 @@ export type ChannelIntegration = typeof channelIntegrations.$inferSelect;
 
 // WebSocket message types
 export interface WSMessage {
-  type: "message" | "status_update" | "typing" | "escalation" | "assignment";
+  type: "message" | "status_update" | "typing" | "escalation" | "assignment" | "admin_notification";
   data: any;
 }
 

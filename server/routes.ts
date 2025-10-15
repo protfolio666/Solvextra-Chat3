@@ -64,7 +64,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Helper function for smart escalation
-  async function handleSmartEscalation(conversationId: string, reason: string = "AI unable to resolve") {
+  async function handleSmartEscalation(conversationId: string, reason: string = "AI unable to resolve", notifyAdminOnly: boolean = false) {
     try {
       console.log(`🔄 Smart escalation triggered for conversation ${conversationId}: ${reason}`);
       
@@ -101,38 +101,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         return { success: true, assignedTo: "agent", agentName: agentWithLeastLoad.name };
       } else {
-        // No agents available - create ticket
-        console.log('⚠️ No agents available - creating ticket');
-        
-        const conversation = await storage.getConversation(conversationId);
-        if (conversation) {
-          const ticket = await storage.createTicket({
-            conversationId: conversation.id,
-            title: `Support needed for ${conversation.customerName}`,
-            description: reason,
-            priority: "medium",
-            status: "open",
-            tat: 24, // 24 hours TAT by default
-          });
+        // No agents available
+        if (notifyAdminOnly) {
+          // When AI is paused and no agents available - notify admin only (no ticket)
+          console.log('👮 AI paused, no agents available - notifying admin');
           
-          // Update conversation status
+          // Keep conversation as "open" so admin can respond
           await storage.updateConversation(conversationId, {
-            status: "ticket",
+            status: "open",
           });
           
-          console.log(`🎫 Ticket created with ID ${ticket.id}, TAT: ${ticket.tat} hours`);
-          
-          // Broadcast ticket creation
+          // Broadcast admin notification
           broadcast({
-            type: "escalation",
+            type: "admin_notification",
             data: {
               conversationId,
-              ticketId: ticket.id,
-              message: `Ticket created - TAT: ${ticket.tat} hours`,
+              reason,
+              message: "AI paused - Admin attention needed (no agents available)",
             },
           });
           
-          return { success: true, assignedTo: "ticket", ticketId: ticket.id };
+          return { success: true, assignedTo: "admin", reason };
+        } else {
+          // Create ticket (normal escalation when AI not paused)
+          console.log('⚠️ No agents available - creating ticket');
+          
+          const conversation = await storage.getConversation(conversationId);
+          if (conversation) {
+            const ticket = await storage.createTicket({
+              conversationId: conversation.id,
+              title: `Support needed for ${conversation.customerName}`,
+              description: reason,
+              priority: "medium",
+              status: "open",
+              tat: 24, // 24 hours TAT by default
+            });
+            
+            // Update conversation status
+            await storage.updateConversation(conversationId, {
+              status: "ticket",
+            });
+            
+            console.log(`🎫 Ticket created with ID ${ticket.id}, TAT: ${ticket.tat} hours`);
+            
+            // Broadcast ticket creation
+            broadcast({
+              type: "escalation",
+              data: {
+                conversationId,
+                ticketId: ticket.id,
+                message: `Ticket created - TAT: ${ticket.tat} hours`,
+              },
+            });
+            
+            return { success: true, assignedTo: "ticket", ticketId: ticket.id };
+          }
         }
       }
     } catch (error) {
@@ -288,7 +311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Check if AI is paused - if so, skip AI and escalate to agent
         if (aiSettings?.paused) {
           console.log('⏸️ AI is paused - escalating to agent or admin');
-          await handleSmartEscalation(message.conversationId, "AI is paused - routing to human agent");
+          await handleSmartEscalation(message.conversationId, "AI is paused - routing to human agent", true);
         } else if (aiSettings?.enabled) {
           try {
             const aiResponse = await generateAIResponse(message.content, {
