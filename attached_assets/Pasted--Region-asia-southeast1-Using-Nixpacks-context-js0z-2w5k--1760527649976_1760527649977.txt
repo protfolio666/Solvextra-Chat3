@@ -1,0 +1,111 @@
+[Region: asia-southeast1]
+==============
+Using Nixpacks
+==============
+
+context: js0z-2w5k
+╔══════════════════════ Nixpacks v1.38.0 ══════════════════════╗
+║ setup      │ nodejs_18, npm-9_x, openssl                     ║
+║──────────────────────────────────────────────────────────────║
+║ caddy      │ pkgs: caddy                                     ║
+║            │ cmds: caddy fmt --overwrite /assets/Caddyfile   ║
+║──────────────────────────────────────────────────────────────║
+║ install    │ npm ci                                          ║
+║──────────────────────────────────────────────────────────────║
+║ build      │ npm install && npm run build && npm run db:push ║
+║──────────────────────────────────────────────────────────────║
+║ start      │ npm start                                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+internal
+load build definition from Dockerfile
+0ms
+
+internal
+load metadata for ghcr.io/railwayapp/nixpacks:ubuntu-1745885067
+667ms
+
+internal
+load .dockerignore
+0ms
+
+internal
+load build context
+0ms
+
+stage-0
+COPY .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix cached
+0ms
+
+stage-0
+RUN nix-env -if .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix && nix-collect-garbage -d cached
+0ms
+
+stage-0
+COPY .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix cached
+0ms
+
+stage-0
+RUN nix-env -if .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix && nix-collect-garbage -d cached
+0ms
+
+stage-0
+COPY .nixpacks/assets /assets/ cached
+0ms
+
+stage-0
+COPY . /app/.
+33ms
+
+stage-0
+RUN  caddy fmt --overwrite /assets/Caddyfile
+395ms
+
+stage-0
+COPY . /app/.
+60ms
+
+stage-0
+RUN npm ci
+9s
+Run `npm audit` for details.
+
+stage-0
+COPY . /app/.
+180ms
+
+stage-0
+RUN npm install && npm run build && npm run db:push
+36s
+Yes, I want to remove 1 table,
+
+stage-0
+RUN printf '\nPATH=/app/node_modules/.bin:$PATH' >> /root/.profile
+121ms
+
+stage-0
+COPY . /app
+43ms
+
+importing to docker
+22s
+
+auth
+sharing credentials for production-asia-southeast1-eqsg3a.railway-registry.com
+0ms
+=== Successfully Built! ===
+Run:
+docker run -it production-asia-southeast1-eqsg3a.railway-registry.com/93893145-85be-4d18-8688-168363da6632:40184c9a-cbbd-4eac-a5f1-c0c426c80d81
+Build time: 92.66 seconds
+ 
+====================
+Starting Healthcheck
+====================
+Path: /health
+Retry window: 1m40s
+ 
+Attempt #1 failed with service unavailable. Continuing to retry for 1m35s
+Attempt #2 failed with service unavailable. Continuing to retry for 1m24s
+Attempt #3 failed with service unavailable. Continuing to retry for 1m12s
+Attempt #4 failed with service unavailable. Continuing to retry for 1m8s
+Attempt #5 failed with service unavailable. Continuing to retry for 59s
