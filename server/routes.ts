@@ -769,6 +769,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 lastMessageAt: new Date(),
               });
             }
+          } else {
+            // Resolved but no timestamp (old data) - treat as expired, create new
+            console.log('⏰ Resolved conversation without timestamp - creating new conversation');
+            conversation = await storage.createConversation({
+              channel: "telegram",
+              customerName,
+              customerAvatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${customerName}`,
+              channelUserId,
+              status: "open",
+              lastMessageAt: new Date(),
+            });
           }
         } else {
           // No previous conversation - create new
