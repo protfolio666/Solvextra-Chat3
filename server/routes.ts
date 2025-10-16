@@ -403,8 +403,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Fetch knowledge files to include in AI context
             const knowledgeFiles = await storage.getKnowledgeFiles();
             const knowledgeFilesMetadata = knowledgeFiles.map(f => ({
-              filename: f.filename,
-              uploadedAt: f.uploadedAt,
+              name: f.name,
+              createdAt: f.createdAt,
             }));
             
             const aiResponse = await generateAIResponse(message.content, {
@@ -495,7 +495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     await storage.updateAgentConversations(agent.id, 1);
     
-    broadcast({ type: "manual_assignment", data: { conversation: updated, agent } });
+    broadcast({ type: "assignment", data: { conversation: updated, agent } });
     res.json({ conversation: updated, agent });
   });
 
@@ -1154,8 +1154,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Fetch knowledge files to include in AI context
             const knowledgeFiles = await storage.getKnowledgeFiles();
             const knowledgeFilesMetadata = knowledgeFiles.map(f => ({
-              filename: f.filename,
-              uploadedAt: f.uploadedAt,
+              name: f.name,
+              createdAt: f.createdAt,
             }));
             
             const aiResponse = await generateAIResponse(message.text || "", {
@@ -1308,8 +1308,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 // Fetch knowledge files to include in AI context
                 const knowledgeFiles = await storage.getKnowledgeFiles();
                 const knowledgeFilesMetadata = knowledgeFiles.map(f => ({
-                  filename: f.filename,
-                  uploadedAt: f.uploadedAt,
+                  name: f.name,
+                  createdAt: f.createdAt,
                 }));
                 
                 const aiResponse = await generateAIResponse(message.text || "", {

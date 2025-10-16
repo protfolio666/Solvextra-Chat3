@@ -12,7 +12,7 @@ interface AIProviderConfig {
   knowledgeBase?: string;
   systemPrompt?: string;
   model?: string;
-  knowledgeFiles?: Array<{ filename: string; uploadedAt: Date }>;
+  knowledgeFiles?: Array<{ name: string; createdAt: Date }>;
 }
 
 // OpenAI Provider
@@ -43,7 +43,7 @@ async function generateOpenAIResponse(
   
   if (config.knowledgeFiles && config.knowledgeFiles.length > 0) {
     const filesList = config.knowledgeFiles
-      .map(f => `- ${f.filename}`)
+      .map(f => `- ${f.name}`)
       .join('\n');
     knowledgeContext += `\n\nAvailable Knowledge Base Files:\n${filesList}\n\nNote: Reference these files when answering customer questions. The knowledge base text above contains key information extracted from these files.`;
   }
@@ -83,7 +83,7 @@ async function generateGeminiResponse(
   
   if (config.knowledgeFiles && config.knowledgeFiles.length > 0) {
     const filesList = config.knowledgeFiles
-      .map(f => `- ${f.filename}`)
+      .map(f => `- ${f.name}`)
       .join('\n');
     knowledgeContext += `\n\nAvailable Knowledge Base Files:\n${filesList}\n\nNote: Reference these files when answering customer questions. The knowledge base text above contains key information extracted from these files.`;
   }
@@ -113,7 +113,7 @@ async function generateOpenRouterResponse(
   
   if (config.knowledgeFiles && config.knowledgeFiles.length > 0) {
     const filesList = config.knowledgeFiles
-      .map(f => `- ${f.filename}`)
+      .map(f => `- ${f.name}`)
       .join('\n');
     knowledgeContext += `\n\nAvailable Knowledge Base Files:\n${filesList}\n\nNote: Reference these files when answering customer questions. The knowledge base text above contains key information extracted from these files.`;
   }
