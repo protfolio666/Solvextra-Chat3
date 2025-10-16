@@ -43,9 +43,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Store active WebSocket connections
   const clients = new Map<string, WebSocket>();
 
+  // Ping interval to keep connections alive
+  const pingInterval = setInterval(() => {
+    clients.forEach((ws, clientId) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.ping();
+      } else {
+        clients.delete(clientId);
+      }
+    });
+  }, 30000); // Ping every 30 seconds
+
   wss.on('connection', (ws: WebSocket) => {
     const clientId = Math.random().toString(36).substring(7);
     clients.set(clientId, ws);
+
+    // Handle pong responses
+    ws.on('pong', () => {
+      // Connection is alive
+    });
 
     ws.on('message', async (data: string) => {
       try {
