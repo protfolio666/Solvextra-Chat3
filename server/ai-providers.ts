@@ -17,12 +17,23 @@ interface AIProviderConfig {
 
 // OpenAI Provider
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let openai: OpenAI | null = null;
+
+function getOpenAIClient(): OpenAI {
+  if (!openai && process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  if (!openai) {
+    throw new Error("OpenAI API key is not configured. Please set OPENAI_API_KEY in your environment variables.");
+  }
+  return openai;
+}
 
 async function generateOpenAIResponse(
   message: string,
   config: AIProviderConfig
 ): Promise<string> {
+  const client = getOpenAIClient();
   const systemMessage = config.systemPrompt || "You are a helpful customer support assistant.";
   
   let knowledgeContext = "";
@@ -37,7 +48,7 @@ async function generateOpenAIResponse(
     knowledgeContext += `\n\nAvailable Knowledge Base Files:\n${filesList}\n\nNote: Reference these files when answering customer questions. The knowledge base text above contains key information extracted from these files.`;
   }
 
-  const response = await openai.chat.completions.create({
+  const response = await client.chat.completions.create({
     model: "gpt-5",
     messages: [
       {
