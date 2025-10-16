@@ -296,7 +296,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const message = await storage.createMessage(result.data);
     console.log(`💬 Message created - sender: ${message.sender}, content: ${message.content}, conversationId: ${message.conversationId}`);
-    broadcast({ type: "message", data: { message } });
+    
+    // Broadcast immediately for real-time updates
+    const wsMessage = { type: "message" as const, data: { message } };
+    broadcast(wsMessage);
+    console.log(`📡 Broadcasted message to ${clients.size} WebSocket clients`);
 
     // If message is from agent, mark conversation as assigned (agent has taken over)
     if (message.sender === "agent") {
@@ -418,7 +422,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               content: aiResponse.content,
             });
 
-            broadcast({ type: "message", data: { message: aiMessage } });
+            const aiWsMessage = { type: "message" as const, data: { message: aiMessage } };
+            broadcast(aiWsMessage);
+            console.log(`📡 Broadcasted AI message to ${clients.size} WebSocket clients`);
             
             // Send AI response to Telegram customer
             if (conversation.channel === "telegram" && conversation.channelUserId) {
@@ -1130,15 +1136,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         console.log('Message saved:', savedMessage.id);
         
-        // Broadcast via WebSocket
+        // Broadcast via WebSocket for instant updates
         broadcast({
           type: "message",
           data: {
-            conversationId: conversation.id,
-            sender: "customer",
-            content: message.text,
+            message: savedMessage,
           },
         });
+        console.log(`📡 Broadcasted Telegram message to ${clients.size} WebSocket clients`);
         
         // Auto-respond with AI (if enabled and conversation not already assigned to agent)
         const aiSettings = await storage.getAISettings();
@@ -1163,7 +1168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             if (aiResponse?.content) {
               // Save AI response
-              await storage.createMessage({
+              const aiMessage = await storage.createMessage({
                 conversationId: conversation.id,
                 sender: "ai",
                 senderName: "AI Assistant",
@@ -1185,15 +1190,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 console.log('✅ AI response sent to Telegram');
               }
               
-              // Broadcast AI response via WebSocket
+              // Broadcast AI response via WebSocket for instant updates
               broadcast({
                 type: "message",
                 data: {
-                  conversationId: conversation.id,
-                  sender: "ai",
-                  content: aiResponse.content,
+                  message: aiMessage,
                 },
               });
+              console.log(`📡 Broadcasted Telegram AI message to ${clients.size} WebSocket clients`);
               
               // Check if AI response indicates need for human assistance or customer wants agent
               const needsEscalation = /(?:human agent|speak to someone|talk to human|connect to agent|connect you|let me connect|transfer you|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
