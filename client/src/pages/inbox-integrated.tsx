@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Conversation, Message, Agent, User } from "@shared/schema";
 import { ConversationCard } from "@/components/conversation-card";
@@ -35,6 +35,7 @@ export default function Inbox() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState<string>("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { send } = useWebSocket();
   const { toast } = useToast();
 
@@ -133,6 +134,13 @@ export default function Inbox() {
   const needsEscalation = activeConversation?.status === "open";
   const isAssigned = activeConversation?.status === "assigned";
   const isResolved = activeConversation?.status === "resolved";
+
+  // Scroll to bottom when messages load or new messages arrive
+  useEffect(() => {
+    if (messagesEndRef.current && messages.length > 0) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, selectedConversation]);
 
   const filteredConversations = conversations.filter(c =>
     c.customerName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -335,13 +343,16 @@ export default function Inbox() {
                     <p className="text-sm">Start a conversation</p>
                   </div>
                 ) : (
-                  messages.map((message) => (
-                    <MessageBubble
-                      key={message.id}
-                      message={message}
-                      agentAvatar={assignedAgent?.avatar || undefined}
-                    />
-                  ))
+                  <>
+                    {messages.map((message) => (
+                      <MessageBubble
+                        key={message.id}
+                        message={message}
+                        agentAvatar={assignedAgent?.avatar || undefined}
+                      />
+                    ))}
+                    <div ref={messagesEndRef} />
+                  </>
                 )}
               </div>
             </ScrollArea>
