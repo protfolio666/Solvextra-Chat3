@@ -28,6 +28,9 @@ The platform features a multi-provider AI architecture supporting OpenAI, Google
 
 - **Authentication & Authorization**: Role-Based Access Control (Admin/Agent) with protected routes and server-side authorization using Passport.js.
 - **Channel Integration**: Supports Web Chat Widget, WhatsApp, Telegram, Instagram, and Twitter with platform-specific authentication and auto-webhook registration.
+- **30-Second Auto-Assignment**: When AI escalates a conversation, it enters "pending_acceptance" status with a 30-second window. All available agents can see and accept the chat (first-accept-first-serve). After 30 seconds, the chat is hidden from agents but remains visible to admin for manual assignment. Includes sound notifications (doorbell for new chats, beep for messages).
+- **Smart Chat Transfer**: When admin transfers a chat to another agent, the previous agent loses visibility. Agents only see: (1) open chats handled by AI, (2) pending acceptance chats within 30 seconds, (3) chats specifically assigned to them. Admin sees all chats.
+- **AI Conversation Memory**: AI maintains context of the last 5 messages in each conversation for all providers (OpenAI, Gemini, OpenRouter), enabling coherent multi-turn dialogues.
 - **Ticket Management**: Features unique ticket numbers, issue details, internal notes, priority, TAT, and status management (create, edit, re-open, filter).
 - **Knowledge Base**: Allows file uploads (documents, PDFs, images) with management UI, storing files as data URLs.
 - **Email Notifications**: Integrates with SendGrid for configurable email notifications on ticket creation, resolution, and CSAT survey distribution.
