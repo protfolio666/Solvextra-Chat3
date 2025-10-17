@@ -413,17 +413,17 @@ export default function Inbox() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          data-testid="button-manual-assign"
+                          data-testid={isAssigned ? "button-transfer" : "button-manual-assign"}
                         >
                           <UserPlus className="w-4 h-4 mr-2" />
-                          Assign Agent
+                          {isAssigned ? "Transfer" : "Assign Agent"}
                         </Button>
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
-                          <DialogTitle>Assign to Agent</DialogTitle>
+                          <DialogTitle>{isAssigned ? "Transfer to Agent" : "Assign to Agent"}</DialogTitle>
                           <DialogDescription>
-                            Manually assign this conversation to a specific agent
+                            {isAssigned ? "Transfer this conversation to another agent" : "Manually assign this conversation to a specific agent"}
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
@@ -456,9 +456,12 @@ export default function Inbox() {
                             onClick={handleManualAssign}
                             disabled={!selectedAgentId || manualAssignMutation.isPending}
                             className="w-full"
-                            data-testid="button-confirm-assign"
+                            data-testid={isAssigned ? "button-confirm-transfer" : "button-confirm-assign"}
                           >
-                            {manualAssignMutation.isPending ? "Assigning..." : "Assign"}
+                            {manualAssignMutation.isPending 
+                              ? (isAssigned ? "Transferring..." : "Assigning...") 
+                              : (isAssigned ? "Transfer" : "Assign")
+                            }
                           </Button>
                         </div>
                       </DialogContent>
