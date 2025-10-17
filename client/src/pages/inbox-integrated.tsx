@@ -114,6 +114,7 @@ export default function Inbox() {
     },
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations", selectedConversation, "agent"] });
       setShowAssignDialog(false);
       setSelectedAgentId("");
       toast({
@@ -142,13 +143,28 @@ export default function Inbox() {
     }
   }, [messages, selectedConversation]);
 
-  const filteredConversations = conversations.filter(c =>
-    c.customerName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter conversations: hide resolved chats from agents (show only to admin)
+  const filteredConversations = conversations.filter(c => {
+    const matchesSearch = c.customerName.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Agents cannot see resolved chats (only admin can)
+    if (!isAdmin && c.status === "resolved") {
+      return false;
+    }
+    
+    return matchesSearch;
+  });
 
   const handleSendMessage = (content: string) => {
-    if (selectedConversation) {
+    // Prevent agents from messaging resolved chats
+    if (selectedConversation && !isResolved) {
       sendMessageMutation.mutate({ conversationId: selectedConversation, content });
+    } else if (isResolved) {
+      toast({
+        title: "Cannot Send Message",
+        description: "This conversation has been resolved and cannot be modified.",
+        variant: "destructive",
+      });
     }
   };
 

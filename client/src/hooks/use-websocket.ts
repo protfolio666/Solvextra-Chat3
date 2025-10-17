@@ -51,6 +51,12 @@ export function useWebSocket() {
               case "assignment":
                 queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
                 queryClient.invalidateQueries({ queryKey: ["/api/agents"] });
+                // Invalidate agent query for the specific conversation
+                if (message.data.conversationId) {
+                  queryClient.invalidateQueries({ 
+                    queryKey: ["/api/conversations", message.data.conversationId, "agent"] 
+                  });
+                }
                 break;
             }
           } catch (error) {
