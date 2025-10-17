@@ -10,6 +10,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
 
+### Latest Updates (5:20 PM)
+1. **Unique Chat IDs Added**: Each conversation now has a unique sequential chat ID (chatId field) for admin visibility and reporting purposes. Sequential numbers like #001, #002, etc.
+2. **Animation Delays Removed**: Messages now appear instantly without fade-in animations. Changed scroll behavior from "smooth" to "auto" for immediate message display.
+3. **Website Widget Typing Indicators Fixed**: 
+   - Widget now sends typing events when customer types
+   - Widget listens for and displays agent/AI typing indicators
+   - Bidirectional typing indicators fully functional
+4. **Sound Notifications Verified**: Doorbell and message beep sounds confirmed working (no changes needed).
+
 ### Latest Fixes (5:00 PM)
 1. **Agent Monitoring Features Fixed**:
    - "View Details" button now works - shows agent's conversations with metrics
