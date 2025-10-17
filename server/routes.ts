@@ -579,45 +579,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ conversation: updated, agent });
   });
 
-  // Escalation
+  // Escalation - Use smart escalation with 30-second pending_acceptance window
   app.post("/api/conversations/:id/escalate", async (req, res) => {
     const conversation = await storage.getConversation(req.params.id);
     if (!conversation) {
       return res.status(404).json({ error: "Conversation not found" });
     }
 
-    // Find available agent
-    const agent = await storage.getAvailableAgent();
-
-    if (agent) {
-      // Assign to agent
-      const updated = await storage.updateConversation(conversation.id, {
-        status: "assigned",
-        assignedAgentId: agent.id,
-      });
-
-      await storage.updateAgentConversations(agent.id, 1);
-      
-      broadcast({ type: "escalation", data: { conversation: updated, agent } });
-      res.json({ conversation: updated, agent });
-    } else {
-      // No agents available - create ticket
-      const ticket = await storage.createTicket({
-        conversationId: conversation.id,
-        title: `Support needed for ${conversation.customerName}`,
-        description: "Customer needs assistance. No agents currently available.",
-        priority: "medium",
-        status: "open",
-        tat: 60,
-      });
-
-      const updated = await storage.updateConversation(conversation.id, {
-        status: "ticket",
-      });
-
-      broadcast({ type: "escalation", data: { conversation: updated, ticket } });
-      res.json({ conversation: updated, ticket });
-    }
+    // Use smart escalation which handles pending_acceptance with 30-second window
+    const result = await handleSmartEscalation(conversation.id, "Manually escalated");
+    
+    const updatedConversation = await storage.getConversation(conversation.id);
+    
+    res.json({ 
+      conversation: updatedConversation,
+      result
+    });
   });
 
   // Agents

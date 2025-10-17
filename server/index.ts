@@ -36,6 +36,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// Force no-cache for JavaScript and CSS to ensure updates are immediately visible
+app.use((req, res, next) => {
+  if (req.path.endsWith('.js') || req.path.endsWith('.css') || req.path.endsWith('.jsx') || req.path.endsWith('.ts') || req.path.endsWith('.tsx')) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+  next();
+});
+
 (async () => {
   const server = await registerRoutes(app);
 
