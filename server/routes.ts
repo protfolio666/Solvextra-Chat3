@@ -95,13 +95,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
-  // Helper function to fetch last 5 messages for AI conversation history
+  // Helper function to fetch conversation history for AI memory (last 10 messages)
   async function getConversationHistory(conversationId: string) {
     const messages = await storage.getMessages(conversationId);
-    // Get last 5 messages, excluding AI messages for cleaner context
+    // Get last 10 messages for better memory and context
     const recentMessages = messages
-      .filter((m: Message) => m.sender !== "ai") // Only customer and agent messages
-      .slice(-5)
+      .slice(-10) // Keep all messages (customer, AI, agent) for full context
       .map((m: Message) => ({
         sender: m.sender,
         content: m.content,

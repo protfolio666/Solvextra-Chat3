@@ -10,15 +10,25 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
 
-### Latest Updates (6:00 PM)
-1. **🤖 AI Auto-Close with CSAT**: When customer expresses satisfaction (e.g., "thanks, you can close this", "problem solved"), AI automatically closes the chat and sends CSAT survey
-2. **⏰ Inactivity Auto-Close System**: 
+### Latest Updates (6:05 PM)
+1. **🧠 Smart AI with Memory (Like n8n AI Agent)**:
+   - AI now intelligently uses knowledge base and system prompts across all models (OpenAI, Gemini, OpenRouter)
+   - **Conversation Memory:** AI remembers all information shared in the conversation (last 10 messages)
+   - **Never Repeats Questions:** If customer shares email, phone, name, order number, etc., AI remembers and never asks again
+   - **Context-Aware Responses:** AI references previously shared information (e.g., "Based on the email you shared earlier...")
+   - **Intelligent Knowledge Base Search:** AI cross-references knowledge base intelligently, provides specific solutions
+   - **Professional Guidance:** Clear escalation rules, accurate responses, acknowledges limitations honestly
+
+2. **🤖 AI Auto-Close with CSAT**: When customer expresses satisfaction (e.g., "thanks, you can close this", "problem solved"), AI automatically closes the chat and sends CSAT survey
+
+3. **⏰ Inactivity Auto-Close System**: 
    - Monitors customer inactivity in AI-handled conversations
    - After 10 minutes of no response, AI sends "Are we on chat?" message
    - Repeats 3 times with 30-second intervals
    - If still no response, AI closes chat with message: "As per no response in chat I am closing the case. If you face any other issue please connect again"
    - Closes without CSAT (inactivity closure)
-3. **Enhanced AI Intent Detection**: AI now detects customer satisfaction and escalation needs using intelligent prompt analysis
+
+4. **Enhanced AI Intent Detection**: AI detects customer satisfaction and escalation needs using intelligent prompt analysis
 
 ### Previous Updates (5:50 PM)
 1. **✨ Close Button for Resolved Chats Added**: 
