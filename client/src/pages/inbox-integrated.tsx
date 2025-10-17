@@ -326,7 +326,11 @@ export default function Inbox() {
     }
   };
 
-  const availableAgents = allAgents.filter(a => a.status === "available");
+  // When transferring (chat already assigned), exclude the currently assigned agent
+  const availableAgents = allAgents.filter(a => 
+    a.status === "available" && 
+    (!isAssigned || a.id !== activeConversation?.assignedAgentId)
+  );
 
   return (
     <div className="flex h-full">
