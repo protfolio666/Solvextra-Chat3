@@ -10,7 +10,19 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
 
-### Latest Updates (6:05 PM)
+### Latest Updates (6:25 PM)
+1. **🔧 CRITICAL FIX - AI Auto-Close Now Working**: Fixed issue where AI wasn't closing chats even when sending `[CLOSE_WITH_CSAT]` marker:
+   - AI provider was detecting close intent and returning `shouldCloseWithCSAT` flag
+   - **Problem**: Routes weren't checking the flag - only looking for text keywords
+   - **Solution**: Updated both Telegram and Website webhook handlers to properly use `shouldCloseWithCSAT` flag
+   - Now when AI detects customer satisfaction, it:
+     1. Updates conversation status to "resolved"
+     2. Creates CSAT rating placeholder
+     3. Sends CSAT survey to customer (emoji version: ⭐-⭐⭐⭐⭐⭐)
+     4. Broadcasts status update to all clients
+   - Works for all channels: Telegram, WhatsApp, Website, Instagram, Twitter
+
+### Previous Updates (6:05 PM)
 1. **🧠 Smart AI with Memory (Like n8n AI Agent)**:
    - AI now intelligently uses knowledge base and system prompts across all models (OpenAI, Gemini, OpenRouter)
    - **Conversation Memory:** AI remembers all information shared in the conversation (last 10 messages)

@@ -476,12 +476,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Check if customer is satisfied and wants to close the chat
             if (aiResponse.shouldCloseWithCSAT) {
               console.log('✅ AI detected customer satisfaction - auto-closing with CSAT');
+              
+              // Mark conversation as resolved
+              await storage.updateConversation(message.conversationId, {
+                status: "resolved",
+              });
+              
+              // Create CSAT rating placeholder (will be filled when customer responds)
+              const csatId = await storage.createCsatRating({
+                conversationId: message.conversationId,
+                rating: 0, // Placeholder - will be updated when customer provides rating
+              });
+              
               // Send CSAT survey
               const csatMessage = await storage.createMessage({
                 conversationId: message.conversationId,
                 sender: "ai",
                 senderName: "Support Team",
-                content: `Thank you for contacting us!\n\nYour issue has been resolved. We'd love to hear your feedback!\n\nPlease rate your experience:\n1 - Poor\n2 - Fair\n3 - Good\n4 - Very Good\n5 - Excellent\n\nReply with a number (1-5) to rate your experience.`,
+                content: `Thank you for contacting us! 🌟\n\nPlease rate your experience:\n\n⭐ - Poor\n⭐⭐ - Fair\n⭐⭐⭐ - Good\n⭐⭐⭐⭐ - Very Good\n⭐⭐⭐⭐⭐ - Excellent\n\nReply with a number from 1 to 5.`,
               });
               
               broadcast({ type: "message" as const, data: { message: csatMessage } });
@@ -506,11 +518,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 }
               }
               
-              // Mark conversation as resolved
-              await storage.updateConversation(message.conversationId, {
-                status: "resolved",
-              });
-              
+              // Broadcast conversation update
               broadcast({
                 type: "status_update",
                 data: {
@@ -1466,10 +1474,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
               });
               console.log(`📡 Broadcasted Telegram AI message to ${clients.size} WebSocket clients`);
               
-              // Check if AI response indicates need for human assistance or customer wants agent
-              const needsEscalation = /(?:human agent|speak to someone|talk to human|connect to agent|connect you|let me connect|transfer you|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
-              
-              if (needsEscalation) {
+              // Check if AI wants to close chat with CSAT
+              if (aiResponse.shouldCloseWithCSAT) {
+                console.log('✅ AI detected customer satisfaction - closing with CSAT');
+                
+                // Update conversation to resolved
+                await storage.updateConversation(conversation.id, {
+                  status: "resolved",
+                });
+                
+                // Create CSAT rating placeholder (will be filled when customer responds)
+                const csatId = await storage.createCsatRating({
+                  conversationId: conversation.id,
+                  rating: 0, // Placeholder - will be updated when customer provides rating
+                });
+                
+                // Send CSAT survey to Telegram
+                const telegramIntegration = await storage.getChannelIntegration("telegram");
+                if (telegramIntegration?.apiToken) {
+                  const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+                  await fetch(sendMessageUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      chat_id: message.chat.id,
+                      text: `Thank you for contacting us! 🌟\n\nPlease rate your experience:\n\n⭐ - Poor\n⭐⭐ - Fair\n⭐⭐⭐ - Good\n⭐⭐⭐⭐ - Very Good\n⭐⭐⭐⭐⭐ - Excellent\n\nReply with a number from 1 to 5.`,
+                    }),
+                  });
+                  console.log('📊 CSAT survey sent to Telegram');
+                }
+                
+                // Broadcast conversation update
+                broadcast({
+                  type: "status_update",
+                  data: {
+                    conversationId: conversation.id,
+                  },
+                });
+              }
+              // Check if AI response indicates need for human assistance
+              else if (aiResponse.shouldEscalate) {
                 console.log('🔔 AI detected need for human assistance or customer requested agent');
                 await handleSmartEscalation(conversation.id, "AI detected customer needs human assistance");
               }
