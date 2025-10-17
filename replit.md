@@ -19,12 +19,20 @@ Preferred communication style: Simple, everyday language.
    - Agents can create tickets directly from conversations
    - Both buttons hidden for resolved chats (prevents duplicate actions)
 
-2. **✨ Raise Ticket Functionality Implemented**:
-   - Agents/Admins can raise a ticket from any conversation via dialog form
+2. **✨ Raise Ticket Functionality Implemented** (Full-Featured Form):
+   - Agents/Admins can raise a ticket from any conversation via comprehensive dialog form
    - Ticket creation automatically closes the chat WITHOUT sending CSAT
-   - Ticket form includes: Title, Description, and Priority selection
+   - Full ticket form includes:
+     - **Title** (required)
+     - **Description** (required)
+     - **Issue Details** (optional - for customer email)
+     - **Internal Notes** (optional - for agents only)
+     - **Customer Email** (auto-filled from conversation)
+     - **Priority** (Low/Medium/High)
+     - **TAT** (Turn Around Time in minutes)
+   - Conversation ID auto-populated from current chat
    - Email notification sent to customer when ticket is created
-   - "Close without CSAT" is specifically for ticket-related conversation closures
+   - "Close without CSAT" is specifically for admin ticket-related closures
 
 ### Previous Updates (5:35 PM)
 1. **🔧 Critical Fix - Accepted Chats Now Show Immediately**: Fixed issue where agents couldn't see accepted chats until page refresh:

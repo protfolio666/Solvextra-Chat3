@@ -37,11 +37,33 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { insertTicketSchema } from "@shared/schema";
+
+const createTicketSchema = insertTicketSchema.extend({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  issue: z.string().optional(),
+  notes: z.string().optional(),
+  customerEmail: z.string().optional(),
+});
+
+type CreateTicketForm = z.infer<typeof createTicketSchema>;
 
 export default function Inbox() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
@@ -49,9 +71,6 @@ export default function Inbox() {
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState<string>("");
   const [showTicketDialog, setShowTicketDialog] = useState(false);
-  const [ticketTitle, setTicketTitle] = useState("");
-  const [ticketDescription, setTicketDescription] = useState("");
-  const [ticketPriority, setTicketPriority] = useState<"low" | "medium" | "high">("medium");
   const [typingUsers, setTypingUsers] = useState<Map<string, { sender: string; senderName: string }>>(new Map());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -258,27 +277,30 @@ export default function Inbox() {
     },
   });
 
+  const ticketForm = useForm<CreateTicketForm>({
+    resolver: zodResolver(createTicketSchema),
+    defaultValues: {
+      conversationId: "",
+      title: "",
+      description: "",
+      issue: "",
+      notes: "",
+      customerEmail: "",
+      priority: "medium",
+      status: "open",
+      tat: 60,
+    },
+  });
+
   const raiseTicketMutation = useMutation({
-    mutationFn: async ({ conversationId, title, description, priority }: { 
-      conversationId: string; 
-      title: string; 
-      description: string;
-      priority: string;
-    }) => {
-      return apiRequest("POST", "/api/tickets/from-conversation", {
-        conversationId,
-        title,
-        description,
-        priority,
-      });
+    mutationFn: async (data: CreateTicketForm) => {
+      return apiRequest("POST", "/api/tickets/from-conversation", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/tickets"] });
       setShowTicketDialog(false);
-      setTicketTitle("");
-      setTicketDescription("");
-      setTicketPriority("medium");
+      ticketForm.reset();
       toast({
         title: "Ticket Created",
         description: "Ticket has been created and chat closed without CSAT",
@@ -410,15 +432,8 @@ export default function Inbox() {
     }
   };
 
-  const handleRaiseTicket = () => {
-    if (selectedConversation && ticketTitle && ticketDescription) {
-      raiseTicketMutation.mutate({
-        conversationId: selectedConversation,
-        title: ticketTitle,
-        description: ticketDescription,
-        priority: ticketPriority,
-      });
-    }
+  const onTicketSubmit = (data: CreateTicketForm) => {
+    raiseTicketMutation.mutate(data);
   };
 
   const handleTyping = (isTyping: boolean) => {
@@ -592,7 +607,16 @@ export default function Inbox() {
 
                   {/* Agents & Admin: Raise Ticket button (not for resolved chats) */}
                   {!isResolved && (
-                    <Dialog open={showTicketDialog} onOpenChange={setShowTicketDialog}>
+                    <Dialog open={showTicketDialog} onOpenChange={(open) => {
+                      setShowTicketDialog(open);
+                      if (open && selectedConversation) {
+                        // Pre-fill form when opening
+                        ticketForm.setValue('conversationId', selectedConversation);
+                        if (activeConversation?.customerEmail) {
+                          ticketForm.setValue('customerEmail', activeConversation.customerEmail);
+                        }
+                      }
+                    }}>
                       <DialogTrigger asChild>
                         <Button 
                           variant="outline" 
@@ -603,56 +627,155 @@ export default function Inbox() {
                           Raise Ticket
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent className="max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>Raise Ticket</DialogTitle>
                           <DialogDescription>
-                            Create a ticket from this conversation. The chat will be closed without CSAT.
+                            Create a support ticket from this conversation. The chat will be closed without CSAT.
                           </DialogDescription>
                         </DialogHeader>
-                        <div className="space-y-4 py-4">
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">Ticket Title</label>
-                            <Input
-                              value={ticketTitle}
-                              onChange={(e) => setTicketTitle(e.target.value)}
-                              placeholder="Brief description of the issue"
-                              data-testid="input-ticket-title"
+                        <Form {...ticketForm}>
+                          <form onSubmit={ticketForm.handleSubmit(onTicketSubmit)} className="space-y-4">
+                            <FormField
+                              control={ticketForm.control}
+                              name="title"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Title</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Ticket title" {...field} data-testid="input-ticket-title" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
                             />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">Issue Details</label>
-                            <Textarea
-                              value={ticketDescription}
-                              onChange={(e) => setTicketDescription(e.target.value)}
-                              placeholder="Detailed description of the issue"
-                              rows={4}
-                              data-testid="textarea-ticket-description"
+
+                            <FormField
+                              control={ticketForm.control}
+                              name="description"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Description</FormLabel>
+                                  <FormControl>
+                                    <Textarea
+                                      placeholder="Describe the issue..."
+                                      {...field}
+                                      data-testid="textarea-ticket-description"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
                             />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">Priority</label>
-                            <Select value={ticketPriority} onValueChange={setTicketPriority}>
-                              <SelectTrigger data-testid="select-ticket-priority">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="low">Low</SelectItem>
-                                <SelectItem value="medium">Medium</SelectItem>
-                                <SelectItem value="high">High</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button
-                            onClick={handleRaiseTicket}
-                            disabled={!ticketTitle || !ticketDescription || raiseTicketMutation.isPending}
-                            data-testid="button-confirm-raise-ticket"
-                          >
-                            {raiseTicketMutation.isPending ? "Creating..." : "Create Ticket & Close Chat"}
-                          </Button>
-                        </DialogFooter>
+
+                            <FormField
+                              control={ticketForm.control}
+                              name="issue"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Issue Details (Optional)</FormLabel>
+                                  <FormControl>
+                                    <Textarea
+                                      placeholder="Detailed issue description for customer email..."
+                                      {...field}
+                                      data-testid="textarea-ticket-issue"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={ticketForm.control}
+                              name="notes"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Internal Notes (Optional)</FormLabel>
+                                  <FormControl>
+                                    <Textarea
+                                      placeholder="Internal notes for agents..."
+                                      {...field}
+                                      data-testid="textarea-ticket-notes"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={ticketForm.control}
+                              name="customerEmail"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Customer Email</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      placeholder="Enter customer email" 
+                                      {...field} 
+                                      data-testid="input-customer-email"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={ticketForm.control}
+                              name="priority"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Priority</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger data-testid="select-priority">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="low">Low</SelectItem>
+                                      <SelectItem value="medium">Medium</SelectItem>
+                                      <SelectItem value="high">High</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={ticketForm.control}
+                              name="tat"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>TAT (Turn Around Time in minutes)</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      placeholder="60"
+                                      {...field}
+                                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                      data-testid="input-tat"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <DialogFooter>
+                              <Button
+                                type="submit"
+                                disabled={raiseTicketMutation.isPending}
+                                data-testid="button-submit-ticket"
+                              >
+                                {raiseTicketMutation.isPending ? "Creating..." : "Create Ticket & Close Chat"}
+                              </Button>
+                            </DialogFooter>
+                          </form>
+                        </Form>
                       </DialogContent>
                     </Dialog>
                   )}
