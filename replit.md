@@ -10,7 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
 
-### Latest Updates (5:40 PM)
+### Latest Updates (5:50 PM)
+1. **✨ Close Button for Resolved Chats Added**: 
+   - Added X (close) button in chat header for resolved conversations
+   - Allows agents/admins to dismiss and close resolved chat views
+   - Button appears only for resolved chats
+   - Clicking closes the conversation view and returns to conversation list
+
+### Previous Updates (5:40 PM)
 1. **🔧 Critical Fix - Agent Action Buttons Now Visible**: Fixed missing action buttons for agents:
    - **"Resolve Chat" button** now visible to both agents and admins (was admin-only)
    - **"Raise Ticket" button** added for both agents and admins

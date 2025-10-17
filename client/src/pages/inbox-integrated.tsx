@@ -12,7 +12,7 @@ import { TypingIndicator } from "@/components/typing-indicator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Bell, Search, Filter, MessageSquarePlus, UserPlus, CheckCircle, XCircle } from "lucide-react";
+import { Bell, Search, Filter, MessageSquarePlus, UserPlus, CheckCircle, XCircle, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -543,6 +543,19 @@ export default function Inbox() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
+                  {/* Close button for resolved chats */}
+                  {isResolved && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setSelectedConversation(null)}
+                      data-testid="button-close-chat"
+                      className="hover-scale"
+                    >
+                      <X className="w-5 h-5" />
+                    </Button>
+                  )}
+                  
                   {/* Admin-only: Transfer/Assign button */}
                   {isAdmin && !isResolved && (
                     <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
