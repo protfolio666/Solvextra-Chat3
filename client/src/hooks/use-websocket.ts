@@ -4,7 +4,7 @@ import { queryClient } from "@/lib/queryClient";
 
 interface WebSocketCallbacks {
   onNewChat?: () => void;
-  onMessage?: () => void;
+  onMessage?: (data: any) => void;
   onChatAccepted?: (data: any) => void;
   onTyping?: (data: any) => void;
 }
@@ -50,7 +50,7 @@ export function useWebSocket(callbacks?: WebSocketCallbacks) {
                     queryKey: ["/api/conversations", message.data.message.conversationId, "messages"] 
                   });
                 }
-                callbacksRef.current?.onMessage?.();
+                callbacksRef.current?.onMessage?.(message.data);
                 break;
               case "chat_accepted":
                 queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });

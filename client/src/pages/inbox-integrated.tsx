@@ -201,6 +201,9 @@ export default function Inbox() {
   const isResolved = activeConversation?.status === "resolved";
   const isPendingAcceptance = activeConversation?.status === "pending_acceptance";
 
+  // Tab state for filtering
+  const [selectedTab, setSelectedTab] = useState<string>("all");
+
   // Force re-render every 3 seconds to update pending chat visibility based on 30-second timer
   const [, setNow] = useState(Date.now());
   useEffect(() => {
@@ -222,13 +225,14 @@ export default function Inbox() {
   const filteredConversations = conversations.filter(c => {
     const matchesSearch = c.customerName.toLowerCase().includes(searchQuery.toLowerCase());
     
-    // Admin sees everything (with search filter)
+    // Tab filtering for admin (admin sees all tabs)
     if (isAdmin) {
-      return matchesSearch;
+      const matchesTab = selectedTab === "all" || c.status === selectedTab;
+      return matchesSearch && matchesTab;
     }
     
-    // Agents filtering logic
-    // 1. Cannot see resolved chats
+    // Agents filtering logic - CRITICAL: Agents never see resolved chats
+    // 1. Cannot see resolved chats (enforced before tab filter)
     if (c.status === "resolved") {
       return false;
     }
@@ -237,33 +241,34 @@ export default function Inbox() {
     if (c.status === "pending_acceptance") {
       if (c.escalationTimestamp) {
         const elapsed = Date.now() - new Date(c.escalationTimestamp).getTime();
-        console.log(`[DEBUG] Pending chat ${c.customerName}: elapsed=${elapsed}ms, timestamp=${c.escalationTimestamp}`);
         if (elapsed > 30000) {
-          console.log(`[DEBUG] Hiding chat ${c.customerName} - elapsed ${elapsed}ms > 30000ms`);
           return false; // Hide from agent after 30 seconds
         }
       } else {
-        console.log(`[DEBUG] Pending chat ${c.customerName} has NO escalationTimestamp - hiding`);
         return false; // Hide if no timestamp
       }
-      return matchesSearch; // Show if within 30 seconds
+      // Pending chats show in "all" tab only
+      const matchesTab = selectedTab === "all";
+      return matchesSearch && matchesTab;
     }
     
     // 3. Can see open chats (AI handling)
     if (c.status === "open") {
-      return matchesSearch;
+      const matchesTab = selectedTab === "all" || selectedTab === "open";
+      return matchesSearch && matchesTab;
     }
     
     // 4. Can only see assigned chats if assigned to them
     if (c.status === "assigned") {
       if (currentAgent && c.assignedAgentId === currentAgent.id) {
-        return matchesSearch; // Show if assigned to current agent
+        const matchesTab = selectedTab === "all" || selectedTab === "assigned";
+        return matchesSearch && matchesTab;
       }
       return false; // Hide if assigned to another agent
     }
     
-    // Default: show if matches search
-    return matchesSearch;
+    // Default: hide
+    return false;
   });
 
   const handleSendMessage = (content: string) => {
@@ -334,12 +339,12 @@ export default function Inbox() {
             />
           </div>
 
-          <Tabs defaultValue="all" className="w-full">
+          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
             <TabsList className="w-full grid grid-cols-4 gap-1">
-              <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
-              <TabsTrigger value="open" className="text-xs">Open</TabsTrigger>
-              <TabsTrigger value="assigned" className="text-xs">Assigned</TabsTrigger>
-              <TabsTrigger value="resolved" className="text-xs">Resolved</TabsTrigger>
+              <TabsTrigger value="all" className="text-xs" data-testid="tab-all">All</TabsTrigger>
+              <TabsTrigger value="open" className="text-xs" data-testid="tab-open">Open</TabsTrigger>
+              <TabsTrigger value="assigned" className="text-xs" data-testid="tab-assigned">Assigned</TabsTrigger>
+              {isAdmin && <TabsTrigger value="resolved" className="text-xs" data-testid="tab-resolved">Resolved</TabsTrigger>}
             </TabsList>
           </Tabs>
         </div>
