@@ -14,6 +14,7 @@ export type UserRole = "admin" | "agent";
 // Conversations
 export const conversations = pgTable("conversations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  chatId: serial("chat_id").notNull().unique(), // Unique sequential chat ID (e.g., #001, #002) - admin only
   channel: varchar("channel", { length: 20 }).notNull().$type<Channel>(),
   customerName: text("customer_name").notNull(),
   customerEmail: text("customer_email"),
@@ -29,6 +30,7 @@ export const conversations = pgTable("conversations", {
 
 export const insertConversationSchema = createInsertSchema(conversations).omit({
   id: true,
+  chatId: true,
   createdAt: true,
 });
 

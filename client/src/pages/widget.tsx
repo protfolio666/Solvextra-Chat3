@@ -6,7 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { X, MessageCircle, Send } from "lucide-react";
+import { X, MessageCircle } from "lucide-react";
+import { ChatInput } from "@/components/chat-input";
+import { TypingIndicator } from "@/components/typing-indicator";
+import { useWebSocket } from "@/hooks/use-websocket";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 
@@ -14,13 +17,28 @@ export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [customerName, setCustomerName] = useState("");
-  const [message, setMessage] = useState("");
   const [hasStarted, setHasStarted] = useState(false);
+  const [agentTyping, setAgentTyping] = useState(false);
 
   const { data: messages = [] } = useQuery<Message[]>({
     queryKey: ["/api/conversations", conversationId, "messages"],
     enabled: !!conversationId,
     refetchInterval: 2000,
+  });
+
+  // WebSocket for real-time updates
+  const { send } = useWebSocket({
+    onMessage: (data: any) => {
+      if (data.message?.conversationId === conversationId) {
+        queryClient.invalidateQueries({ queryKey: ["/api/conversations", conversationId, "messages"] });
+      }
+    },
+    onTyping: (data: any) => {
+      const { conversationId: typingConvId, sender, isTyping } = data;
+      if (typingConvId === conversationId && (sender === "agent" || sender === "ai")) {
+        setAgentTyping(isTyping);
+      }
+    },
   });
 
   const createConversationMutation = useMutation({
@@ -48,7 +66,6 @@ export default function ChatWidget() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/conversations", conversationId, "messages"] });
-      setMessage("");
     },
   });
 
@@ -58,9 +75,23 @@ export default function ChatWidget() {
     }
   };
 
-  const handleSend = () => {
-    if (message.trim() && conversationId) {
-      sendMessageMutation.mutate(message);
+  const handleSend = (content: string) => {
+    if (content.trim() && conversationId) {
+      sendMessageMutation.mutate(content);
+    }
+  };
+
+  const handleTyping = (isTyping: boolean) => {
+    if (conversationId && customerName) {
+      send({
+        type: "typing",
+        data: {
+          conversationId,
+          sender: "customer",
+          senderName: customerName,
+          isTyping,
+        },
+      });
     }
   };
 
@@ -163,29 +194,24 @@ export default function ChatWidget() {
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Agent/AI Typing Indicator */}
+                  {agentTyping && (
+                    <TypingIndicator
+                      sender="agent"
+                      senderName="Support Agent"
+                    />
+                  )}
                 </div>
               </ScrollArea>
 
               {/* Input */}
-              <div className="p-4 border-t">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Type your message..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-                    data-testid="input-chat-message"
-                  />
-                  <Button
-                    onClick={handleSend}
-                    disabled={!message.trim() || sendMessageMutation.isPending}
-                    size="icon"
-                    data-testid="button-send-message"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              <ChatInput
+                onSend={handleSend}
+                onTyping={handleTyping}
+                placeholder="Type your message..."
+                disabled={sendMessageMutation.isPending}
+              />
             </>
           )}
         </Card>

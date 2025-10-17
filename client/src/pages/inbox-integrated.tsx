@@ -226,10 +226,10 @@ export default function Inbox() {
     return () => clearInterval(interval);
   }, []);
 
-  // Scroll to bottom when messages load or new messages arrive
+  // Scroll to bottom when messages load or new messages arrive (instant, no animation)
   useEffect(() => {
     if (messagesEndRef.current && messages.length > 0) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current.scrollIntoView({ behavior: "auto" });
     }
   }, [messages, selectedConversation]);
 
@@ -524,7 +524,6 @@ export default function Inbox() {
                     {messages.map((message) => (
                       <div 
                         key={message.id}
-                        className="animate-in fade-in slide-in-from-bottom-2 duration-300"
                       >
                         <MessageBubble
                           message={message}
