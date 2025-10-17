@@ -30,10 +30,12 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,6 +48,10 @@ export default function Inbox() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState<string>("");
+  const [showTicketDialog, setShowTicketDialog] = useState(false);
+  const [ticketTitle, setTicketTitle] = useState("");
+  const [ticketDescription, setTicketDescription] = useState("");
+  const [ticketPriority, setTicketPriority] = useState<"low" | "medium" | "high">("medium");
   const [typingUsers, setTypingUsers] = useState<Map<string, { sender: string; senderName: string }>>(new Map());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -252,6 +258,41 @@ export default function Inbox() {
     },
   });
 
+  const raiseTicketMutation = useMutation({
+    mutationFn: async ({ conversationId, title, description, priority }: { 
+      conversationId: string; 
+      title: string; 
+      description: string;
+      priority: string;
+    }) => {
+      return apiRequest("POST", "/api/tickets/from-conversation", {
+        conversationId,
+        title,
+        description,
+        priority,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tickets"] });
+      setShowTicketDialog(false);
+      setTicketTitle("");
+      setTicketDescription("");
+      setTicketPriority("medium");
+      toast({
+        title: "Ticket Created",
+        description: "Ticket has been created and chat closed without CSAT",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create ticket",
+        variant: "destructive",
+      });
+    },
+  });
+
   const activeConversation = conversations.find(c => c.id === selectedConversation);
   const isAssigned = activeConversation?.status === "assigned";
   const isResolved = activeConversation?.status === "resolved";
@@ -369,6 +410,17 @@ export default function Inbox() {
     }
   };
 
+  const handleRaiseTicket = () => {
+    if (selectedConversation && ticketTitle && ticketDescription) {
+      raiseTicketMutation.mutate({
+        conversationId: selectedConversation,
+        title: ticketTitle,
+        description: ticketDescription,
+        priority: ticketPriority,
+      });
+    }
+  };
+
   const handleTyping = (isTyping: boolean) => {
     if (selectedConversation && currentAgent) {
       send({
@@ -476,19 +528,19 @@ export default function Inbox() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
+                  {/* Admin-only: Transfer/Assign button */}
                   {isAdmin && !isResolved && (
-                    <>
-                      <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            data-testid={isAssigned ? "button-transfer" : "button-manual-assign"}
-                          >
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            {isAssigned ? "Transfer" : "Assign Agent"}
-                          </Button>
-                        </DialogTrigger>
+                    <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+                      <DialogTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          data-testid={isAssigned ? "button-transfer" : "button-manual-assign"}
+                        >
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          {isAssigned ? "Transfer" : "Assign Agent"}
+                        </Button>
+                      </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>{isAssigned ? "Transfer to Agent" : "Assign to Agent"}</DialogTitle>
@@ -536,7 +588,77 @@ export default function Inbox() {
                         </div>
                       </DialogContent>
                     </Dialog>
-                    
+                  )}
+
+                  {/* Agents & Admin: Raise Ticket button (not for resolved chats) */}
+                  {!isResolved && (
+                    <Dialog open={showTicketDialog} onOpenChange={setShowTicketDialog}>
+                      <DialogTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          data-testid="button-raise-ticket"
+                        >
+                          <MessageSquarePlus className="w-4 h-4 mr-2" />
+                          Raise Ticket
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Raise Ticket</DialogTitle>
+                          <DialogDescription>
+                            Create a ticket from this conversation. The chat will be closed without CSAT.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Ticket Title</label>
+                            <Input
+                              value={ticketTitle}
+                              onChange={(e) => setTicketTitle(e.target.value)}
+                              placeholder="Brief description of the issue"
+                              data-testid="input-ticket-title"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Issue Details</label>
+                            <Textarea
+                              value={ticketDescription}
+                              onChange={(e) => setTicketDescription(e.target.value)}
+                              placeholder="Detailed description of the issue"
+                              rows={4}
+                              data-testid="textarea-ticket-description"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Priority</label>
+                            <Select value={ticketPriority} onValueChange={setTicketPriority}>
+                              <SelectTrigger data-testid="select-ticket-priority">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="low">Low</SelectItem>
+                                <SelectItem value="medium">Medium</SelectItem>
+                                <SelectItem value="high">High</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button
+                            onClick={handleRaiseTicket}
+                            disabled={!ticketTitle || !ticketDescription || raiseTicketMutation.isPending}
+                            data-testid="button-confirm-raise-ticket"
+                          >
+                            {raiseTicketMutation.isPending ? "Creating..." : "Create Ticket & Close Chat"}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                  
+                  {/* Agents & Admin: Resolve Chat button (not for resolved chats) */}
+                  {!isResolved && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="default" size="sm" data-testid="button-resolve-menu">
@@ -552,16 +674,18 @@ export default function Inbox() {
                           <CheckCircle className="w-4 h-4 mr-2" />
                           Resolve with CSAT
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => selectedConversation && closeWithoutCsatMutation.mutate(selectedConversation)}
-                          data-testid="menu-item-close-without-csat"
-                        >
-                          <XCircle className="w-4 h-4 mr-2" />
-                          Close without CSAT
-                        </DropdownMenuItem>
+                        {/* Admin-only: Close without CSAT */}
+                        {isAdmin && (
+                          <DropdownMenuItem
+                            onClick={() => selectedConversation && closeWithoutCsatMutation.mutate(selectedConversation)}
+                            data-testid="menu-item-close-without-csat"
+                          >
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Close without CSAT
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
-                    </>
                   )}
                   <Button variant="ghost" size="icon">
                     <Bell className="w-5 h-5" />

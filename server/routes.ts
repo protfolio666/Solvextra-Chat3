@@ -685,6 +685,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(tickets);
   });
 
+  // Create ticket from conversation and close chat without CSAT
+  app.post("/api/tickets/from-conversation", async (req, res) => {
+    const { conversationId, title, description, priority } = req.body;
+    
+    if (!conversationId || !title || !description) {
+      return res.status(400).json({ error: "conversationId, title, and description are required" });
+    }
+
+    // Get conversation details
+    const conversation = await storage.getConversation(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
+    // Create ticket
+    const ticketData = {
+      conversationId,
+      title,
+      description,
+      issue: description,
+      customerEmail: conversation.customerEmail,
+      priority: priority || "medium",
+      status: "open" as const,
+      tat: 60,
+    };
+
+    const ticket = await storage.createTicket(ticketData);
+
+    // Close conversation without CSAT
+    await storage.updateConversation(conversationId, {
+      status: "resolved",
+    });
+
+    // Broadcast status update
+    broadcast({
+      type: "status_update",
+      data: { conversation: { id: conversationId, status: "resolved" } },
+    });
+
+    // Send email notification for ticket creation if enabled
+    if (ticket.customerEmail) {
+      try {
+        const emailSettings = await storage.getEmailSettings();
+        if (emailSettings?.enabled) {
+          const emailHtml = generateTicketCreationEmail(
+            conversation.customerName,
+            ticket.ticketNumber,
+            ticket.title,
+            ticket.issue || ticket.description,
+            ticket.tat
+          );
+
+          await sendEmail({
+            to: ticket.customerEmail,
+            subject: `Support Ticket Created: ${ticket.ticketNumber}`,
+            html: emailHtml,
+            emailSettings,
+          });
+          console.log(`✅ Ticket creation email sent to ${ticket.customerEmail}`);
+        }
+      } catch (error) {
+        console.error("Failed to send ticket creation email:", error);
+      }
+    }
+
+    console.log(`✅ Ticket ${ticket.ticketNumber} created from conversation and chat closed`);
+    res.json({ ticket });
+  });
+
   app.post("/api/tickets", async (req, res) => {
     const result = insertTicketSchema.safeParse(req.body);
     if (!result.success) {

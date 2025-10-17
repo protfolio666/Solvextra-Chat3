@@ -10,7 +10,23 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
 
-### Latest Updates (5:35 PM)
+### Latest Updates (5:40 PM)
+1. **🔧 Critical Fix - Agent Action Buttons Now Visible**: Fixed missing action buttons for agents:
+   - **"Resolve Chat" button** now visible to both agents and admins (was admin-only)
+   - **"Raise Ticket" button** added for both agents and admins
+   - Agents can resolve chats with CSAT (required for agents)
+   - Admins have additional "Close without CSAT" option (admin-only for ticket-related closures)
+   - Agents can create tickets directly from conversations
+   - Both buttons hidden for resolved chats (prevents duplicate actions)
+
+2. **✨ Raise Ticket Functionality Implemented**:
+   - Agents/Admins can raise a ticket from any conversation via dialog form
+   - Ticket creation automatically closes the chat WITHOUT sending CSAT
+   - Ticket form includes: Title, Description, and Priority selection
+   - Email notification sent to customer when ticket is created
+   - "Close without CSAT" is specifically for ticket-related conversation closures
+
+### Previous Updates (5:35 PM)
 1. **🔧 Critical Fix - Accepted Chats Now Show Immediately**: Fixed issue where agents couldn't see accepted chats until page refresh:
    - Created new endpoint `/api/agents/me` for agents to fetch their own information
    - Agents can now properly identify themselves and see their assigned chats in real-time
