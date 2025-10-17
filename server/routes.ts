@@ -603,6 +603,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(agents);
   });
 
+  // Get current agent's info (for agents to identify themselves)
+  app.get("/api/agents/me", async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const agents = await storage.getAgents();
+    const currentAgent = agents.find(a => a.email === req.user?.username);
+    
+    if (!currentAgent) {
+      return res.status(404).json({ error: "Agent not found" });
+    }
+
+    res.json(currentAgent);
+  });
+
   app.get("/api/conversations/:id/agent", async (req, res) => {
     const conversation = await storage.getConversation(req.params.id);
     if (!conversation || !conversation.assignedAgentId) {

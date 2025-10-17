@@ -93,10 +93,19 @@ export default function Inbox() {
 
   const { data: allAgents = [] } = useQuery<Agent[]>({
     queryKey: ["/api/agents"],
+    enabled: isAdmin, // Only admins fetch all agents
   });
 
-  // Get current agent by matching user email to agent email
-  const currentAgent = allAgents.find(a => a.email === user?.username);
+  // Agents fetch their own info from /api/agents/me
+  const { data: myAgent } = useQuery<Agent>({
+    queryKey: ["/api/agents/me"],
+    enabled: !isAdmin && !!user, // Only for non-admin users
+  });
+
+  // Get current agent - admins find from list, agents use /me endpoint
+  const currentAgent = isAdmin 
+    ? allAgents.find(a => a.email === user?.username)
+    : myAgent;
 
   const { data: conversations = [], isLoading: loadingConversations } = useQuery<Conversation[]>({
     queryKey: ["/api/conversations"],
