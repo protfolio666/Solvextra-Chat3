@@ -237,9 +237,14 @@ export default function Inbox() {
     if (c.status === "pending_acceptance") {
       if (c.escalationTimestamp) {
         const elapsed = Date.now() - new Date(c.escalationTimestamp).getTime();
+        console.log(`[DEBUG] Pending chat ${c.customerName}: elapsed=${elapsed}ms, timestamp=${c.escalationTimestamp}`);
         if (elapsed > 30000) {
+          console.log(`[DEBUG] Hiding chat ${c.customerName} - elapsed ${elapsed}ms > 30000ms`);
           return false; // Hide from agent after 30 seconds
         }
+      } else {
+        console.log(`[DEBUG] Pending chat ${c.customerName} has NO escalationTimestamp - hiding`);
+        return false; // Hide if no timestamp
       }
       return matchesSearch; // Show if within 30 seconds
     }
