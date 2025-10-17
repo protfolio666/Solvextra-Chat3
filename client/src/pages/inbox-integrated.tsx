@@ -10,7 +10,7 @@ import { TypingIndicator } from "@/components/typing-indicator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Bell, Search, Filter, MessageSquarePlus, UserPlus } from "lucide-react";
+import { Bell, Search, Filter, MessageSquarePlus, UserPlus, CheckCircle, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -32,6 +32,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Inbox() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
@@ -190,6 +196,46 @@ export default function Inbox() {
       toast({
         title: "Error",
         description: error.message || "Failed to accept chat",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resolveWithCsatMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      return apiRequest("POST", `/api/conversations/${conversationId}/resolve`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      toast({
+        title: "Chat Resolved",
+        description: "Conversation resolved and CSAT request sent to customer",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to resolve conversation",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const closeWithoutCsatMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      return apiRequest("POST", `/api/conversations/${conversationId}/close`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      toast({
+        title: "Chat Closed",
+        description: "Conversation closed without sending CSAT",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to close conversation",
         variant: "destructive",
       });
     },
@@ -411,18 +457,19 @@ export default function Inbox() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {isAdmin && (
-                    <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
-                      <DialogTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          data-testid={isAssigned ? "button-transfer" : "button-manual-assign"}
-                        >
-                          <UserPlus className="w-4 h-4 mr-2" />
-                          {isAssigned ? "Transfer" : "Assign Agent"}
-                        </Button>
-                      </DialogTrigger>
+                  {isAdmin && !isResolved && (
+                    <>
+                      <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            data-testid={isAssigned ? "button-transfer" : "button-manual-assign"}
+                          >
+                            <UserPlus className="w-4 h-4 mr-2" />
+                            {isAssigned ? "Transfer" : "Assign Agent"}
+                          </Button>
+                        </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>{isAssigned ? "Transfer to Agent" : "Assign to Agent"}</DialogTitle>
@@ -470,6 +517,32 @@ export default function Inbox() {
                         </div>
                       </DialogContent>
                     </Dialog>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="default" size="sm" data-testid="button-resolve-menu">
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Resolve Chat
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => selectedConversation && resolveWithCsatMutation.mutate(selectedConversation)}
+                          data-testid="menu-item-resolve-with-csat"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Resolve with CSAT
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => selectedConversation && closeWithoutCsatMutation.mutate(selectedConversation)}
+                          data-testid="menu-item-close-without-csat"
+                        >
+                          <XCircle className="w-4 h-4 mr-2" />
+                          Close without CSAT
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    </>
                   )}
                   <Button variant="ghost" size="icon">
                     <Bell className="w-5 h-5" />

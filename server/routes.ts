@@ -984,17 +984,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ error: "Conversation not found" });
     }
 
-    // Only allow closing tickets without CSAT
-    if (conversation.status !== "ticket") {
-      return res.status(400).json({ error: "Can only close conversations that are tickets. Use resolve endpoint for regular conversations." });
-    }
-
-    // Update conversation status to resolved
+    // Update conversation status to resolved WITHOUT sending CSAT
     const updatedConversation = await storage.updateConversation(req.params.id, {
       status: "resolved",
     });
 
-    // Find and update associated ticket
+    // Find and update associated ticket if it exists
     const tickets = await storage.getTickets();
     const ticket = tickets.find(t => t.conversationId === conversation.id);
     if (ticket) {
