@@ -10,10 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
 
-### Latest Fixes (4:20 PM)
-1. **Escalation Flow Fixed**: Escalation now uses 30-second pending_acceptance window instead of direct assignment. All agents can see and accept within 30 seconds.
-2. **Cache-Control Headers Added**: Forced no-cache headers for JavaScript/CSS files to ensure browser always loads latest code (fixes stale cache issues).
-3. **Manual Escalation Banner Removed**: Agents no longer manually escalate. AI auto-escalates when it detects it cannot help.
+### Latest Fixes (4:35 PM)
+1. **Agent View Corrected**: Agents can NO longer see AI-handled conversations (status: "open"). They only see:
+   - Pending acceptance chats (with Accept button for 30 seconds)
+   - Chats assigned to them
+2. **Tabs Simplified for Agents**: Agents only see "All" and "Assigned" tabs. Admin sees all tabs (All, Open, Assigned, Resolved).
+3. **Escalation Flow Fixed**: Escalation uses 30-second pending_acceptance window. All agents see and can accept within 30 seconds.
+4. **Fixed Component Loading**: App now uses correct inbox component with all filtering logic.
 
 ### Critical Bug Fixes
 1. **Agent Filtering Logic Fixed**: Resolved chats are now properly hidden from agents (only visible to admin). Pending acceptance chats correctly disappear from agent view after 30 seconds.

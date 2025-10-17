@@ -266,10 +266,9 @@ export default function Inbox() {
       return matchesSearch && matchesTab;
     }
     
-    // 3. Can see open chats (AI handling)
+    // 3. CANNOT see open chats (AI is handling, not escalated yet)
     if (c.status === "open") {
-      const matchesTab = selectedTab === "all" || selectedTab === "open";
-      return matchesSearch && matchesTab;
+      return false; // Hide AI-handled chats from agents
     }
     
     // 4. Can only see assigned chats if assigned to them
@@ -353,9 +352,9 @@ export default function Inbox() {
           </div>
 
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-            <TabsList className="w-full grid grid-cols-4 gap-1">
+            <TabsList className={`w-full grid ${isAdmin ? 'grid-cols-4' : 'grid-cols-2'} gap-1`}>
               <TabsTrigger value="all" className="text-xs" data-testid="tab-all">All</TabsTrigger>
-              <TabsTrigger value="open" className="text-xs" data-testid="tab-open">Open</TabsTrigger>
+              {isAdmin && <TabsTrigger value="open" className="text-xs" data-testid="tab-open">Open</TabsTrigger>}
               <TabsTrigger value="assigned" className="text-xs" data-testid="tab-assigned">Assigned</TabsTrigger>
               {isAdmin && <TabsTrigger value="resolved" className="text-xs" data-testid="tab-resolved">Resolved</TabsTrigger>}
             </TabsList>
