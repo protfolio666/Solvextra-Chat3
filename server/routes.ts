@@ -93,6 +93,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
+  // Helper function to fetch last 5 messages for AI conversation history
+  async function getConversationHistory(conversationId: string) {
+    const messages = await storage.getMessages(conversationId);
+    // Get last 5 messages, excluding AI messages for cleaner context
+    const recentMessages = messages
+      .filter((m: Message) => m.sender !== "ai") // Only customer and agent messages
+      .slice(-5)
+      .map((m: Message) => ({
+        sender: m.sender,
+        content: m.content,
+      }));
+    return recentMessages;
+  }
+
   // Helper function to send CSAT rating request to customer
   async function sendCsatRequest(conversation: Conversation, ticketId?: string) {
     const csatMessage = `Thank you for contacting us!\n\nYour issue has been resolved. We'd love to hear your feedback!\n\nPlease rate your experience:\n1 - Poor\n2 - Fair\n3 - Good\n4 - Very Good\n5 - Excellent\n\nReply with a number (1-5) to rate your experience.`;
@@ -407,12 +421,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
               createdAt: f.createdAt,
             }));
             
+            // Fetch last 5 messages for conversation context
+            const conversationHistory = await getConversationHistory(message.conversationId);
+            
             const aiResponse = await generateAIResponse(message.content, {
               provider: aiSettings.provider,
               knowledgeBase: aiSettings.knowledgeBase || undefined,
               systemPrompt: aiSettings.systemPrompt || undefined,
               model: aiSettings.model || undefined,
               knowledgeFiles: knowledgeFilesMetadata.length > 0 ? knowledgeFilesMetadata : undefined,
+              conversationHistory: conversationHistory.length > 0 ? conversationHistory : undefined,
             });
 
             const aiMessage = await storage.createMessage({
@@ -1158,12 +1176,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
               createdAt: f.createdAt,
             }));
             
+            // Fetch last 5 messages for conversation context
+            const conversationHistory = await getConversationHistory(conversation.id);
+            
             const aiResponse = await generateAIResponse(message.text || "", {
               provider: aiSettings.provider,
               model: aiSettings.model || undefined,
               knowledgeBase: aiSettings.knowledgeBase || undefined,
               systemPrompt: aiSettings.systemPrompt || undefined,
               knowledgeFiles: knowledgeFilesMetadata.length > 0 ? knowledgeFilesMetadata : undefined,
+              conversationHistory: conversationHistory.length > 0 ? conversationHistory : undefined,
             });
             
             if (aiResponse?.content) {
@@ -1312,12 +1334,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   createdAt: f.createdAt,
                 }));
                 
+                // Fetch last 5 messages for conversation context
+                const conversationHistory = await getConversationHistory(conversation.id);
+                
                 const aiResponse = await generateAIResponse(message.text || "", {
                   provider: aiSettings.provider,
                   model: aiSettings.model || undefined,
                   knowledgeBase: aiSettings.knowledgeBase || undefined,
                   systemPrompt: aiSettings.systemPrompt || undefined,
                   knowledgeFiles: knowledgeFilesMetadata.length > 0 ? knowledgeFilesMetadata : undefined,
+                  conversationHistory: conversationHistory.length > 0 ? conversationHistory : undefined,
                 });
                 
                 if (aiResponse?.content) {
