@@ -10,6 +10,7 @@ import {
   BookOpen,
   Star,
   Download,
+  Activity,
 } from "lucide-react";
 import logoPath from "@assets/IMG_3463-removebg-preview_1760467422348.png";
 import {
@@ -46,6 +47,13 @@ const menuItems = [
     url: "/agents",
     icon: Users,
     testId: "nav-agents",
+    allowedRoles: ["admin"] as UserRole[],
+  },
+  {
+    title: "Agent Monitoring",
+    url: "/agent-monitoring",
+    icon: Activity,
+    testId: "nav-agent-monitoring",
     allowedRoles: ["admin"] as UserRole[],
   },
   {

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Inbox from "@/pages/inbox";
 import Agents from "@/pages/agents";
+import AgentMonitoring from "@/pages/agent-monitoring";
 import Tickets from "@/pages/tickets";
 import Settings from "@/pages/settings";
 import Analytics from "@/pages/analytics";
@@ -97,6 +98,7 @@ function ProtectedRouter() {
       <ProtectedRoute path="/conversations" component={Inbox} />
       <ProtectedRoute path="/channels" component={Channels} />
       <ProtectedRoute path="/agents" component={Agents} allowedRoles={["admin"]} />
+      <ProtectedRoute path="/agent-monitoring" component={AgentMonitoring} allowedRoles={["admin"]} />
       <ProtectedRoute path="/tickets" component={Tickets} />
       <ProtectedRoute path="/knowledge-base" component={KnowledgeBase} />
       <ProtectedRoute path="/analytics" component={Analytics} allowedRoles={["admin"]} />
