@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useSoundNotifications } from "@/hooks/use-sound-notifications";
 import {
   Select,
   SelectContent,
@@ -36,8 +37,29 @@ export default function Inbox() {
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { send } = useWebSocket();
   const { toast } = useToast();
+  const { playNewChatSound, playMessageSound } = useSoundNotifications();
+  
+  const { send } = useWebSocket({
+    onNewChat: () => {
+      playNewChatSound();
+      toast({
+        title: "New Chat Arrived",
+        description: "A customer needs assistance. Accept to handle this chat.",
+      });
+    },
+    onMessage: () => {
+      playMessageSound();
+    },
+    onChatAccepted: (data) => {
+      if (data.conversationId === selectedConversation) {
+        toast({
+          title: "Chat Accepted",
+          description: `${data.agentName} accepted this chat`,
+        });
+      }
+    },
+  });
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/user"],
@@ -46,6 +68,9 @@ export default function Inbox() {
   const { data: allAgents = [] } = useQuery<Agent[]>({
     queryKey: ["/api/agents"],
   });
+
+  // Get current agent by matching user email to agent email
+  const currentAgent = allAgents.find(a => a.email === user?.username);
 
   const { data: conversations = [], isLoading: loadingConversations } = useQuery<Conversation[]>({
     queryKey: ["/api/conversations"],
@@ -131,10 +156,42 @@ export default function Inbox() {
     },
   });
 
+  const acceptChatMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      return apiRequest("POST", `/api/conversations/${conversationId}/accept`, {});
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations", selectedConversation, "agent"] });
+      toast({
+        title: "Chat Accepted",
+        description: "You've successfully accepted this chat",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to accept chat",
+        variant: "destructive",
+      });
+    },
+  });
+
   const activeConversation = conversations.find(c => c.id === selectedConversation);
   const needsEscalation = activeConversation?.status === "open";
   const isAssigned = activeConversation?.status === "assigned";
   const isResolved = activeConversation?.status === "resolved";
+  const isPendingAcceptance = activeConversation?.status === "pending_acceptance";
+
+  // Force re-render every 3 seconds to update pending chat visibility based on 30-second timer
+  const [, setNow] = useState(Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 3000); // Check every 3 seconds
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Scroll to bottom when messages load or new messages arrive
   useEffect(() => {
@@ -147,11 +204,42 @@ export default function Inbox() {
   const filteredConversations = conversations.filter(c => {
     const matchesSearch = c.customerName.toLowerCase().includes(searchQuery.toLowerCase());
     
-    // Agents cannot see resolved chats (only admin can)
-    if (!isAdmin && c.status === "resolved") {
+    // Admin sees everything (with search filter)
+    if (isAdmin) {
+      return matchesSearch;
+    }
+    
+    // Agents filtering logic
+    // 1. Cannot see resolved chats
+    if (c.status === "resolved") {
       return false;
     }
     
+    // 2. Can see pending_acceptance chats only within 30 seconds
+    if (c.status === "pending_acceptance") {
+      if (c.escalationTimestamp) {
+        const elapsed = Date.now() - new Date(c.escalationTimestamp).getTime();
+        if (elapsed > 30000) {
+          return false; // Hide from agent after 30 seconds
+        }
+      }
+      return matchesSearch; // Show if within 30 seconds
+    }
+    
+    // 3. Can see open chats (AI handling)
+    if (c.status === "open") {
+      return matchesSearch;
+    }
+    
+    // 4. Can only see assigned chats if assigned to them
+    if (c.status === "assigned") {
+      if (currentAgent && c.assignedAgentId === currentAgent.id) {
+        return matchesSearch; // Show if assigned to current agent
+      }
+      return false; // Hide if assigned to another agent
+    }
+    
+    // Default: show if matches search
     return matchesSearch;
   });
 
@@ -338,6 +426,33 @@ export default function Inbox() {
                 onEscalate={handleEscalate}
                 isEscalating={escalateMutation.isPending}
               />
+            )}
+
+            {/* Accept Chat Banner (Pending Acceptance) */}
+            {isPendingAcceptance && activeConversation?.escalationTimestamp && (
+              <div className="p-4 bg-amber-50 dark:bg-amber-950 border-b border-amber-200 dark:border-amber-800">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                    <div>
+                      <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                        Chat Awaiting Acceptance
+                      </p>
+                      <p className="text-xs text-amber-700 dark:text-amber-300">
+                        First agent to accept will handle this conversation
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => selectedConversation && acceptChatMutation.mutate(selectedConversation)}
+                    disabled={acceptChatMutation.isPending}
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                    data-testid="button-accept-chat"
+                  >
+                    {acceptChatMutation.isPending ? "Accepting..." : "Accept Chat"}
+                  </Button>
+                </div>
+              </div>
             )}
 
             {/* Agent Assignment */}

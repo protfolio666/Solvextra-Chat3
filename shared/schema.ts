@@ -5,7 +5,7 @@ import { z } from "zod";
 
 // Channel types
 export type Channel = "whatsapp" | "telegram" | "instagram" | "twitter" | "website";
-export type ConversationStatus = "open" | "assigned" | "resolved" | "ticket";
+export type ConversationStatus = "open" | "pending_acceptance" | "assigned" | "resolved" | "ticket";
 export type MessageSender = "customer" | "ai" | "agent";
 export type AgentStatus = "available" | "busy" | "offline";
 export type AIProvider = "openai" | "gemini" | "openrouter";
@@ -22,6 +22,7 @@ export const conversations = pgTable("conversations", {
   channelUserId: text("channel_user_id"), // External ID (Telegram chat_id, WhatsApp number, etc.)
   status: varchar("status", { length: 20 }).notNull().default("open").$type<ConversationStatus>(),
   assignedAgentId: varchar("assigned_agent_id"),
+  escalationTimestamp: timestamp("escalation_timestamp"), // When chat was escalated for agent acceptance
   lastMessageAt: timestamp("last_message_at").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -221,7 +222,7 @@ export type EmailSettings = typeof emailSettings.$inferSelect;
 
 // WebSocket message types
 export interface WSMessage {
-  type: "message" | "status_update" | "typing" | "escalation" | "assignment" | "admin_notification" | "csat_request";
+  type: "message" | "status_update" | "typing" | "escalation" | "assignment" | "admin_notification" | "csat_request" | "new_chat" | "chat_accepted";
   data: any;
 }
 

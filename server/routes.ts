@@ -158,33 +158,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const availableAgents = agents.filter(a => a.status === "available");
       
       if (availableAgents.length > 0) {
-        // Assign to agent with lowest active conversations
-        const agentWithLeastLoad = availableAgents.reduce((min, agent) => 
-          agent.activeConversations < min.activeConversations ? agent : min
-        );
-        
-        // Update conversation status and assign agent
+        // Set to pending_acceptance status with 30-second window
         await storage.updateConversation(conversationId, {
-          status: "assigned",
-          assignedAgentId: agentWithLeastLoad.id,
+          status: "pending_acceptance",
+          escalationTimestamp: new Date(),
         });
         
-        // Increment agent's active conversation count
-        await storage.updateAgentConversations(agentWithLeastLoad.id, 1);
+        console.log(`🔔 Chat escalated - pending agent acceptance (30-second window)`);
         
-        console.log(`✅ Conversation assigned to agent ${agentWithLeastLoad.name}`);
-        
-        // Broadcast assignment
+        // Broadcast new chat arrival with sound notification trigger
         broadcast({
-          type: "assignment",
+          type: "new_chat",
           data: {
             conversationId,
-            agentId: agentWithLeastLoad.id,
-            agentName: agentWithLeastLoad.name,
+            reason,
           },
         });
         
-        return { success: true, assignedTo: "agent", agentName: agentWithLeastLoad.name };
+        return { success: true, assignedTo: "pending_acceptance" };
       } else {
         // No agents available
         if (notifyAdminOnly) {
@@ -506,7 +497,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ error: "Agent not found" });
     }
 
+    // If there's a previous agent, decrement their conversation count
+    if (conversation.assignedAgentId && conversation.assignedAgentId !== agentId) {
+      await storage.updateAgentConversations(conversation.assignedAgentId, -1);
+      console.log(`📤 Chat transferred from previous agent ${conversation.assignedAgentId}`);
+    }
+
     // Assign to specified agent
+    const updated = await storage.updateConversation(conversation.id, {
+      status: "assigned",
+      assignedAgentId: agent.id,
+    });
+
+    // Only increment if this is a new assignment (not a transfer to same agent)
+    if (conversation.assignedAgentId !== agentId) {
+      await storage.updateAgentConversations(agent.id, 1);
+    }
+    
+    broadcast({ 
+      type: "assignment", 
+      data: { 
+        conversation: updated, 
+        agent,
+        previousAgentId: conversation.assignedAgentId,
+      } 
+    });
+    res.json({ conversation: updated, agent });
+  });
+
+  // Accept pending chat (First-accept-first-serve)
+  app.post("/api/conversations/:id/accept", async (req, res) => {
+    const conversation = await storage.getConversation(req.params.id);
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
+    // Check if still in pending_acceptance status
+    if (conversation.status !== "pending_acceptance") {
+      return res.status(400).json({ error: "Chat is no longer available for acceptance" });
+    }
+
+    // Check if within 30-second window
+    if (conversation.escalationTimestamp) {
+      const elapsed = Date.now() - new Date(conversation.escalationTimestamp).getTime();
+      if (elapsed > 30000) {
+        // Expired - only admin can see it now
+        return res.status(400).json({ error: "Acceptance window expired" });
+      }
+    }
+
+    if (!req.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    // Find agent by user email
+    const agents = await storage.getAgents();
+    const agent = agents.find(a => a.email === req.user?.username);
+    if (!agent) {
+      return res.status(404).json({ error: "Agent not found for this user" });
+    }
+
+    // Assign to this agent (first-accept-first-serve)
     const updated = await storage.updateConversation(conversation.id, {
       status: "assigned",
       assignedAgentId: agent.id,
@@ -514,7 +565,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     await storage.updateAgentConversations(agent.id, 1);
     
-    broadcast({ type: "assignment", data: { conversation: updated, agent } });
+    console.log(`✅ Chat accepted by agent ${agent.name}`);
+    
+    broadcast({ 
+      type: "chat_accepted", 
+      data: { 
+        conversationId: conversation.id,
+        agentId: agent.id,
+        agentName: agent.name,
+      } 
+    });
+    
     res.json({ conversation: updated, agent });
   });
 

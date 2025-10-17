@@ -2,9 +2,21 @@ import { useEffect, useRef, useCallback } from "react";
 import { WSMessage } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
 
-export function useWebSocket() {
+interface WebSocketCallbacks {
+  onNewChat?: () => void;
+  onMessage?: () => void;
+  onChatAccepted?: (data: any) => void;
+}
+
+export function useWebSocket(callbacks?: WebSocketCallbacks) {
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+  const callbacksRef = useRef(callbacks);
+  
+  // Update callbacks ref when they change
+  useEffect(() => {
+    callbacksRef.current = callbacks;
+  }, [callbacks]);
 
   useEffect(() => {
     const connectWebSocket = () => {
@@ -26,6 +38,10 @@ export function useWebSocket() {
             
             // Invalidate relevant queries based on message type
             switch (message.type) {
+              case "new_chat":
+                queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+                callbacksRef.current?.onNewChat?.();
+                break;
               case "message":
                 queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
                 if (message.data.message?.conversationId) {
@@ -33,6 +49,16 @@ export function useWebSocket() {
                     queryKey: ["/api/conversations", message.data.message.conversationId, "messages"] 
                   });
                 }
+                callbacksRef.current?.onMessage?.();
+                break;
+              case "chat_accepted":
+                queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+                if (message.data.conversationId) {
+                  queryClient.invalidateQueries({ 
+                    queryKey: ["/api/conversations", message.data.conversationId, "agent"] 
+                  });
+                }
+                callbacksRef.current?.onChatAccepted?.(message.data);
                 break;
               case "status_update":
                 if (message.data.conversation) {
