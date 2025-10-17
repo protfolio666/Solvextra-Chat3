@@ -6,6 +6,7 @@ import { generateAIResponse } from "./ai-providers";
 import { setupAuth } from "./auth";
 import { requireAdmin } from "./middleware/role-check";
 import { sendEmail, generateTicketResolutionEmail, generateTicketCreationEmail, generateTicketReopenEmail } from "./email-service";
+import { startInactivityMonitor } from "./inactivity-monitor";
 import {
   insertConversationSchema,
   insertMessageSchema,
@@ -303,6 +304,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const message = await storage.createMessage(result.data);
     console.log(`💬 Message created - sender: ${message.sender}, content: ${message.content}, conversationId: ${message.conversationId}`);
     
+    // Update lastCustomerMessageAt if message is from customer (for inactivity tracking)
+    if (message.sender === "customer") {
+      await storage.updateConversation(message.conversationId, {
+        lastCustomerMessageAt: new Date(),
+        inactivityCheckCount: 0, // Reset inactivity check count
+      });
+    }
+    
     // Broadcast immediately for real-time updates
     const wsMessage = { type: "message" as const, data: { message } };
     broadcast(wsMessage);
@@ -460,9 +469,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Check if AI response indicates need for human assistance or customer wants agent
             const needsEscalation = /(?:human agent|speak to someone|talk to human|connect to agent|connect you|let me connect|transfer you|can't help|unable to assist|need more help|complex issue|escalate)/i.test(aiResponse.content);
             
-            if (needsEscalation) {
+            if (aiResponse.shouldEscalate || needsEscalation) {
               console.log('🔔 AI detected need for human assistance or customer requested agent');
               await handleSmartEscalation(message.conversationId, "AI detected customer needs human assistance");
+            }
+            
+            // Check if customer is satisfied and wants to close the chat
+            if (aiResponse.shouldCloseWithCSAT) {
+              console.log('✅ AI detected customer satisfaction - auto-closing with CSAT');
+              // Send CSAT survey
+              const csatMessage = await storage.createMessage({
+                conversationId: message.conversationId,
+                sender: "ai",
+                senderName: "Support Team",
+                content: `Thank you for contacting us!\n\nYour issue has been resolved. We'd love to hear your feedback!\n\nPlease rate your experience:\n1 - Poor\n2 - Fair\n3 - Good\n4 - Very Good\n5 - Excellent\n\nReply with a number (1-5) to rate your experience.`,
+              });
+              
+              broadcast({ type: "message" as const, data: { message: csatMessage } });
+              
+              // Send to Telegram if applicable
+              if (conversation.channel === "telegram" && conversation.channelUserId) {
+                const telegramIntegration = await storage.getChannelIntegration("telegram");
+                if (telegramIntegration?.apiToken) {
+                  try {
+                    const sendMessageUrl = `https://api.telegram.org/bot${telegramIntegration.apiToken}/sendMessage`;
+                    await fetch(sendMessageUrl, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        chat_id: conversation.channelUserId,
+                        text: csatMessage.content,
+                      }),
+                    });
+                  } catch (error) {
+                    console.error('❌ Failed to send CSAT to Telegram:', error);
+                  }
+                }
+              }
+              
+              // Mark conversation as resolved
+              await storage.updateConversation(message.conversationId, {
+                status: "resolved",
+              });
+              
+              broadcast({
+                type: "status_update",
+                data: {
+                  conversationId: message.conversationId,
+                  status: "resolved",
+                },
+              });
             }
           } catch (error) {
             console.error("AI response error:", error);
@@ -1529,6 +1585,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     res.json(stats);
   });
+
+  // Start inactivity monitoring system
+  startInactivityMonitor({ storage, broadcast });
 
   return httpServer;
 }
