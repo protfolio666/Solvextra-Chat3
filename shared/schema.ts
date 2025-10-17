@@ -25,6 +25,8 @@ export const conversations = pgTable("conversations", {
   assignedAgentId: varchar("assigned_agent_id"),
   escalationTimestamp: timestamp("escalation_timestamp"), // When chat was escalated for agent acceptance
   lastMessageAt: timestamp("last_message_at").notNull().defaultNow(),
+  lastCustomerMessageAt: timestamp("last_customer_message_at"), // Track last customer message for inactivity detection
+  inactivityCheckCount: integer("inactivity_check_count").notNull().default(0), // Count of "are we on call" messages sent
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
