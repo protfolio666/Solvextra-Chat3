@@ -81,6 +81,7 @@ export default function Inbox() {
   });
 
   const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   const { data: allAgents = [] } = useQuery<Agent[]>({
     queryKey: ["/api/agents"],
@@ -326,7 +327,6 @@ export default function Inbox() {
     }
   };
 
-  const isAdmin = user?.role === "admin";
   const availableAgents = allAgents.filter(a => a.status === "available");
 
   return (
