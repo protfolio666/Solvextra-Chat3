@@ -36,6 +36,7 @@ The platform features a multi-provider AI architecture supporting OpenAI, Google
 - **Email Notifications**: Integrates with SendGrid for configurable email notifications on ticket creation, resolution, and CSAT survey distribution.
 - **CSAT Management**: Collects customer satisfaction ratings (1-5 stars) with automated thank-you messages, and provides an admin dashboard for analytics and feedback.
 - **Export & Analytics**: An admin-only page for exporting conversation data to CSV, with advanced filtering and message analytics.
+- **Agent Monitoring Dashboard**: Admin-only page displaying real-time agent activity including: (1) which agent is handling which customer, (2) active chat counts per agent, (3) handling time tracking per conversation and agent, (4) manual chat transfer functionality to reassign conversations to any available agent. When a chat is transferred, the previous agent immediately loses visibility.
 
 ## External Dependencies
 
