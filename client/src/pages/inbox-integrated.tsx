@@ -199,6 +199,16 @@ export default function Inbox() {
   const isAssigned = activeConversation?.status === "assigned";
   const isResolved = activeConversation?.status === "resolved";
   const isPendingAcceptance = activeConversation?.status === "pending_acceptance";
+  
+  // Debug logging for pending acceptance
+  if (isPendingAcceptance && activeConversation) {
+    console.log('[DEBUG] Pending Acceptance Chat:', {
+      id: activeConversation.id,
+      customerName: activeConversation.customerName,
+      escalationTimestamp: activeConversation.escalationTimestamp,
+      hasTimestamp: !!activeConversation.escalationTimestamp,
+    });
+  }
 
   // Tab state for filtering
   const [selectedTab, setSelectedTab] = useState<string>("all");
@@ -240,10 +250,12 @@ export default function Inbox() {
     if (c.status === "pending_acceptance") {
       if (c.escalationTimestamp) {
         const elapsed = Date.now() - new Date(c.escalationTimestamp).getTime();
+        console.log(`[FILTER PENDING] ${c.customerName} - elapsed: ${elapsed}ms, timestamp: ${c.escalationTimestamp}, hiding: ${elapsed > 30000}`);
         if (elapsed > 30000) {
           return false; // Hide from agent after 30 seconds
         }
       } else {
+        console.log(`[FILTER PENDING] ${c.customerName} - NO escalationTimestamp, hiding`);
         return false; // Hide if no timestamp
       }
       // Pending chats show in "all" tab only
