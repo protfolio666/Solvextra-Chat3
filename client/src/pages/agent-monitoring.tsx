@@ -37,6 +37,8 @@ export default function AgentMonitoring() {
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [targetAgentId, setTargetAgentId] = useState<string>("");
+  const [viewDetailsDialogOpen, setViewDetailsDialogOpen] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
 
   // Fetch all agents
   const { data: agents = [], isLoading: loadingAgents } = useQuery<Agent[]>({
@@ -117,6 +119,11 @@ export default function AgentMonitoring() {
     if (selectedConversation && targetAgentId) {
       transferMutation.mutate({ conversationId: selectedConversation, agentId: targetAgentId });
     }
+  };
+
+  const handleViewDetailsClick = (agent: Agent) => {
+    setSelectedAgent(agent);
+    setViewDetailsDialogOpen(true);
   };
 
   const getConversation = (convId: string) => {
@@ -236,9 +243,7 @@ export default function AgentMonitoring() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => {
-                        // Show agent's conversations in expanded view
-                      }}
+                      onClick={() => handleViewDetailsClick(agent)}
                       data-testid={`button-view-details-${agent.id}`}
                     >
                       View Details
@@ -311,7 +316,7 @@ export default function AgentMonitoring() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleTransferClick(conv.id)}
-                        disabled={conv.status === "open" || conv.status === "pending_acceptance"}
+                        disabled={conv.status === "resolved"}
                         data-testid={`button-transfer-${conv.id}`}
                       >
                         <ArrowRightLeft className="h-4 w-4 mr-1" />
@@ -387,6 +392,124 @@ export default function AgentMonitoring() {
               data-testid="button-confirm-transfer"
             >
               {transferMutation.isPending ? "Transferring..." : "Transfer Chat"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Details Dialog */}
+      <Dialog open={viewDetailsDialogOpen} onOpenChange={setViewDetailsDialogOpen}>
+        <DialogContent className="max-w-3xl" data-testid="dialog-agent-details">
+          <DialogHeader>
+            <DialogTitle>Agent Details: {selectedAgent?.name}</DialogTitle>
+            <DialogDescription>
+              Active conversations and performance metrics for this agent
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedAgent && (
+              <>
+                <div className="grid grid-cols-3 gap-4">
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-2xl font-bold text-center">
+                        {conversationsByAgent[selectedAgent.id]?.length || 0}
+                      </div>
+                      <p className="text-xs text-center text-muted-foreground mt-1">Active Chats</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-2xl font-bold text-center capitalize">
+                        {selectedAgent.status}
+                      </div>
+                      <p className="text-xs text-center text-muted-foreground mt-1">Status</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-2xl font-bold text-center">
+                        {formatHandlingTime(
+                          (conversationsByAgent[selectedAgent.id] || []).reduce((total, conv) => {
+                            if (conv.escalationTimestamp) {
+                              return total + (Date.now() - new Date(conv.escalationTimestamp).getTime());
+                            }
+                            return total;
+                          }, 0)
+                        )}
+                      </div>
+                      <p className="text-xs text-center text-muted-foreground mt-1">Total Time</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="border rounded-lg">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Customer</TableHead>
+                        <TableHead>Channel</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Handling Time</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(conversationsByAgent[selectedAgent.id] || []).map(conv => {
+                        const handlingTime = conv.escalationTimestamp 
+                          ? Date.now() - new Date(conv.escalationTimestamp).getTime()
+                          : 0;
+                        
+                        return (
+                          <TableRow key={conv.id}>
+                            <TableCell className="font-medium">{conv.customerName}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{conv.channel}</Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={conv.status === "assigned" ? "default" : "outline"}>
+                                {conv.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {handlingTime > 0 ? formatHandlingTime(handlingTime) : "-"}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setViewDetailsDialogOpen(false);
+                                  handleTransferClick(conv.id);
+                                }}
+                                disabled={conv.status === "resolved"}
+                              >
+                                Transfer
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                      {(!conversationsByAgent[selectedAgent.id] || conversationsByAgent[selectedAgent.id].length === 0) && (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-muted-foreground">
+                            No active conversations
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setViewDetailsDialogOpen(false)}
+              data-testid="button-close-details"
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
