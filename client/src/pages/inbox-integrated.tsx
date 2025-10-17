@@ -6,6 +6,7 @@ import { MessageBubble } from "@/components/message-bubble";
 import { ChatInput } from "@/components/chat-input";
 import { EscalationBanner } from "@/components/escalation-banner";
 import { AgentAssignmentCard } from "@/components/agent-assignment-card";
+import { TypingIndicator } from "@/components/typing-indicator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ export default function Inbox() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState<string>("");
+  const [typingUsers, setTypingUsers] = useState<Map<string, { sender: string; senderName: string }>>(new Map());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { playNewChatSound, playMessageSound } = useSoundNotifications();
@@ -58,6 +60,22 @@ export default function Inbox() {
           description: `${data.agentName} accepted this chat`,
         });
       }
+    },
+    onTyping: (data: any) => {
+      const { conversationId, sender, senderName, isTyping } = data;
+      
+      setTypingUsers((prev) => {
+        const next = new Map(prev);
+        const key = `${conversationId}-${sender}`;
+        
+        if (isTyping) {
+          next.set(key, { sender, senderName });
+        } else {
+          next.delete(key);
+        }
+        
+        return next;
+      });
     },
   });
 
@@ -271,6 +289,20 @@ export default function Inbox() {
     }
   };
 
+  const handleTyping = (isTyping: boolean) => {
+    if (selectedConversation && currentAgent) {
+      send({
+        type: "typing",
+        data: {
+          conversationId: selectedConversation,
+          sender: "agent",
+          senderName: currentAgent.name,
+          isTyping,
+        },
+      });
+    }
+  };
+
   const isAdmin = user?.role === "admin";
   const availableAgents = allAgents.filter(a => a.status === "available");
 
@@ -476,12 +508,31 @@ export default function Inbox() {
                 ) : (
                   <>
                     {messages.map((message) => (
-                      <MessageBubble
+                      <div 
                         key={message.id}
-                        message={message}
-                        agentAvatar={assignedAgent?.avatar || undefined}
-                      />
+                        className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+                      >
+                        <MessageBubble
+                          message={message}
+                          agentAvatar={assignedAgent?.avatar || undefined}
+                        />
+                      </div>
                     ))}
+                    
+                    {/* Typing Indicators */}
+                    {selectedConversation && Array.from(typingUsers.entries()).map(([key, { sender, senderName }]) => {
+                      if (key.startsWith(selectedConversation)) {
+                        return (
+                          <TypingIndicator
+                            key={key}
+                            sender={sender as "customer" | "agent" | "ai"}
+                            senderName={senderName}
+                          />
+                        );
+                      }
+                      return null;
+                    })}
+                    
                     <div ref={messagesEndRef} />
                   </>
                 )}
@@ -498,6 +549,7 @@ export default function Inbox() {
             ) : (
               <ChatInput
                 onSend={handleSendMessage}
+                onTyping={handleTyping}
                 placeholder="Type your message..."
                 disabled={sendMessageMutation.isPending}
               />

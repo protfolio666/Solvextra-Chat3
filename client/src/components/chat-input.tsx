@@ -1,19 +1,69 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Paperclip, Smile } from "lucide-react";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
+  onTyping?: (isTyping: boolean) => void;
   placeholder?: string;
   disabled?: boolean;
 }
 
-export function ChatInput({ onSend, placeholder = "Type a message...", disabled }: ChatInputProps) {
+export function ChatInput({ onSend, onTyping, placeholder = "Type a message...", disabled }: ChatInputProps) {
   const [message, setMessage] = useState("");
+  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const isTypingRef = useRef(false);
+
+  useEffect(() => {
+    return () => {
+      // Clear timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      
+      // Send final typing false event if user was typing
+      if (isTypingRef.current && onTyping) {
+        onTyping(false);
+        isTypingRef.current = false;
+      }
+    };
+  }, [onTyping]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value);
+    
+    // Typing indicator logic
+    if (onTyping && e.target.value.trim()) {
+      if (!isTypingRef.current) {
+        isTypingRef.current = true;
+        onTyping(true);
+      }
+      
+      // Clear previous timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      
+      // Set new timeout to stop typing after 2 seconds
+      typingTimeoutRef.current = setTimeout(() => {
+        isTypingRef.current = false;
+        onTyping(false);
+      }, 2000);
+    }
+  };
 
   const handleSend = () => {
     if (message.trim() && !disabled) {
+      // Clear typing indicator
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      if (isTypingRef.current && onTyping) {
+        isTypingRef.current = false;
+        onTyping(false);
+      }
+      
       onSend(message.trim());
       setMessage("");
     }
@@ -32,7 +82,7 @@ export function ChatInput({ onSend, placeholder = "Type a message...", disabled 
         <div className="flex-1 relative">
           <Textarea
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={handleChange}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             disabled={disabled}

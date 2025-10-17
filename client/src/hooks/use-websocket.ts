@@ -6,6 +6,7 @@ interface WebSocketCallbacks {
   onNewChat?: () => void;
   onMessage?: () => void;
   onChatAccepted?: (data: any) => void;
+  onTyping?: (data: any) => void;
 }
 
 export function useWebSocket(callbacks?: WebSocketCallbacks) {
@@ -83,6 +84,9 @@ export function useWebSocket(callbacks?: WebSocketCallbacks) {
                     queryKey: ["/api/conversations", message.data.conversationId, "agent"] 
                   });
                 }
+                break;
+              case "typing":
+                callbacksRef.current?.onTyping?.(message.data);
                 break;
             }
           } catch (error) {
