@@ -425,11 +425,32 @@ export async function generateAIResponse(
     }
 
     // Parse intent tags from the response
-    const shouldCloseWithCSAT = content.includes('[CLOSE_WITH_CSAT]');
-    const shouldEscalate = content.includes('[ESCALATE]');
+    const shouldCloseWithCSAT = content.includes('[CLOSE_WITH_CSAT]') || content.includes('[ CLOSE_WITH_CSAT ]');
+    const shouldEscalate = content.includes('[ESCALATE]') || content.includes('[ ESCALATE ]');
     
-    // Remove tags from customer-facing message
-    content = content.replace(/\[CLOSE_WITH_CSAT\]/g, '').replace(/\[ESCALATE\]/g, '').trim();
+    // Remove tags from customer-facing message (including variations with spaces)
+    content = content
+      .replace(/\[\s*CLOSE_WITH_CSAT\s*\]/g, '')
+      .replace(/\[\s*ESCALATE\s*\]/g, '')
+      .trim();
+    
+    // Additional detection: Check for closing phrases if no explicit tag
+    const hasClosingPhrase = /(?:have a (?:great|wonderful|nice|good) day|feel free to (?:return|reach out)|if you need anything|goodbye|take care).*[!.🌟😊👋]/i.test(content);
+    const hasThankYouEnd = /(?:thank you|thanks).*(?:contacting|reaching out|choosing).*[!.]$/i.test(content);
+    
+    // Auto-detect close intent from natural conversation endings
+    if (!shouldCloseWithCSAT && (hasClosingPhrase || hasThankYouEnd)) {
+      // Only auto-close if the message seems like a natural conversation ending
+      const seemsLikeClosing = content.length < 200 && (hasClosingPhrase || hasThankYouEnd);
+      if (seemsLikeClosing) {
+        return {
+          content,
+          provider: config.provider,
+          shouldCloseWithCSAT: true,
+          shouldEscalate: false,
+        };
+      }
+    }
 
     return {
       content,
