@@ -3,6 +3,7 @@ import { ChannelBadge } from "./channel-badge";
 import { formatDistanceToNow } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
 
 interface ConversationCardProps {
   conversation: Conversation;
@@ -27,9 +28,18 @@ export function ConversationCard({
   };
 
   return (
-    <div
-      className={`relative p-4 border-b border-border cursor-pointer hover-elevate transition-colors ${
-        isActive ? "bg-accent/50" : ""
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      whileHover={{ 
+        scale: 1.01,
+        backgroundColor: "rgba(var(--accent), 0.3)",
+        transition: { duration: 0.2 }
+      }}
+      whileTap={{ scale: 0.99 }}
+      className={`relative p-4 border-b border-border cursor-pointer transition-all ${
+        isActive ? "bg-accent/50 shadow-sm" : ""
       }`}
       onClick={onClick}
       data-testid={`conversation-card-${conversation.id}`}
@@ -73,6 +83,6 @@ export function ConversationCard({
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

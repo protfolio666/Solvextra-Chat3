@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Conversation, Message, Agent, User } from "@shared/schema";
 import { ConversationCard } from "@/components/conversation-card";
+import { ConversationSkeleton } from "@/components/conversation-skeleton";
+import { motion, AnimatePresence } from "framer-motion";
 import { MessageBubble } from "@/components/message-bubble";
 import { ChatInput } from "@/components/chat-input";
 import { EscalationBanner } from "@/components/escalation-banner";
@@ -413,15 +415,22 @@ export default function Inbox() {
 
         <ScrollArea className="flex-1">
           {loadingConversations ? (
-            <div className="p-8 text-center text-muted-foreground">
-              <p className="text-sm">Loading conversations...</p>
+            <div>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <ConversationSkeleton key={i} />
+              ))}
             </div>
           ) : filteredConversations.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-8 text-center text-muted-foreground"
+            >
               <p className="text-sm">No conversations found</p>
-            </div>
+            </motion.div>
           ) : (
-            filteredConversations.map((conversation) => {
+            <AnimatePresence mode="popLayout">
+              {filteredConversations.map((conversation, index) => {
               const lastMessage = messages
                 .filter(m => m.conversationId === conversation.id)
                 .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
@@ -436,7 +445,8 @@ export default function Inbox() {
                   unread={Math.random() > 0.5}
                 />
               );
-            })
+              })}
+            </AnimatePresence>
           )}
         </ScrollArea>
       </div>

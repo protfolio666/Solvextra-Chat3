@@ -2,6 +2,7 @@ import { Message } from "@shared/schema";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bot, User } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { motion } from "framer-motion";
 
 interface MessageBubbleProps {
   message: Message;
@@ -14,7 +15,13 @@ export function MessageBubble({ message, agentAvatar }: MessageBubbleProps) {
   const isAgent = message.sender === "agent";
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ 
+        duration: 0.3,
+        ease: [0.4, 0.0, 0.2, 1]
+      }}
       className={`flex gap-3 px-4 py-2 ${isCustomer ? "justify-end" : "justify-start"}`}
       data-testid={`message-${message.sender}`}
     >
@@ -66,6 +73,6 @@ export function MessageBubble({ message, agentAvatar }: MessageBubbleProps) {
           </div>
         </Avatar>
       )}
-    </div>
+    </motion.div>
   );
 }
