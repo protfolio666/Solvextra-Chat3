@@ -18,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Inbox from "@/pages/inbox";
+import InboxIntegrated from "@/pages/inbox-integrated";
 import Agents from "@/pages/agents";
 import AgentMonitoring from "@/pages/agent-monitoring";
 import Tickets from "@/pages/tickets";
@@ -94,8 +94,8 @@ function UserMenu() {
 function ProtectedRouter() {
   return (
     <Switch>
-      <ProtectedRoute path="/" component={Inbox} />
-      <ProtectedRoute path="/conversations" component={Inbox} />
+      <ProtectedRoute path="/" component={InboxIntegrated} />
+      <ProtectedRoute path="/conversations" component={InboxIntegrated} />
       <ProtectedRoute path="/channels" component={Channels} />
       <ProtectedRoute path="/agents" component={Agents} allowedRoles={["admin"]} />
       <ProtectedRoute path="/agent-monitoring" component={AgentMonitoring} allowedRoles={["admin"]} />
