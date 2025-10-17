@@ -195,10 +195,12 @@ export default function Inbox() {
   });
 
   const activeConversation = conversations.find(c => c.id === selectedConversation);
-  const needsEscalation = activeConversation?.status === "open";
   const isAssigned = activeConversation?.status === "assigned";
   const isResolved = activeConversation?.status === "resolved";
   const isPendingAcceptance = activeConversation?.status === "pending_acceptance";
+  
+  // Only show escalation banner for pending_acceptance (NOT for "open" - AI is handling that)
+  const needsEscalation = false; // Removed: agents don't manually escalate, AI auto-escalates when needed
   
   // Debug logging for pending acceptance
   if (isPendingAcceptance && activeConversation) {
@@ -472,14 +474,6 @@ export default function Inbox() {
                 </div>
               </div>
             </div>
-
-            {/* Escalation Banner */}
-            {needsEscalation && (
-              <EscalationBanner
-                onEscalate={handleEscalate}
-                isEscalating={escalateMutation.isPending}
-              />
-            )}
 
             {/* Accept Chat Banner (Pending Acceptance) */}
             {isPendingAcceptance && activeConversation?.escalationTimestamp && (
