@@ -16,6 +16,7 @@ import { useWebSocket } from "@/hooks/use-websocket";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useSoundNotifications } from "@/hooks/use-sound-notifications";
+import { useAuth } from "@/hooks/use-auth";
 import {
   Select,
   SelectContent,
@@ -79,9 +80,7 @@ export default function Inbox() {
     },
   });
 
-  const { data: user } = useQuery<User>({
-    queryKey: ["/api/user"],
-  });
+  const { user } = useAuth();
 
   const { data: allAgents = [] } = useQuery<Agent[]>({
     queryKey: ["/api/agents"],
