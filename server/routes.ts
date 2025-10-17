@@ -482,18 +482,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 status: "resolved",
               });
               
-              // Create CSAT rating placeholder (will be filled when customer responds)
-              const csatId = await storage.createCsatRating({
-                conversationId: message.conversationId,
-                rating: 0, // Placeholder - will be updated when customer provides rating
-              });
+              // Create and send CSAT survey message
+              const csatText = `Thank you for contacting us! 🌟\n\nPlease rate your experience:\n\n⭐ - Poor\n⭐⭐ - Fair\n⭐⭐⭐ - Good\n⭐⭐⭐⭐ - Very Good\n⭐⭐⭐⭐⭐ - Excellent\n\nReply with a number from 1 to 5.`;
               
-              // Send CSAT survey
               const csatMessage = await storage.createMessage({
                 conversationId: message.conversationId,
                 sender: "ai",
                 senderName: "Support Team",
-                content: `Thank you for contacting us! 🌟\n\nPlease rate your experience:\n\n⭐ - Poor\n⭐⭐ - Fair\n⭐⭐⭐ - Good\n⭐⭐⭐⭐ - Very Good\n⭐⭐⭐⭐⭐ - Excellent\n\nReply with a number from 1 to 5.`,
+                content: csatText,
               });
               
               broadcast({ type: "message" as const, data: { message: csatMessage } });
@@ -1317,6 +1313,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Check if this is a CSAT rating for a resolved conversation
         const isNumericRating = /^[1-5]$/.test(message.text?.trim() || "");
+        
+        // Debug: Check last message
+        if (conversation && isNumericRating) {
+          const messages = await storage.getMessages(conversation.id);
+          const lastAgentMessage = messages
+            .filter(m => m.sender === "agent" || m.sender === "ai")
+            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+          console.log('🔍 CSAT Debug - Conversation status:', conversation.status);
+          console.log('🔍 CSAT Debug - Is numeric rating:', isNumericRating);
+          console.log('🔍 CSAT Debug - Last agent message:', lastAgentMessage?.content?.substring(0, 50));
+        }
+        
         const isCsatResponse = conversation?.status === "resolved" && 
           isNumericRating &&
           (await storage.getMessages(conversation.id))
@@ -1331,17 +1339,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           try {
             const rating = parseInt(message.text?.trim() || "0");
             
-            // Find related ticket
+            // Find related ticket if any
             const tickets = await storage.getTickets();
             const relatedTicket = tickets.find(t => t.conversationId === conversation.id);
             
-            // Save CSAT rating
+            // Create CSAT rating
             await storage.createCsatRating({
-              ticketId: relatedTicket?.id || "",
+              ticketId: relatedTicket?.id,
               conversationId: conversation.id,
               rating,
-              feedback: "",
             });
+            console.log('✅ CSAT rating saved:', rating);
             
             // Send thank you message
             const telegramIntegration = await storage.getChannelIntegration("telegram");
@@ -1483,10 +1491,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   status: "resolved",
                 });
                 
-                // Create CSAT rating placeholder (will be filled when customer responds)
-                const csatId = await storage.createCsatRating({
+                // Create and save CSAT survey message
+                const csatText = `Thank you for contacting us! 🌟\n\nPlease rate your experience:\n\n⭐ - Poor\n⭐⭐ - Fair\n⭐⭐⭐ - Good\n⭐⭐⭐⭐ - Very Good\n⭐⭐⭐⭐⭐ - Excellent\n\nReply with a number from 1 to 5.`;
+                
+                const csatMessage = await storage.createMessage({
                   conversationId: conversation.id,
-                  rating: 0, // Placeholder - will be updated when customer provides rating
+                  sender: "ai",
+                  senderName: "Support Team",
+                  content: csatText,
+                });
+                
+                // Broadcast CSAT message
+                broadcast({
+                  type: "message",
+                  data: {
+                    message: csatMessage,
+                  },
                 });
                 
                 // Send CSAT survey to Telegram
@@ -1498,7 +1518,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       chat_id: message.chat.id,
-                      text: `Thank you for contacting us! 🌟\n\nPlease rate your experience:\n\n⭐ - Poor\n⭐⭐ - Fair\n⭐⭐⭐ - Good\n⭐⭐⭐⭐ - Very Good\n⭐⭐⭐⭐⭐ - Excellent\n\nReply with a number from 1 to 5.`,
+                      text: csatText,
                     }),
                   });
                   console.log('📊 CSAT survey sent to Telegram');
