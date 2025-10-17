@@ -10,7 +10,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
 
-### Latest Updates (5:50 PM)
+### Latest Updates (6:00 PM)
+1. **🤖 AI Auto-Close with CSAT**: When customer expresses satisfaction (e.g., "thanks, you can close this", "problem solved"), AI automatically closes the chat and sends CSAT survey
+2. **⏰ Inactivity Auto-Close System**: 
+   - Monitors customer inactivity in AI-handled conversations
+   - After 10 minutes of no response, AI sends "Are we on chat?" message
+   - Repeats 3 times with 30-second intervals
+   - If still no response, AI closes chat with message: "As per no response in chat I am closing the case. If you face any other issue please connect again"
+   - Closes without CSAT (inactivity closure)
+3. **Enhanced AI Intent Detection**: AI now detects customer satisfaction and escalation needs using intelligent prompt analysis
+
+### Previous Updates (5:50 PM)
 1. **✨ Close Button for Resolved Chats Added**: 
    - Added X (close) button in chat header for resolved conversations
    - Allows agents/admins to dismiss and close resolved chat views
