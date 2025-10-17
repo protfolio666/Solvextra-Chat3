@@ -8,6 +8,22 @@ An omnichannel customer support platform designed to unify customer conversation
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (October 17, 2025)
+
+### Critical Bug Fixes
+1. **Agent Filtering Logic Fixed**: Resolved chats are now properly hidden from agents (only visible to admin). Pending acceptance chats correctly disappear from agent view after 30 seconds.
+2. **Tab Filtering Implemented**: Conversation tabs (All, Open, Assigned, Resolved) now properly filter conversations. Resolved tab only visible to admin.
+3. **Real-time WebSocket Updates**: Fixed query invalidation so conversations and messages auto-update without manual refresh.
+4. **Chat Input Disabled for Resolved Chats**: Agents cannot send messages to resolved conversations.
+
+### Features Verified
+1. **Accept Chat Button**: Fully functional for pending_acceptance chats within 30-second window (first-accept-first-serve).
+2. **Sound Notifications**: Doorbell sound for new escalated chats, beep sound for incoming messages - already implemented.
+3. **AI Knowledge Base Integration**: AI receives knowledge base text and file metadata for all providers (OpenAI, Gemini, OpenRouter).
+4. **AI Conversation Memory**: Last 5 messages maintained in context for coherent multi-turn dialogues.
+5. **Typing Indicators**: Real-time typing indicators for customer, agent, and AI.
+6. **Agent Monitoring Dashboard**: Admin can view real-time agent activity and manually transfer chats between agents.
+
 ## System Architecture
 
 ### Frontend Architecture
