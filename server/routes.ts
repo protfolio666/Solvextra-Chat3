@@ -1126,6 +1126,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
 
+    // Broadcast update to connected clients
+    const wsMessage: WSMessage = {
+      type: "ticket_updated",
+      data: { ticketId: ticket.id },
+    };
+    clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(wsMessage));
+      }
+    });
+
     res.json(ticket);
   });
 

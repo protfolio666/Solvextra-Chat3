@@ -12,9 +12,10 @@ interface TicketCardProps {
   onViewAudit?: (ticketId: string) => void;
   onViewCreationDetails?: (ticketId: string) => void;
   onSendResolution?: (ticketId: string) => void;
+  showResolveButton?: boolean; // Explicitly control resolve button visibility
 }
 
-export function TicketCard({ ticket, onClick, onResolve, onViewAudit, onViewCreationDetails, onSendResolution }: TicketCardProps) {
+export function TicketCard({ ticket, onClick, onResolve, onViewAudit, onViewCreationDetails, onSendResolution, showResolveButton = true }: TicketCardProps) {
   const priorityColors = {
     low: "bg-muted text-muted-foreground",
     medium: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20",
@@ -118,7 +119,7 @@ export function TicketCard({ ticket, onClick, onResolve, onViewAudit, onViewCrea
           )}
         </div>
 
-        {ticket.status !== "resolved" && onResolve && (
+        {ticket.status !== "resolved" && onResolve && showResolveButton && (
           <Button
             size="sm"
             variant="outline"

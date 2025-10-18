@@ -89,6 +89,19 @@ export function useWebSocket(callbacks?: WebSocketCallbacks) {
               case "typing":
                 callbacksRef.current?.onTyping?.(message.data);
                 break;
+              case "ticket_updated":
+                // Refetch tickets list
+                queryClient.refetchQueries({ queryKey: ["/api/tickets"] });
+                // Refetch audit log for the specific ticket
+                if (message.data?.ticketId) {
+                  queryClient.refetchQueries({ 
+                    queryKey: ["/api/tickets", message.data.ticketId, "audit"] 
+                  });
+                  queryClient.refetchQueries({ 
+                    queryKey: ["/api/tickets", message.data.ticketId, "email-replies"] 
+                  });
+                }
+                break;
             }
           } catch (error) {
             console.error("WebSocket message parsing error:", error);
