@@ -127,6 +127,26 @@ export const insertTicketAuditLogSchema = createInsertSchema(ticketAuditLog).omi
 export type InsertTicketAuditLog = z.infer<typeof insertTicketAuditLogSchema>;
 export type TicketAuditLog = typeof ticketAuditLog.$inferSelect;
 
+// Email Replies (Customer responses to resolution emails)
+export const emailReplies = pgTable("email_replies", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ticketId: varchar("ticket_id").notNull(),
+  fromEmail: text("from_email").notNull(),
+  subject: text("subject").notNull(),
+  textContent: text("text_content"),
+  htmlContent: text("html_content"),
+  attachments: text("attachments").array(), // Array of attachment URLs/filenames
+  receivedAt: timestamp("received_at").notNull().defaultNow(),
+});
+
+export const insertEmailReplySchema = createInsertSchema(emailReplies).omit({
+  id: true,
+  receivedAt: true,
+});
+
+export type InsertEmailReply = z.infer<typeof insertEmailReplySchema>;
+export type EmailReply = typeof emailReplies.$inferSelect;
+
 // AI Settings
 export const aiSettings = pgTable("ai_settings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

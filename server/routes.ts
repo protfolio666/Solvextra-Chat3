@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
+import multer from "multer";
 import { storage } from "./storage";
 import { generateAIResponse } from "./ai-providers";
 import { setupAuth } from "./auth";
@@ -854,7 +855,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const ticket = await storage.createTicket(ticketData);
 
-    // Log ticket creation in audit log
+    // Log ticket creation in audit log with initial values
     if (user) {
       try {
         await storage.createTicketAuditLog({
@@ -862,7 +863,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           action: "created",
           performedBy: user.id,
           performedByName: user.name,
-          changes: JSON.stringify({ created: true }),
+          changes: JSON.stringify({
+            status: ticket.status,
+            priority: ticket.priority,
+            tat: ticket.tat,
+            customerEmail: ticket.customerEmail || "Not provided",
+            issue: ticket.issue || "Not provided",
+            notes: ticket.notes || "Not provided"
+          }),
           snapshot: JSON.stringify(ticket),
         });
       } catch (error) {
@@ -928,7 +936,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     const ticket = await storage.createTicket(ticketData);
 
-    // Log ticket creation in audit log
+    // Log ticket creation in audit log with initial values
     if (user) {
       try {
         await storage.createTicketAuditLog({
@@ -936,7 +944,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           action: "created",
           performedBy: user.id,
           performedByName: user.name,
-          changes: JSON.stringify({ created: true }),
+          changes: JSON.stringify({
+            status: ticket.status,
+            priority: ticket.priority,
+            tat: ticket.tat,
+            customerEmail: ticket.customerEmail || "Not provided",
+            issue: ticket.issue || "Not provided",
+            notes: ticket.notes || "Not provided"
+          }),
           snapshot: JSON.stringify(ticket),
         });
       } catch (error) {
@@ -1118,6 +1133,103 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/tickets/:id/audit", async (req, res) => {
     const auditLog = await storage.getTicketAuditLog(req.params.id);
     res.json(auditLog);
+  });
+
+  // Get email replies for a ticket
+  app.get("/api/tickets/:id/email-replies", async (req, res) => {
+    const replies = await storage.getEmailReplies(req.params.id);
+    res.json(replies);
+  });
+
+  // SendGrid Inbound Parse webhook to receive customer email replies
+  // Uses multer to handle multipart/form-data
+  const upload = multer({ storage: multer.memoryStorage() });
+  
+  app.post("/api/webhook/sendgrid", upload.any(), async (req, res) => {
+    try {
+      const { to, from, subject, text, html } = req.body;
+      const files = req.files as Express.Multer.File[] | undefined;
+      
+      console.log("📧 Received email reply via SendGrid webhook");
+      console.log("To:", to);
+      console.log("From:", from);
+      console.log("Subject:", subject);
+      console.log("Files:", files?.length || 0);
+
+      // Extract ticket ID from the "to" email address
+      // Format: ticket-{ticketId}@inbound.yourdomain.com or replies to contactus@solvextra.com
+      const ticketIdMatch = to?.match(/ticket-([a-f0-9-]+)@/);
+      
+      if (!ticketIdMatch) {
+        console.log("⚠️ No ticket ID found in recipient address");
+        return res.status(200).send("OK"); // Accept webhook but don't process
+      }
+
+      const ticketId = ticketIdMatch[1];
+      const ticket = await storage.getTicket(ticketId);
+      
+      if (!ticket) {
+        console.log(`⚠️ Ticket ${ticketId} not found`);
+        return res.status(200).send("OK");
+      }
+
+      // Process attachments from multipart form data
+      const attachmentUrls: string[] = [];
+      if (files && files.length > 0) {
+        for (const file of files) {
+          // Only process image files
+          if (file.mimetype.startsWith('image/')) {
+            // Convert buffer to base64 data URL
+            const base64 = file.buffer.toString('base64');
+            const dataUrl = `data:${file.mimetype};base64,${base64}`;
+            attachmentUrls.push(dataUrl);
+            console.log(`✅ Processed image attachment: ${file.originalname}`);
+          }
+        }
+      }
+
+      // Create email reply record
+      const emailReply = await storage.createEmailReply({
+        ticketId,
+        fromEmail: from,
+        subject: subject || "(No subject)",
+        textContent: text || null,
+        htmlContent: html || null,
+        attachments: attachmentUrls.length > 0 ? attachmentUrls : null,
+      });
+
+      // Create audit log entry with reply ID for accurate lookup
+      await storage.createTicketAuditLog({
+        ticketId,
+        action: "email_reply_received",
+        performedBy: from,
+        changes: {
+          replyId: emailReply.id,
+          from: from,
+          subject: subject || "(No subject)",
+          hasAttachments: attachmentUrls.length > 0,
+          attachmentCount: attachmentUrls.length,
+        },
+      });
+
+      console.log(`✅ Email reply stored for ticket ${ticket.ticketNumber}`);
+      
+      // Broadcast update to connected clients
+      const wsMessage: WSMessage = {
+        type: "ticket_updated",
+        payload: { ticketId },
+      };
+      clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify(wsMessage));
+        }
+      });
+
+      res.status(200).send("OK");
+    } catch (error) {
+      console.error("❌ Error processing SendGrid webhook:", error);
+      res.status(500).send("Error");
+    }
   });
 
   // Send resolution email to customer

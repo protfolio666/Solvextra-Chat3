@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { TicketAuditLog } from "@shared/schema";
+import { TicketAuditLog, EmailReply } from "@shared/schema";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Clock, User, Edit, FileText, Mail } from "lucide-react";
+import { Clock, User, Edit, FileText, Mail, Image as ImageIcon, Paperclip } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface TicketAuditDialogProps {
@@ -24,6 +24,11 @@ export function TicketAuditDialog({ ticketId, ticketNumber, onClose }: TicketAud
     enabled: !!ticketId,
   });
 
+  const { data: emailReplies = [] } = useQuery<EmailReply[]>({
+    queryKey: [`/api/tickets/${ticketId}/email-replies`],
+    enabled: !!ticketId,
+  });
+
   const getActionIcon = (action: string) => {
     switch (action) {
       case "created":
@@ -33,6 +38,8 @@ export function TicketAuditDialog({ ticketId, ticketNumber, onClose }: TicketAud
       case "status_changed":
         return <Edit className="w-4 h-4" />;
       case "resolution_sent":
+        return <Mail className="w-4 h-4" />;
+      case "email_reply_received":
         return <Mail className="w-4 h-4" />;
       default:
         return <Clock className="w-4 h-4" />;
@@ -49,6 +56,8 @@ export function TicketAuditDialog({ ticketId, ticketNumber, onClose }: TicketAud
         return "bg-yellow-500/10 text-yellow-700 border-yellow-500/20";
       case "resolution_sent":
         return "bg-success/10 text-success border-success/20";
+      case "email_reply_received":
+        return "bg-blue-500/10 text-blue-700 border-blue-500/20 dark:text-blue-400";
       default:
         return "bg-muted text-muted-foreground";
     }
@@ -107,19 +116,89 @@ export function TicketAuditDialog({ ticketId, ticketNumber, onClose }: TicketAud
                       <span className="font-medium">{log.performedByName || "System"}</span>
                     </div>
 
-                    {log.action === "created" && (
-                      <div className="text-sm text-muted-foreground">
-                        Ticket was created
+                    {log.action === "created" && changes && (
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium text-success">Ticket Created</div>
+                        <div className="space-y-1 text-sm bg-muted/50 rounded p-3">
+                          {changes.status && (
+                            <div><span className="font-medium">Status:</span> {changes.status}</div>
+                          )}
+                          {changes.priority && (
+                            <div><span className="font-medium">Priority:</span> {changes.priority}</div>
+                          )}
+                          {changes.tat && (
+                            <div><span className="font-medium">TAT:</span> {changes.tat} minutes</div>
+                          )}
+                          {changes.customerEmail && (
+                            <div><span className="font-medium">Customer Email:</span> {changes.customerEmail}</div>
+                          )}
+                          {changes.issue && (
+                            <div><span className="font-medium">Issue Details:</span> {changes.issue}</div>
+                          )}
+                          {changes.notes && (
+                            <div><span className="font-medium">Internal Notes:</span> {changes.notes}</div>
+                          )}
+                        </div>
                       </div>
                     )}
 
-                    {log.action === "resolution_sent" && (
-                      <div className="text-sm text-success">
-                        Resolution email sent to customer
+                    {log.action === "resolution_sent" && changes && (
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium text-success">Resolution Email Sent</div>
+                        <div className="space-y-1 text-sm bg-success/5 border border-success/20 rounded p-3">
+                          <div><span className="font-medium">Sent by:</span> {log.performedByName}</div>
+                          <div><span className="font-medium">Subject:</span> {changes.subject || "Resolution details"}</div>
+                          <div className="text-xs text-muted-foreground mt-2">
+                            Email delivered to customer successfully
+                          </div>
+                        </div>
                       </div>
                     )}
 
-                    {changes && Object.keys(changes).length > 0 && log.action !== "created" && log.action !== "resolution_sent" && (
+                    {log.action === "email_reply_received" && changes && (
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium text-blue-700 dark:text-blue-400">Customer Email Reply</div>
+                        <div className="space-y-2 text-sm bg-blue-500/5 border border-blue-500/20 rounded p-3">
+                          <div><span className="font-medium">From:</span> {changes.from}</div>
+                          <div><span className="font-medium">Subject:</span> {changes.subject || "(No subject)"}</div>
+                          
+                          {changes.hasAttachments && (
+                            <div className="flex items-center gap-2 mt-2 text-xs text-blue-700 dark:text-blue-400">
+                              <Paperclip className="w-3 h-3" />
+                              <span>{changes.attachmentCount} attachment{changes.attachmentCount > 1 ? 's' : ''} included</span>
+                            </div>
+                          )}
+
+                          {/* Display actual attachments from email replies */}
+                          {(() => {
+                            const reply = emailReplies.find(r => r.id === changes.replyId);
+                            if (reply?.attachments && reply.attachments.length > 0) {
+                              return (
+                                <div className="mt-3 space-y-2">
+                                  <div className="text-xs font-medium">Attachments:</div>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    {reply.attachments.map((attachment, idx) => (
+                                      <div key={idx} className="border rounded overflow-hidden">
+                                        <img 
+                                          src={attachment} 
+                                          alt={`Attachment ${idx + 1}`}
+                                          className="w-full h-32 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                          onClick={() => window.open(attachment, '_blank')}
+                                          data-testid={`img-attachment-${idx}`}
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
+                        </div>
+                      </div>
+                    )}
+
+                    {changes && Object.keys(changes).length > 0 && log.action !== "created" && log.action !== "resolution_sent" && log.action !== "email_reply_received" && (
                       <div className="space-y-2">
                         <div className="text-sm font-medium">Changes:</div>
                         <div className="space-y-1">

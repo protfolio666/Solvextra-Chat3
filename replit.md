@@ -16,7 +16,7 @@ The frontend is built with React 18 and TypeScript, utilizing Vite for developme
 
 ### Backend Architecture
 
-The backend is developed with Express.js, TypeScript, and Node.js, featuring a RESTful API and a WebSocket server for real-time communication. Drizzle ORM with PostgreSQL manages type-safe database operations, complemented by Zod for runtime validation. An in-memory storage layer (MemStorage) abstracts data handling. The database schema includes tables for `conversations`, `messages`, `agents`, `tickets` (with unique sequential IDs), `ai_settings`, `users`, `knowledge_files`, `email_settings`, and `csat_ratings`, along with a PostgreSQL sequence for ticket numbering.
+The backend is developed with Express.js, TypeScript, and Node.js, featuring a RESTful API and a WebSocket server for real-time communication. Drizzle ORM with PostgreSQL manages type-safe database operations, complemented by Zod for runtime validation. An in-memory storage layer (MemStorage) abstracts data handling. The database schema includes tables for `conversations`, `messages`, `agents`, `tickets` (with unique sequential IDs), `ai_settings`, `users`, `knowledge_files`, `email_settings`, `email_replies` (customer email responses with attachments), and `csat_ratings`, along with a PostgreSQL sequence for ticket numbering.
 
 ### AI Integration Layer
 
@@ -30,9 +30,10 @@ The platform features a multi-provider AI architecture supporting OpenAI, Google
 -   **Auto-Assignment & Escalation**: A 30-second "pending_acceptance" window for escalated chats, allowing available agents to accept (first-accept-first-serve) with sound notifications. Chats are hidden from agents after the window but remain visible to admins.
 -   **Chat Transfer**: Admins can manually transfer chats between agents with visual warnings when assigning to non-available agents, instantly updating agent visibility.
 -   **AI Conversation Memory**: AI maintains context of the last 5 messages for coherent multi-turn dialogues across all providers.
--   **Ticket Management**: Comprehensive system for creating, editing, and managing tickets with unique IDs, priority, TAT, and status.
+-   **Ticket Management**: Comprehensive system for creating, editing, and managing tickets with unique IDs, priority, TAT, and status. Complete audit trail tracking all ticket lifecycle events including creation details, status changes, and email interactions.
+-   **Email Reply Capture**: Webhook integration with SendGrid Inbound Parse to capture customer email replies with image attachments. Replies are stored in the database and displayed in the ticket audit trail with attachment previews.
 -   **Knowledge Base**: Supports file uploads (documents, PDFs, images) as data URLs with a management UI.
--   **Email Notifications**: Integrates with SendGrid for configurable email notifications on ticket events and CSAT surveys.
+-   **Email Notifications**: Integrates with SendGrid for configurable email notifications on ticket events and CSAT surveys. Supports custom resolution emails with agent-written messages.
 -   **CSAT Management**: Collects 1-5 star customer satisfaction ratings with automated thank-you messages and provides an admin dashboard for analytics.
 -   **Export & Analytics**: Admin-only feature for exporting conversation data to CSV with filtering and message analytics.
 -   **Agent Monitoring Dashboard**: Admin-only page providing real-time agent activity, including active chat counts, handling time, and manual chat transfer functionality.

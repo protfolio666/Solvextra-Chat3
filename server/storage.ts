@@ -9,6 +9,8 @@ import {
   InsertTicket,
   TicketAuditLog,
   InsertTicketAuditLog,
+  EmailReply,
+  InsertEmailReply,
   AISettings,
   InsertAISettings,
   AIProvider,
@@ -29,6 +31,7 @@ import {
   agents,
   tickets,
   ticketAuditLog,
+  emailReplies,
   aiSettings,
   users,
   knowledgeFiles,
@@ -76,6 +79,10 @@ export interface IStorage {
   // Ticket Audit Log
   getTicketAuditLog(ticketId: string): Promise<TicketAuditLog[]>;
   createTicketAuditLog(log: InsertTicketAuditLog): Promise<TicketAuditLog>;
+
+  // Email Replies
+  getEmailReplies(ticketId: string): Promise<EmailReply[]>;
+  createEmailReply(reply: InsertEmailReply): Promise<EmailReply>;
 
   // AI Settings
   getAISettings(): Promise<AISettings | undefined>;
@@ -505,6 +512,33 @@ export class DbStorage implements IStorage {
       return result[0];
     } catch (error) {
       console.error("Error creating ticket audit log:", error);
+      throw error;
+    }
+  }
+
+  // Email Replies
+  async getEmailReplies(ticketId: string): Promise<EmailReply[]> {
+    try {
+      return await db
+        .select()
+        .from(emailReplies)
+        .where(eq(emailReplies.ticketId, ticketId))
+        .orderBy(asc(emailReplies.receivedAt));
+    } catch (error) {
+      console.error("Error getting email replies:", error);
+      return [];
+    }
+  }
+
+  async createEmailReply(reply: InsertEmailReply): Promise<EmailReply> {
+    try {
+      const result = await db
+        .insert(emailReplies)
+        .values(reply as any)
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating email reply:", error);
       throw error;
     }
   }
