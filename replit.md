@@ -26,8 +26,9 @@ The platform features a multi-provider AI architecture supporting OpenAI, Google
 
 -   **Authentication & Authorization**: Role-Based Access Control (Admin/Agent) with protected routes and server-side authorization using Passport.js.
 -   **Channel Integration**: Supports Web Chat Widget, WhatsApp, Telegram, Instagram, and Twitter.
+-   **Agent Status Management**: 5-tier status system (Available, Break, Training, Floor Support, Not Available) with self-service controls for agents and admin override capabilities. Only "available" agents receive auto-assignments and can accept chats.
 -   **Auto-Assignment & Escalation**: A 30-second "pending_acceptance" window for escalated chats, allowing available agents to accept (first-accept-first-serve) with sound notifications. Chats are hidden from agents after the window but remain visible to admins.
--   **Chat Transfer**: Admins can manually transfer chats between agents, instantly updating agent visibility.
+-   **Chat Transfer**: Admins can manually transfer chats between agents with visual warnings when assigning to non-available agents, instantly updating agent visibility.
 -   **AI Conversation Memory**: AI maintains context of the last 5 messages for coherent multi-turn dialogues across all providers.
 -   **Ticket Management**: Comprehensive system for creating, editing, and managing tickets with unique IDs, priority, TAT, and status.
 -   **Knowledge Base**: Supports file uploads (documents, PDFs, images) as data URLs with a management UI.
@@ -35,6 +36,7 @@ The platform features a multi-provider AI architecture supporting OpenAI, Google
 -   **CSAT Management**: Collects 1-5 star customer satisfaction ratings with automated thank-you messages and provides an admin dashboard for analytics.
 -   **Export & Analytics**: Admin-only feature for exporting conversation data to CSV with filtering and message analytics.
 -   **Agent Monitoring Dashboard**: Admin-only page providing real-time agent activity, including active chat counts, handling time, and manual chat transfer functionality.
+-   **Admin Controls**: Admins can override agent status and reset agent passwords directly from the agents management page.
 
 ## External Dependencies
 
