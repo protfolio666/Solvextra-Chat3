@@ -22,6 +22,7 @@ import {
   WSMessage,
   Conversation,
   Message,
+  User,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -894,7 +895,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) {
       return res.status(400).json({ error: result.error });
     }
-    const ticket = await storage.createTicket(result.data);
+
+    const user = req.user as User;
+    
+    // Add creator information to ticket
+    const ticketData = {
+      ...result.data,
+      createdBy: user?.id,
+      createdByName: user?.name,
+    };
+    
+    const ticket = await storage.createTicket(ticketData);
+
+    // Log ticket creation in audit log
+    if (user) {
+      try {
+        await storage.createTicketAuditLog({
+          ticketId: ticket.id,
+          action: "created",
+          performedBy: user.id,
+          performedByName: user.name,
+          changes: JSON.stringify({ created: true }),
+          snapshot: JSON.stringify(ticket),
+        });
+      } catch (error) {
+        console.error("❌ Failed to log ticket creation in audit log:", error);
+      }
+    }
 
     // Send email notification for ticket creation/escalation if customer email is available
     if (ticket.status === "open" && ticket.customerEmail) {
@@ -938,6 +965,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const ticket = await storage.updateTicket(req.params.id, req.body);
     if (!ticket) {
       return res.status(404).json({ error: "Ticket not found" });
+    }
+
+    // Log ticket update in audit log
+    const user = req.user as User;
+    if (user) {
+      try {
+        // Calculate what changed
+        const changes: Record<string, { old: any; new: any }> = {};
+        const fieldsToTrack = ['title', 'description', 'issue', 'notes', 'priority', 'status', 'tat', 'customerEmail'];
+        
+        fieldsToTrack.forEach(field => {
+          if (oldTicket[field as keyof typeof oldTicket] !== ticket[field as keyof typeof ticket]) {
+            changes[field] = {
+              old: oldTicket[field as keyof typeof oldTicket],
+              new: ticket[field as keyof typeof ticket],
+            };
+          }
+        });
+
+        // Only log if there are actual changes
+        if (Object.keys(changes).length > 0) {
+          const action = oldTicket.status !== ticket.status ? "status_changed" : "updated";
+          
+          await storage.createTicketAuditLog({
+            ticketId: ticket.id,
+            action,
+            performedBy: user.id,
+            performedByName: user.name,
+            changes: JSON.stringify(changes),
+            snapshot: JSON.stringify(ticket),
+          });
+        }
+      } catch (error) {
+        console.error("❌ Failed to log ticket update in audit log:", error);
+      }
     }
 
     // Handle status change email notifications
@@ -1029,6 +1091,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     res.json(ticket);
+  });
+
+  // Get audit log for a ticket
+  app.get("/api/tickets/:id/audit", async (req, res) => {
+    const auditLog = await storage.getTicketAuditLog(req.params.id);
+    res.json(auditLog);
+  });
+
+  // Send resolution email to customer
+  app.post("/api/tickets/:id/send-resolution", async (req, res) => {
+    const { subject, message } = req.body;
+    
+    if (!subject || !message) {
+      return res.status(400).json({ error: "Subject and message are required" });
+    }
+
+    const ticket = await storage.getTicket(req.params.id);
+    if (!ticket) {
+      return res.status(404).json({ error: "Ticket not found" });
+    }
+
+    if (!ticket.customerEmail) {
+      return res.status(400).json({ error: "No customer email associated with this ticket" });
+    }
+
+    const user = req.user as User;
+    if (!user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const emailSettings = await storage.getEmailSettings();
+      if (!emailSettings?.enabled) {
+        return res.status(400).json({ error: "Email service is not configured or disabled" });
+      }
+
+      // Create email HTML with agent's custom message
+      const emailHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; border-radius: 10px 10px 0 0; text-align: center; }
+            .content { background: #f9fafb; padding: 30px 20px; border-radius: 0 0 10px 10px; }
+            .message { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea; }
+            .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
+            .ticket-info { background: white; padding: 15px; border-radius: 8px; margin: 15px 0; }
+            .label { font-weight: 600; color: #4b5563; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1 style="margin: 0;">Resolution for Ticket ${ticket.ticketNumber}</h1>
+          </div>
+          <div class="content">
+            <div class="ticket-info">
+              <p style="margin: 5px 0;"><span class="label">Ticket:</span> ${ticket.ticketNumber}</p>
+              <p style="margin: 5px 0;"><span class="label">Title:</span> ${ticket.title}</p>
+            </div>
+            
+            <div class="message">
+              <p style="white-space: pre-wrap; margin: 0;">${message.replace(/\n/g, '<br>')}</p>
+            </div>
+
+            <p style="margin-top: 20px; color: #6b7280; font-size: 14px;">
+              Sent by ${user.name} from Solvextra Support Team
+            </p>
+
+            <div class="footer">
+              <p>Thank you for using our support services!</p>
+              <p style="margin-top: 10px;">If you have any questions, please don't hesitate to reach out.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      await sendEmail({
+        to: ticket.customerEmail,
+        subject: subject,
+        html: emailHtml,
+        emailSettings,
+      });
+
+      // Update ticket to mark resolution as sent
+      await storage.updateTicket(ticket.id, {
+        resolutionSent: true,
+        resolutionSentAt: new Date(),
+      });
+
+      // Log the resolution send action in audit log
+      await storage.createTicketAuditLog({
+        ticketId: ticket.id,
+        action: "resolution_sent",
+        performedBy: user.id,
+        performedByName: user.name,
+        changes: JSON.stringify({ subject, messageSent: true }),
+        snapshot: JSON.stringify(ticket),
+      });
+
+      console.log(`✅ Resolution email sent to ${ticket.customerEmail} for ticket ${ticket.ticketNumber}`);
+      res.json({ success: true, message: "Resolution email sent successfully" });
+    } catch (error) {
+      console.error("❌ Failed to send resolution email:", error);
+      res.status(500).json({ error: "Failed to send resolution email" });
+    }
   });
 
   // Resolve Ticket - marks as resolved and sends CSAT request

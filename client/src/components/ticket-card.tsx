@@ -2,16 +2,18 @@ import { Ticket } from "@shared/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, AlertCircle, CheckCircle } from "lucide-react";
+import { Clock, AlertCircle, CheckCircle, Eye, Mail } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface TicketCardProps {
   ticket: Ticket;
   onClick?: () => void;
   onResolve?: (ticketId: string) => void;
+  onViewAudit?: (ticketId: string) => void;
+  onSendResolution?: (ticketId: string) => void;
 }
 
-export function TicketCard({ ticket, onClick, onResolve }: TicketCardProps) {
+export function TicketCard({ ticket, onClick, onResolve, onViewAudit, onSendResolution }: TicketCardProps) {
   const priorityColors = {
     low: "bg-muted text-muted-foreground",
     medium: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20",
@@ -57,6 +59,47 @@ export function TicketCard({ ticket, onClick, onResolve }: TicketCardProps) {
 
         <div className="text-xs text-muted-foreground">
           Created {formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true })}
+          {ticket.createdByName && (
+            <span className="ml-2">• by {ticket.createdByName}</span>
+          )}
+        </div>
+
+        <div className="flex gap-2">
+          {onViewAudit && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewAudit(ticket.id);
+              }}
+              data-testid={`button-view-audit-${ticket.id}`}
+              title="View ticket history"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+          )}
+
+          {ticket.customerEmail && onSendResolution && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSendResolution(ticket.id);
+              }}
+              data-testid={`button-send-resolution-${ticket.id}`}
+              title="Send resolution email"
+              className="flex items-center gap-1"
+            >
+              <Mail className="w-4 h-4" />
+              {ticket.resolutionSent && (
+                <Badge variant="outline" className="ml-1 bg-success/10 text-success text-[10px] px-1 py-0">
+                  Sent
+                </Badge>
+              )}
+            </Button>
+          )}
         </div>
 
         {ticket.status !== "resolved" && onResolve && (
