@@ -78,6 +78,7 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUserPassword(id: number, hashedPassword: string): Promise<boolean>;
 
   // Knowledge Files
   getKnowledgeFiles(): Promise<KnowledgeFile[]>;
@@ -571,6 +572,20 @@ export class DbStorage implements IStorage {
     }
   }
 
+  async updateUserPassword(id: number, hashedPassword: string): Promise<boolean> {
+    try {
+      const result = await db
+        .update(users)
+        .set({ password: hashedPassword })
+        .where(eq(users.id, id))
+        .returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error("Error updating user password:", error);
+      return false;
+    }
+  }
+
   // Knowledge Files
   async getKnowledgeFiles(): Promise<KnowledgeFile[]> {
     try {
@@ -994,6 +1009,15 @@ export class MemStorage implements IStorage {
       throw new Error("Cannot delete permanent admin account");
     }
     return this.users.delete(id);
+  }
+
+  async updateUserPassword(id: number, hashedPassword: string): Promise<boolean> {
+    const user = this.users.get(id);
+    if (!user) return false;
+    
+    user.password = hashedPassword;
+    this.users.set(id, user);
+    return true;
   }
 
   async getKnowledgeFiles(): Promise<KnowledgeFile[]> {

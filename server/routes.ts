@@ -777,6 +777,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(agent);
   });
 
+  // Admin route to reset agent password
+  app.patch("/api/agents/:id/reset-password", requireAdmin, async (req, res) => {
+    try {
+      const { newPassword } = req.body;
+      
+      if (!newPassword) {
+        return res.status(400).json({ error: "New password is required" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters" });
+      }
+
+      // Get the agent to find their email
+      const agent = await storage.getAgent(req.params.id);
+      if (!agent) {
+        return res.status(404).json({ error: "Agent not found" });
+      }
+
+      // Update the user password
+      const { hashPassword } = await import("./auth");
+      const hashedPassword = await hashPassword(newPassword);
+      
+      const user = await storage.getUserByUsername(agent.email);
+      if (!user) {
+        return res.status(404).json({ error: "User account not found" });
+      }
+
+      await storage.updateUserPassword(user.id, hashedPassword);
+
+      res.json({ message: "Password reset successfully" });
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      res.status(500).json({ error: "Failed to reset password" });
+    }
+  });
+
   // Tickets
   app.get("/api/tickets", async (req, res) => {
     const tickets = await storage.getTickets();
