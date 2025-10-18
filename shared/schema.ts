@@ -7,7 +7,7 @@ import { z } from "zod";
 export type Channel = "whatsapp" | "telegram" | "instagram" | "twitter" | "website";
 export type ConversationStatus = "open" | "pending_acceptance" | "assigned" | "resolved" | "ticket";
 export type MessageSender = "customer" | "ai" | "agent";
-export type AgentStatus = "available" | "busy" | "offline";
+export type AgentStatus = "available" | "break" | "training" | "floor_support" | "not_available";
 export type AIProvider = "openai" | "gemini" | "openrouter";
 export type UserRole = "admin" | "agent";
 
@@ -63,7 +63,7 @@ export const agents = pgTable("agents", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   avatar: text("avatar"),
-  status: varchar("status", { length: 20 }).notNull().default("offline").$type<AgentStatus>(),
+  status: varchar("status", { length: 20 }).notNull().default("not_available").$type<AgentStatus>(),
   activeConversations: integer("active_conversations").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
