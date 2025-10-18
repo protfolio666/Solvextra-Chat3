@@ -37,25 +37,26 @@ export function useWebSocket(callbacks?: WebSocketCallbacks) {
           try {
             const message: WSMessage = JSON.parse(event.data);
             
-            // Invalidate relevant queries based on message type
+            // Refetch relevant queries immediately for instant updates
             switch (message.type) {
               case "new_chat":
-                queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+                queryClient.refetchQueries({ queryKey: ["/api/conversations"] });
                 callbacksRef.current?.onNewChat?.();
                 break;
               case "message":
-                queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+                // Refetch both conversations list and specific conversation messages
+                queryClient.refetchQueries({ queryKey: ["/api/conversations"] });
                 if (message.data.message?.conversationId) {
-                  queryClient.invalidateQueries({ 
+                  queryClient.refetchQueries({ 
                     queryKey: ["/api/conversations", message.data.message.conversationId, "messages"] 
                   });
                 }
                 callbacksRef.current?.onMessage?.(message.data);
                 break;
               case "chat_accepted":
-                queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+                queryClient.refetchQueries({ queryKey: ["/api/conversations"] });
                 if (message.data.conversationId) {
-                  queryClient.invalidateQueries({ 
+                  queryClient.refetchQueries({ 
                     queryKey: ["/api/conversations", message.data.conversationId, "agent"] 
                   });
                 }
@@ -63,24 +64,24 @@ export function useWebSocket(callbacks?: WebSocketCallbacks) {
                 break;
               case "status_update":
                 if (message.data.conversation) {
-                  queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+                  queryClient.refetchQueries({ queryKey: ["/api/conversations"] });
                 }
                 if (message.data.agent) {
-                  queryClient.invalidateQueries({ queryKey: ["/api/agents"] });
+                  queryClient.refetchQueries({ queryKey: ["/api/agents"] });
                 }
                 break;
               case "escalation":
-                queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+                queryClient.refetchQueries({ queryKey: ["/api/conversations"] });
                 if (message.data.ticket) {
-                  queryClient.invalidateQueries({ queryKey: ["/api/tickets"] });
+                  queryClient.refetchQueries({ queryKey: ["/api/tickets"] });
                 }
                 break;
               case "assignment":
-                queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
-                queryClient.invalidateQueries({ queryKey: ["/api/agents"] });
-                // Invalidate agent query for the specific conversation
+                queryClient.refetchQueries({ queryKey: ["/api/conversations"] });
+                queryClient.refetchQueries({ queryKey: ["/api/agents"] });
+                // Refetch agent query for the specific conversation
                 if (message.data.conversationId) {
-                  queryClient.invalidateQueries({ 
+                  queryClient.refetchQueries({ 
                     queryKey: ["/api/conversations", message.data.conversationId, "agent"] 
                   });
                 }
