@@ -833,8 +833,8 @@ export default function Inbox() {
               </div>
             </div>
 
-            {/* Accept Chat Banner (Pending Acceptance) */}
-            {isPendingAcceptance && activeConversation?.escalationTimestamp && (
+            {/* Accept Chat Banner (Pending Acceptance) - Only show for available agents */}
+            {isPendingAcceptance && activeConversation?.escalationTimestamp && currentAgent?.status === "available" && (
               <div className="p-4 bg-amber-50 dark:bg-amber-950 border-b border-amber-200 dark:border-amber-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
