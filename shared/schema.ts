@@ -270,8 +270,9 @@ export type EmailSettings = typeof emailSettings.$inferSelect;
 
 // WebSocket message types
 export interface WSMessage {
-  type: "message" | "status_update" | "typing" | "escalation" | "assignment" | "admin_notification" | "csat_request" | "new_chat" | "chat_accepted";
-  data: any;
+  type: "message" | "status_update" | "typing" | "escalation" | "assignment" | "admin_notification" | "csat_request" | "new_chat" | "chat_accepted" | "ticket_updated";
+  data?: any;
+  payload?: any;
 }
 
 export interface TypingIndicator {

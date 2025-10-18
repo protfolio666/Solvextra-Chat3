@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { FileText, User, Clock } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 
 interface TicketCreationDetailsDialogProps {
   ticketId: string | null;
@@ -71,7 +71,7 @@ export function TicketCreationDetailsDialog({ ticketId, ticketNumber, onClose }:
                   <Clock className="w-4 h-4 text-primary" />
                   <span className="font-medium">Created:</span>
                   <span className="text-muted-foreground">
-                    {formatDistanceToNow(new Date(creationLog.timestamp), { addSuffix: true })}
+                    {format(new Date(creationLog.timestamp), "dd MMM yyyy, HH:mm")}
                   </span>
                 </div>
               </div>

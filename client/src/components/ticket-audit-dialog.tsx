@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Clock, User, Edit, FileText, Mail, Image as ImageIcon, Paperclip } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 
 interface TicketAuditDialogProps {
   ticketId: string | null;
@@ -107,7 +107,7 @@ export function TicketAuditDialog({ ticketId, ticketNumber, onClose }: TicketAud
                         </Badge>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
+                        {format(new Date(log.timestamp), "dd MMM yyyy, HH:mm")}
                       </div>
                     </div>
 

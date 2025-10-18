@@ -1,7 +1,7 @@
 import { Message } from "@shared/schema";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bot, User } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import { motion } from "framer-motion";
 
 interface MessageBubbleProps {
@@ -62,7 +62,7 @@ export function MessageBubble({ message, agentAvatar }: MessageBubbleProps) {
           </p>
         </div>
         <span className="text-xs text-muted-foreground mt-1">
-          {formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}
+          {message.timestamp ? format(new Date(message.timestamp), "dd MMM yyyy, HH:mm") : "—"}
         </span>
       </div>
 

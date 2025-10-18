@@ -134,7 +134,7 @@ export default function CsatDashboard() {
                   .map((rating) => (
                     <TableRow key={rating.id} data-testid={`rating-row-${rating.id}`}>
                       <TableCell className="text-sm text-muted-foreground">
-                        {format(new Date(rating.createdAt), "MMM d, yyyy h:mm a")}
+                        {rating.createdAt ? format(new Date(rating.createdAt), "MMM d, yyyy h:mm a") : "—"}
                       </TableCell>
                       <TableCell className="text-sm font-mono">
                         {rating.ticketId ? `${rating.ticketId.slice(0, 8)}...` : (

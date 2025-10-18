@@ -30,7 +30,7 @@ import {
 import { Users, Clock, MessageSquare, ArrowRightLeft, Circle } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 
 const statusConfig = {
   available: { label: "Available", color: "text-green-600 dark:text-green-400", variant: "default" as const },

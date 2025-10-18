@@ -115,8 +115,8 @@ export default function ExportPage() {
       row.customerEmail || "",
       row.customerPhone || "",
       row.status,
-      format(new Date(row.createdAt), "yyyy-MM-dd HH:mm:ss"),
-      format(new Date(row.lastMessageAt), "yyyy-MM-dd HH:mm:ss"),
+      row.createdAt ? format(new Date(row.createdAt), "yyyy-MM-dd HH:mm:ss") : "",
+      row.lastMessageAt ? format(new Date(row.lastMessageAt), "yyyy-MM-dd HH:mm:ss") : "",
       row.totalMessages?.toString() || "0",
       row.customerMessages?.toString() || "0",
       row.aiMessages?.toString() || "0",
@@ -297,12 +297,18 @@ export default function ExportPage() {
                               {row.agentName || <span className="text-muted-foreground">-</span>}
                             </TableCell>
                             <TableCell>
-                              <div className="text-sm">
-                                {format(new Date(row.createdAt), "MMM d, yyyy")}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {format(new Date(row.createdAt), "HH:mm")}
-                              </div>
+                              {row.createdAt ? (
+                                <>
+                                  <div className="text-sm">
+                                    {format(new Date(row.createdAt), "MMM d, yyyy")}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {format(new Date(row.createdAt), "HH:mm")}
+                                  </div>
+                                </>
+                              ) : (
+                                <span className="text-muted-foreground">—</span>
+                              )}
                             </TableCell>
                             <TableCell>
                               {row.ticketResolvedAt ? (

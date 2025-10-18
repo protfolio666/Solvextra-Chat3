@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, AlertCircle, CheckCircle, Eye, Mail, FileText } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -59,7 +59,7 @@ export function TicketCard({ ticket, onClick, onResolve, onViewAudit, onViewCrea
         </div>
 
         <div className="text-xs text-muted-foreground">
-          Created {formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true })}
+          Created {format(new Date(ticket.createdAt), "dd MMM yyyy, HH:mm")}
           {ticket.createdByName && (
             <span className="ml-2">• by {ticket.createdByName}</span>
           )}

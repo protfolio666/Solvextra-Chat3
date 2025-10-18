@@ -1,6 +1,6 @@
 import { Conversation } from "@shared/schema";
 import { ChannelBadge } from "./channel-badge";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
@@ -63,7 +63,7 @@ export function ConversationCard({
               {conversation.customerName}
             </h3>
             <span className="text-xs text-muted-foreground whitespace-nowrap">
-              {formatDistanceToNow(new Date(conversation.lastMessageAt), { addSuffix: true })}
+              {conversation.lastMessageAt ? format(new Date(conversation.lastMessageAt), "dd MMM yyyy, HH:mm") : "—"}
             </span>
           </div>
 

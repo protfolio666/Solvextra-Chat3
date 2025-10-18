@@ -1203,13 +1203,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ticketId,
         action: "email_reply_received",
         performedBy: from,
-        changes: {
+        changes: JSON.stringify({
           replyId: emailReply.id,
           from: from,
           subject: subject || "(No subject)",
           hasAttachments: attachmentUrls.length > 0,
           attachmentCount: attachmentUrls.length,
-        },
+        }),
       });
 
       console.log(`✅ Email reply stored for ticket ${ticket.ticketNumber}`);
@@ -1217,7 +1217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Broadcast update to connected clients
       const wsMessage: WSMessage = {
         type: "ticket_updated",
-        payload: { ticketId },
+        data: { ticketId },
       };
       clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
@@ -1342,11 +1342,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ error: "Ticket not found" });
     }
 
+    const user = req.user as User;
+
     // Update ticket status to resolved
     const updatedTicket = await storage.updateTicket(req.params.id, {
       status: "resolved",
       resolvedAt: new Date(),
     });
+
+    // Create audit log entry for status change
+    if (user && updatedTicket) {
+      try {
+        await storage.createTicketAuditLog({
+          ticketId: ticket.id,
+          action: "status_changed",
+          performedBy: user.id,
+          performedByName: user.name,
+          changes: JSON.stringify({
+            status: {
+              old: ticket.status,
+              new: "resolved"
+            }
+          }),
+        });
+      } catch (error) {
+        console.error("Error creating audit log for ticket resolution:", error);
+      }
+    }
+
+    // Broadcast update to connected clients (outside user conditional)
+    if (updatedTicket) {
+      const wsMessage: WSMessage = {
+        type: "ticket_updated",
+        data: { ticketId: ticket.id },
+      };
+      clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify(wsMessage));
+        }
+      });
+    }
 
     // Get conversation to send CSAT request
     const conversation = await storage.getConversation(ticket.conversationId);

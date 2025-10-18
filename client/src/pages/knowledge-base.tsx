@@ -191,7 +191,7 @@ export default function KnowledgeBase() {
                             {formatFileSize(file.size)}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {format(new Date(file.createdAt), "MMM d, yyyy")}
+                            {file.createdAt ? format(new Date(file.createdAt), "MMM d, yyyy") : "—"}
                           </span>
                         </div>
                       </div>

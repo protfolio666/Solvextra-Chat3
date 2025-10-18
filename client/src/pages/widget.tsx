@@ -188,7 +188,7 @@ export default function ChatWidget() {
                             <p className="text-sm">{msg.content}</p>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {format(new Date(msg.timestamp), "HH:mm")}
+                            {msg.timestamp ? format(new Date(msg.timestamp), "HH:mm") : "—"}
                           </p>
                         </div>
                       </div>
