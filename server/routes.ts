@@ -18,6 +18,7 @@ import {
   insertCsatRatingSchema,
   insertEmailSettingsSchema,
   Channel,
+  AgentStatus,
   WSMessage,
   Conversation,
   Message,
@@ -728,8 +729,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Allow agents to update their own status
+  app.patch("/api/agents/me/status", async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const { status } = req.body;
+    
+    // Validate status
+    const validStatuses: AgentStatus[] = ["available", "break", "training", "floor_support", "not_available"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid status. Must be one of: available, break, training, floor_support, not_available" });
+    }
+
+    const agents = await storage.getAgents();
+    const currentAgent = agents.find(a => a.email === req.user?.username);
+    
+    if (!currentAgent) {
+      return res.status(404).json({ error: "Agent not found" });
+    }
+
+    const agent = await storage.updateAgentStatus(currentAgent.id, status);
+    if (!agent) {
+      return res.status(404).json({ error: "Agent not found" });
+    }
+    
+    broadcast({ type: "status_update", data: { agent } });
+    res.json(agent);
+  });
+
+  // Admin route to update any agent's status
   app.patch("/api/agents/:id/status", requireAdmin, async (req, res) => {
     const { status } = req.body;
+    
+    // Validate status
+    const validStatuses: AgentStatus[] = ["available", "break", "training", "floor_support", "not_available"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid status. Must be one of: available, break, training, floor_support, not_available" });
+    }
+    
     const agent = await storage.updateAgentStatus(req.params.id, status);
     if (!agent) {
       return res.status(404).json({ error: "Agent not found" });
