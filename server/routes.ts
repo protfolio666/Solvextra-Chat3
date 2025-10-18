@@ -823,7 +823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Create ticket from conversation and close chat without CSAT
   app.post("/api/tickets/from-conversation", async (req, res) => {
-    const { conversationId, title, description, priority } = req.body;
+    const { conversationId, title, description, priority, customerEmail, issue, notes, tat } = req.body;
     
     if (!conversationId || !title || !description) {
       return res.status(400).json({ error: "conversationId, title, and description are required" });
@@ -837,16 +837,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const user = req.user as User;
 
-    // Create ticket
+    // Create ticket - use form values, fall back to conversation email if not provided
     const ticketData = {
       conversationId,
       title,
       description,
-      issue: description,
-      customerEmail: conversation.customerEmail,
+      issue: issue || description,
+      notes: notes || undefined,
+      customerEmail: customerEmail || conversation.customerEmail || undefined,
       priority: priority || "medium",
       status: "open" as const,
-      tat: 60,
+      tat: tat || 60,
       createdBy: user?.id,
       createdByName: user?.name,
     };
