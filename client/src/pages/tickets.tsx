@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Ticket, Conversation, insertTicketSchema } from "@shared/schema";
 import { TicketCard } from "@/components/ticket-card";
 import { TicketAuditDialog } from "@/components/ticket-audit-dialog";
+import { TicketCreationDetailsDialog } from "@/components/ticket-creation-details-dialog";
 import { SendResolutionDialog } from "@/components/send-resolution-dialog";
 import { Button } from "@/components/ui/button";
 import { Plus, Search, Filter, Minimize2, Maximize2 } from "lucide-react";
@@ -68,6 +69,7 @@ export default function Tickets() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [auditTicketId, setAuditTicketId] = useState<string | null>(null);
+  const [creationDetailsTicketId, setCreationDetailsTicketId] = useState<string | null>(null);
   const [resolutionTicket, setResolutionTicket] = useState<Ticket | null>(null);
   const { toast } = useToast();
 
@@ -167,6 +169,10 @@ export default function Tickets() {
 
   const handleViewAudit = (ticketId: string) => {
     setAuditTicketId(ticketId);
+  };
+
+  const handleViewCreationDetails = (ticketId: string) => {
+    setCreationDetailsTicketId(ticketId);
   };
 
   const handleSendResolution = (ticketId: string) => {
@@ -652,6 +658,7 @@ export default function Tickets() {
                 onClick={() => handleEditTicket(ticket)}
                 onResolve={handleResolveTicket}
                 onViewAudit={handleViewAudit}
+                onViewCreationDetails={handleViewCreationDetails}
                 onSendResolution={handleSendResolution}
               />
             ))}
@@ -678,6 +685,12 @@ export default function Tickets() {
         ticketId={auditTicketId}
         ticketNumber={tickets.find(t => t.id === auditTicketId)?.ticketNumber}
         onClose={() => setAuditTicketId(null)}
+      />
+
+      <TicketCreationDetailsDialog
+        ticketId={creationDetailsTicketId}
+        ticketNumber={tickets.find(t => t.id === creationDetailsTicketId)?.ticketNumber}
+        onClose={() => setCreationDetailsTicketId(null)}
       />
 
       <SendResolutionDialog

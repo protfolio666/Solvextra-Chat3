@@ -2,7 +2,7 @@ import { Ticket } from "@shared/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, AlertCircle, CheckCircle, Eye, Mail } from "lucide-react";
+import { Clock, AlertCircle, CheckCircle, Eye, Mail, FileText } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface TicketCardProps {
@@ -10,10 +10,11 @@ interface TicketCardProps {
   onClick?: () => void;
   onResolve?: (ticketId: string) => void;
   onViewAudit?: (ticketId: string) => void;
+  onViewCreationDetails?: (ticketId: string) => void;
   onSendResolution?: (ticketId: string) => void;
 }
 
-export function TicketCard({ ticket, onClick, onResolve, onViewAudit, onSendResolution }: TicketCardProps) {
+export function TicketCard({ ticket, onClick, onResolve, onViewAudit, onViewCreationDetails, onSendResolution }: TicketCardProps) {
   const priorityColors = {
     low: "bg-muted text-muted-foreground",
     medium: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20",
@@ -77,6 +78,21 @@ export function TicketCard({ ticket, onClick, onResolve, onViewAudit, onSendReso
               title="View ticket history"
             >
               <Eye className="w-4 h-4" />
+            </Button>
+          )}
+
+          {onViewCreationDetails && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewCreationDetails(ticket.id);
+              }}
+              data-testid={`button-view-creation-${ticket.id}`}
+              title="View original ticket details"
+            >
+              <FileText className="w-4 h-4" />
             </Button>
           )}
 
