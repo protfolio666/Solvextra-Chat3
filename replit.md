@@ -25,7 +25,7 @@ The platform features a multi-provider AI architecture supporting OpenAI, Google
 ### System Features
 
 -   **Authentication & Authorization**: Role-Based Access Control (Admin/Agent) with protected routes and server-side authorization using Passport.js.
--   **Channel Integration**: Supports Web Chat Widget, WhatsApp, Telegram, Instagram, and Twitter.
+-   **Channel Integration**: Supports Web Chat Widget, WhatsApp, Telegram, Instagram, and Twitter with dual configuration (UI + environment variables for cloud deployment). Auto-registers Telegram webhooks on startup when configured via environment variables.
 -   **Agent Status Management**: 5-tier status system (Available, Break, Training, Floor Support, Not Available) with self-service controls for agents and admin override capabilities. Only "available" agents receive auto-assignments and can accept chats.
 -   **Auto-Assignment & Escalation**: A 30-second "pending_acceptance" window for escalated chats, allowing available agents to accept (first-accept-first-serve) with sound notifications. Chats are hidden from agents after the window but remain visible to admins.
 -   **Chat Transfer**: Admins can manually transfer chats between agents with visual warnings when assigning to non-available agents, instantly updating agent visibility.

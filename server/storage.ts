@@ -642,11 +642,68 @@ export class DbStorage implements IStorage {
         .from(channelIntegrations)
         .where(eq(channelIntegrations.channel, channel as any))
         .limit(1);
-      return result[0];
+      
+      // If found in database, return it
+      if (result[0]) {
+        return result[0];
+      }
+      
+      // Fallback to environment variables if not in database
+      return this.getChannelIntegrationFromEnv(channel);
     } catch (error) {
       console.error("Error getting channel integration:", error);
-      return undefined;
+      // Try environment variables as fallback on error
+      return this.getChannelIntegrationFromEnv(channel);
     }
+  }
+
+  private getChannelIntegrationFromEnv(channel: Channel): ChannelIntegration | undefined {
+    const envMap: Record<Channel, { token?: string; enabled?: string }> = {
+      telegram: {
+        token: process.env.TELEGRAM_BOT_TOKEN,
+        enabled: process.env.TELEGRAM_ENABLED,
+      },
+      whatsapp: {
+        token: process.env.WHATSAPP_API_TOKEN,
+        enabled: process.env.WHATSAPP_ENABLED,
+      },
+      instagram: {
+        token: process.env.INSTAGRAM_ACCESS_TOKEN,
+        enabled: process.env.INSTAGRAM_ENABLED,
+      },
+      twitter: {
+        token: process.env.TWITTER_API_KEY,
+        enabled: process.env.TWITTER_ENABLED,
+      },
+      website: {
+        enabled: process.env.WEB_CHAT_ENABLED,
+      },
+    };
+
+    const envVars = envMap[channel];
+    if (!envVars) return undefined;
+
+    const isEnabled = envVars.enabled !== "false"; // Default to true if not explicitly false
+    const hasToken = !!envVars.token;
+
+    // Only return if token exists (except for website which doesn't need a token)
+    if (channel === "website" || hasToken) {
+      return {
+        id: `env-${channel}`,
+        channel,
+        enabled: isEnabled && hasToken,
+        apiToken: envVars.token || null,
+        appId: null,
+        appSecret: null,
+        clientId: null,
+        clientSecret: null,
+        webhookUrl: null,
+        config: null,
+        updatedAt: new Date(),
+      } as ChannelIntegration;
+    }
+
+    return undefined;
   }
 
   async upsertChannelIntegration(integration: InsertChannelIntegration): Promise<ChannelIntegration> {
@@ -1045,7 +1102,64 @@ export class MemStorage implements IStorage {
   }
 
   async getChannelIntegration(channel: Channel): Promise<ChannelIntegration | undefined> {
-    return this.channelIntegrations.get(channel);
+    const dbIntegration = this.channelIntegrations.get(channel);
+    
+    // If found in memory, return it
+    if (dbIntegration) {
+      return dbIntegration;
+    }
+    
+    // Fallback to environment variables if not in memory
+    return this.getChannelIntegrationFromEnv(channel);
+  }
+
+  private getChannelIntegrationFromEnv(channel: Channel): ChannelIntegration | undefined {
+    const envMap: Record<Channel, { token?: string; enabled?: string }> = {
+      telegram: {
+        token: process.env.TELEGRAM_BOT_TOKEN,
+        enabled: process.env.TELEGRAM_ENABLED,
+      },
+      whatsapp: {
+        token: process.env.WHATSAPP_API_TOKEN,
+        enabled: process.env.WHATSAPP_ENABLED,
+      },
+      instagram: {
+        token: process.env.INSTAGRAM_ACCESS_TOKEN,
+        enabled: process.env.INSTAGRAM_ENABLED,
+      },
+      twitter: {
+        token: process.env.TWITTER_API_KEY,
+        enabled: process.env.TWITTER_ENABLED,
+      },
+      website: {
+        enabled: process.env.WEB_CHAT_ENABLED,
+      },
+    };
+
+    const envVars = envMap[channel];
+    if (!envVars) return undefined;
+
+    const isEnabled = envVars.enabled !== "false"; // Default to true if not explicitly false
+    const hasToken = !!envVars.token;
+
+    // Only return if token exists (except for website which doesn't need a token)
+    if (channel === "website" || hasToken) {
+      return {
+        id: `env-${channel}`,
+        channel,
+        enabled: isEnabled && hasToken,
+        apiToken: envVars.token || null,
+        appId: null,
+        appSecret: null,
+        clientId: null,
+        clientSecret: null,
+        webhookUrl: null,
+        config: null,
+        updatedAt: new Date(),
+      } as ChannelIntegration;
+    }
+
+    return undefined;
   }
 
   async upsertChannelIntegration(integration: InsertChannelIntegration): Promise<ChannelIntegration> {

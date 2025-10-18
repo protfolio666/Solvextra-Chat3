@@ -1728,5 +1728,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Start inactivity monitoring system
   startInactivityMonitor({ storage, broadcast });
 
+  // Auto-register webhooks for environment variable-based channel integrations
+  async function autoRegisterWebhooks() {
+    try {
+      // Auto-register Telegram webhook if TELEGRAM_BOT_TOKEN is set
+      if (process.env.TELEGRAM_BOT_TOKEN) {
+        const domain = process.env.REPLIT_DEV_DOMAIN || process.env.RAILWAY_PUBLIC_DOMAIN || process.env.RENDER_EXTERNAL_URL;
+        if (domain) {
+          const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'https';
+          const webhookUrl = `${protocol}://${domain}/api/webhooks/telegram`;
+          const telegramApiUrl = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/setWebhook?url=${encodeURIComponent(webhookUrl)}`;
+          
+          console.log('🔄 Auto-registering Telegram webhook from environment variables...');
+          const response = await fetch(telegramApiUrl);
+          const data = await response.json();
+          
+          if (data.ok) {
+            console.log('✅ Telegram webhook auto-registered successfully at:', webhookUrl);
+          } else {
+            console.error('❌ Failed to auto-register Telegram webhook:', data);
+          }
+        } else {
+          console.log('⚠️ TELEGRAM_BOT_TOKEN found but no domain detected. Webhook not registered.');
+        }
+      }
+      
+      // Add similar auto-registration for other channels as needed
+    } catch (error) {
+      console.error('Error auto-registering webhooks:', error);
+    }
+  }
+  
+  // Call auto-registration after a brief delay to ensure server is ready
+  setTimeout(autoRegisterWebhooks, 3000);
+
   return httpServer;
 }
