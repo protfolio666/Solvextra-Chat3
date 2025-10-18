@@ -7,6 +7,8 @@ import {
   InsertAgent,
   Ticket,
   InsertTicket,
+  TicketAuditLog,
+  InsertTicketAuditLog,
   AISettings,
   InsertAISettings,
   AIProvider,
@@ -26,6 +28,7 @@ import {
   messages,
   agents,
   tickets,
+  ticketAuditLog,
   aiSettings,
   users,
   knowledgeFiles,
@@ -69,6 +72,10 @@ export interface IStorage {
   getTicket(id: string): Promise<Ticket | undefined>;
   createTicket(ticket: InsertTicket): Promise<Ticket>;
   updateTicket(id: string, data: Partial<Ticket>): Promise<Ticket | undefined>;
+
+  // Ticket Audit Log
+  getTicketAuditLog(ticketId: string): Promise<TicketAuditLog[]>;
+  createTicketAuditLog(log: InsertTicketAuditLog): Promise<TicketAuditLog>;
 
   // AI Settings
   getAISettings(): Promise<AISettings | undefined>;
@@ -472,6 +479,33 @@ export class DbStorage implements IStorage {
     } catch (error) {
       console.error("Error updating ticket:", error);
       return undefined;
+    }
+  }
+
+  // Ticket Audit Log
+  async getTicketAuditLog(ticketId: string): Promise<TicketAuditLog[]> {
+    try {
+      return await db
+        .select()
+        .from(ticketAuditLog)
+        .where(eq(ticketAuditLog.ticketId, ticketId))
+        .orderBy(asc(ticketAuditLog.timestamp));
+    } catch (error) {
+      console.error("Error getting ticket audit log:", error);
+      return [];
+    }
+  }
+
+  async createTicketAuditLog(log: InsertTicketAuditLog): Promise<TicketAuditLog> {
+    try {
+      const result = await db
+        .insert(ticketAuditLog)
+        .values(log as any)
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating ticket audit log:", error);
+      throw error;
     }
   }
 
