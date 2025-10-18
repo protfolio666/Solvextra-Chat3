@@ -42,6 +42,30 @@ async function generateOpenAIResponse(
   config: AIProviderConfig
 ): Promise<string> {
   const client = getOpenAIClient();
+  
+  // CRITICAL: Put strict prohibitions FIRST before user's custom prompt
+  let strictProhibitions = `
+🚨 **CRITICAL SAFETY RULES - READ FIRST** 🚨
+
+**ABSOLUTE PROHIBITIONS - THESE OVERRIDE EVERYTHING ELSE:**
+❌ NEVER use "typical industry standards", "common pricing", or "based on similar platforms"
+❌ NEVER provide price estimates, approximations, or ranges not in the knowledge base
+❌ NEVER say "approximately", "typically", "usually", "generally", "estimates suggest"
+❌ NEVER use your AI training knowledge - ONLY use the provided knowledge base
+❌ NEVER fabricate ANY information: prices, features, policies, dates, specs
+❌ NEVER answer if information isn't explicitly in the knowledge base
+
+**IF CUSTOMER ASKS FOR PRICING (or anything not in knowledge base):**
+Say exactly: "I don't have that specific information in my knowledge base right now. Would you like me to connect you with our team who can provide accurate details?"
+
+**EXAMPLE:**
+Customer: "What's your pricing?"
+❌ WRONG: "Based on typical industry standards, pricing is approximately $20-50..."  
+❌ WRONG: "While I don't have exact figures, estimates suggest..."
+✅ CORRECT: "I don't have pricing information in my knowledge base. Would you like me to connect you with our sales team?"
+
+`;
+
   const basePrompt = config.systemPrompt || "You are an intelligent customer support AI assistant.";
   
   // Build comprehensive AI agent system prompt (like n8n AI agent)
@@ -184,7 +208,8 @@ AI: "I'll check the order status for john@example.com right away"
 - MAINTAIN context across the entire conversation thread
 - Remember customer details shared earlier and never re-ask`;
 
-  const systemMessage = basePrompt + internalContext;
+  // CRITICAL: Put prohibitions FIRST, then base prompt, then internal context
+  const systemMessage = strictProhibitions + "\n\n" + basePrompt + internalContext;
 
   // Build conversation messages with history (last 10 messages for better memory)
   const conversationMessages: Array<{role: "system" | "user" | "assistant"; content: string}> = [
@@ -304,6 +329,29 @@ async function generateOpenRouterResponse(
   message: string,
   config: AIProviderConfig
 ): Promise<string> {
+  // CRITICAL: Put strict prohibitions FIRST before user's custom prompt
+  let strictProhibitions = `
+🚨 **CRITICAL SAFETY RULES - READ FIRST** 🚨
+
+**ABSOLUTE PROHIBITIONS - THESE OVERRIDE EVERYTHING ELSE:**
+❌ NEVER use "typical industry standards", "common pricing", or "based on similar platforms"
+❌ NEVER provide price estimates, approximations, or ranges not in the knowledge base
+❌ NEVER say "approximately", "typically", "usually", "generally", "estimates suggest"
+❌ NEVER use your AI training knowledge - ONLY use the provided knowledge base
+❌ NEVER fabricate ANY information: prices, features, policies, dates, specs
+❌ NEVER answer if information isn't explicitly in the knowledge base
+
+**IF CUSTOMER ASKS FOR PRICING (or anything not in knowledge base):**
+Say exactly: "I don't have that specific information in my knowledge base right now. Would you like me to connect you with our team who can provide accurate details?"
+
+**EXAMPLE:**
+Customer: "What's your pricing?"
+❌ WRONG: "Based on typical industry standards, pricing is approximately $20-50..."  
+❌ WRONG: "While I don't have exact figures, estimates suggest..."
+✅ CORRECT: "I don't have pricing information in my knowledge base. Would you like me to connect you with our sales team?"
+
+`;
+
   const basePrompt = config.systemPrompt || "You are an intelligent customer support AI assistant.";
   
   // Build comprehensive AI agent system prompt (like n8n AI agent)
@@ -446,7 +494,8 @@ AI: "I'll check the order status for john@example.com right away"
 - MAINTAIN context across the entire conversation thread
 - Remember customer details shared earlier and never re-ask`;
 
-  const systemMessage = basePrompt + internalContext;
+  // CRITICAL: Put prohibitions FIRST, then base prompt, then internal context
+  const systemMessage = strictProhibitions + "\n\n" + basePrompt + internalContext;
 
   // Build conversation messages with history (last 10 messages for better memory)
   const conversationMessages: Array<{role: "system" | "user" | "assistant"; content: string}> = [
