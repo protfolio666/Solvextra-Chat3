@@ -835,6 +835,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ error: "Conversation not found" });
     }
 
+    const user = req.user as User;
+
     // Create ticket
     const ticketData = {
       conversationId,
@@ -845,9 +847,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       priority: priority || "medium",
       status: "open" as const,
       tat: 60,
+      createdBy: user?.id,
+      createdByName: user?.name,
     };
 
     const ticket = await storage.createTicket(ticketData);
+
+    // Log ticket creation in audit log
+    if (user) {
+      try {
+        await storage.createTicketAuditLog({
+          ticketId: ticket.id,
+          action: "created",
+          performedBy: user.id,
+          performedByName: user.name,
+          changes: JSON.stringify({ created: true }),
+          snapshot: JSON.stringify(ticket),
+        });
+      } catch (error) {
+        console.error("❌ Failed to log ticket creation in audit log:", error);
+      }
+    }
 
     // Close conversation without CSAT
     await storage.updateConversation(conversationId, {
