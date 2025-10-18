@@ -92,13 +92,13 @@ export function useWebSocket(callbacks?: WebSocketCallbacks) {
               case "ticket_updated":
                 // Refetch tickets list
                 queryClient.refetchQueries({ queryKey: ["/api/tickets"] });
-                // Refetch audit log for the specific ticket
+                // Refetch audit log and email replies for the specific ticket
                 if (message.data?.ticketId) {
                   queryClient.refetchQueries({ 
-                    queryKey: ["/api/tickets", message.data.ticketId, "audit"] 
+                    queryKey: [`/api/tickets/${message.data.ticketId}/audit`] 
                   });
                   queryClient.refetchQueries({ 
-                    queryKey: ["/api/tickets", message.data.ticketId, "email-replies"] 
+                    queryKey: [`/api/tickets/${message.data.ticketId}/email-replies`] 
                   });
                 }
                 break;
