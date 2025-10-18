@@ -27,10 +27,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Users, Clock, MessageSquare, ArrowRightLeft } from "lucide-react";
+import { Users, Clock, MessageSquare, ArrowRightLeft, Circle } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
+
+const statusConfig = {
+  available: { label: "Available", color: "text-green-600 dark:text-green-400", variant: "default" as const },
+  break: { label: "On Break", color: "text-yellow-600 dark:text-yellow-400", variant: "secondary" as const },
+  training: { label: "In Training", color: "text-blue-600 dark:text-blue-400", variant: "secondary" as const },
+  floor_support: { label: "Floor Support", color: "text-purple-600 dark:text-purple-400", variant: "secondary" as const },
+  not_available: { label: "Not Available", color: "text-gray-600 dark:text-gray-400", variant: "secondary" as const },
+};
 
 export default function AgentMonitoring() {
   const { toast } = useToast();
@@ -227,10 +235,12 @@ export default function AgentMonitoring() {
                   </TableCell>
                   <TableCell>
                     <Badge
-                      variant={agent.status === "available" ? "default" : "secondary"}
+                      variant={statusConfig[agent.status].variant}
                       data-testid={`badge-agent-status-${agent.id}`}
+                      className="flex items-center gap-1 w-fit"
                     >
-                      {agent.status}
+                      <Circle className={`w-2 h-2 fill-current ${statusConfig[agent.status].color}`} />
+                      {statusConfig[agent.status].label}
                     </Badge>
                   </TableCell>
                   <TableCell data-testid={`text-active-chats-${agent.id}`}>
@@ -363,19 +373,34 @@ export default function AgentMonitoring() {
                   <SelectValue placeholder="Choose an agent" />
                 </SelectTrigger>
                 <SelectContent>
-                  {agents
-                    .filter(a => a.status === "available")
-                    .map(agent => (
-                      <SelectItem
-                        key={agent.id}
-                        value={agent.id}
-                        data-testid={`select-item-agent-${agent.id}`}
-                      >
-                        {agent.name} ({conversationsByAgent[agent.id]?.length || 0} active chats)
-                      </SelectItem>
-                    ))}
+                  {agents.map(agent => (
+                    <SelectItem
+                      key={agent.id}
+                      value={agent.id}
+                      data-testid={`select-item-agent-${agent.id}`}
+                    >
+                      <div className="flex items-center justify-between w-full gap-2">
+                        <span>{agent.name} ({conversationsByAgent[agent.id]?.length || 0} active chats)</span>
+                        {agent.status !== "available" && (
+                          <Badge variant="secondary" className="text-xs">
+                            {agent.status === "break" ? "On Break" :
+                             agent.status === "training" ? "Training" :
+                             agent.status === "floor_support" ? "Floor Support" :
+                             "Not Available"}
+                          </Badge>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              {targetAgentId && agents.find(a => a.id === targetAgentId)?.status !== "available" && (
+                <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md">
+                  <p className="text-xs text-amber-900 dark:text-amber-100">
+                    ⚠️ Warning: This agent is not currently available. They may not respond immediately.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>
