@@ -90,6 +90,10 @@ export const tickets = pgTable("tickets", {
   priority: varchar("priority", { length: 20 }).notNull().default("medium"),
   status: varchar("status", { length: 20 }).notNull().default("open"),
   tat: integer("tat").notNull(), // Turn Around Time in minutes
+  createdBy: integer("created_by"), // User ID of agent who created the ticket
+  createdByName: text("created_by_name"), // Agent name for display
+  resolutionSent: boolean("resolution_sent").notNull().default(false), // Whether resolution was emailed
+  resolutionSentAt: timestamp("resolution_sent_at"), // When resolution was sent
   createdAt: timestamp("created_at").notNull().defaultNow(),
   resolvedAt: timestamp("resolved_at"),
 });
@@ -102,6 +106,26 @@ export const insertTicketSchema = createInsertSchema(tickets).omit({
 
 export type InsertTicket = z.infer<typeof insertTicketSchema>;
 export type Ticket = typeof tickets.$inferSelect;
+
+// Ticket Audit Log
+export const ticketAuditLog = pgTable("ticket_audit_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ticketId: varchar("ticket_id").notNull(),
+  action: varchar("action", { length: 20 }).notNull(), // 'created', 'updated', 'status_changed', 'resolution_sent'
+  performedBy: integer("performed_by"), // User ID of agent who performed action
+  performedByName: text("performed_by_name"), // Agent name for display
+  changes: text("changes"), // JSON string of what changed { field: { old: value, new: value } }
+  snapshot: text("snapshot"), // JSON string of complete ticket state after this action
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+});
+
+export const insertTicketAuditLogSchema = createInsertSchema(ticketAuditLog).omit({
+  id: true,
+  timestamp: true,
+});
+
+export type InsertTicketAuditLog = z.infer<typeof insertTicketAuditLogSchema>;
+export type TicketAuditLog = typeof ticketAuditLog.$inferSelect;
 
 // AI Settings
 export const aiSettings = pgTable("ai_settings", {
