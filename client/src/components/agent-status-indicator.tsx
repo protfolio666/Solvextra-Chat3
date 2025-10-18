@@ -14,23 +14,33 @@ export function AgentStatusIndicator({ status, withLabel = false, size = "md" }:
 
   const statusConfig = {
     available: {
-      color: "bg-success",
+      color: "bg-green-500",
       label: "Available",
       animate: true,
     },
-    busy: {
+    break: {
       color: "bg-yellow-500",
-      label: "Busy",
+      label: "On Break",
       animate: false,
     },
-    offline: {
-      color: "bg-muted-foreground",
-      label: "Offline",
+    training: {
+      color: "bg-blue-500",
+      label: "In Training",
+      animate: false,
+    },
+    floor_support: {
+      color: "bg-purple-500",
+      label: "Floor Support",
+      animate: false,
+    },
+    not_available: {
+      color: "bg-gray-500",
+      label: "Not Available",
       animate: false,
     },
   };
 
-  const config = statusConfig[status];
+  const config = statusConfig[status] || statusConfig.not_available; // Fallback to not_available if status is invalid
 
   return (
     <div className="flex items-center gap-1.5" data-testid={`status-${status}`}>
